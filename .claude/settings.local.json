@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l /home/snoopi/church-web/app/Http/Controllers/Auth/ForgotPasswordController.php)",
+      "Bash(php /home/snoopi/church-web/artisan cache:clear)",
+      "Bash(php -l /home/snoopi/church-web/app/Http/Controllers/ReservationController.php)",
+      "Bash(php /home/snoopi/church-web/artisan view:clear)"
+    ]
+  }
+}
