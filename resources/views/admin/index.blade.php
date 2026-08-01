@@ -8,33 +8,72 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         body { background-color: #f4f6fb; color: #1f2937; }
         a { color: inherit; }
-        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; align-items: flex-start; }
         .admin-sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #312e81 0%, #4338ca 50%, #6366f1 100%);
-            color: #e2e8f0; padding: 40px 28px;
+            background: linear-gradient(180deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
+            color: #e2e8f0; padding: 32px 20px 28px;
             display: flex; flex-direction: column;
-            box-shadow: 0 30px 60px rgba(67,56,202,0.22);
+            box-shadow: 4px 0 32px rgba(30,27,75,0.18);
             border-top-right-radius: 32px; border-bottom-right-radius: 32px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
-        .sidebar-brand { font-size: 22px; font-weight: 700; line-height: 1.3; margin-bottom: 36px; }
-        .sidebar-brand span { display: block; font-size: 14px; font-weight: 500; opacity: 0.82; margin-top: 4px; }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 12px; margin-bottom: auto; }
+        .sidebar-brand { margin-bottom: 0; }
+        .sidebar-brand-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #fff; margin-bottom: 12px;
+        }
+        .sidebar-brand-name { font-size: 16px; font-weight: 800; line-height: 1.3; color: #fff; }
+        .sidebar-brand-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); margin-top: 2px; }
+        .sidebar-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: auto; }
+        .sidebar-group-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: rgba(255,255,255,0.38);
+            padding: 0 10px; margin: 10px 0 4px;
+        }
         .sidebar-nav a {
             display: flex; align-items: center; gap: 10px;
-            padding: 12px 16px; border-radius: 14px;
-            text-decoration: none; font-weight: 600; color: #f8fafc;
-            background: rgba(255,255,255,0.08);
-            transition: background 0.2s ease, transform 0.2s ease;
+            padding: 10px 12px; border-radius: 12px;
+            text-decoration: none; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75);
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
+            border-left: 3px solid transparent;
+            position: relative;
         }
-        .sidebar-nav a:hover, .sidebar-nav a:focus { background: rgba(255,255,255,0.22); transform: translateX(4px); color: #fff; }
-        .sidebar-nav a.active { background: rgba(255,255,255,0.24); color: #fff; box-shadow: 0 16px 28px rgba(15,23,42,0.2); transform: translateX(6px); }
-        .sidebar-nav a .icon { width: 20px; display: inline-flex; justify-content: center; }
-        .sidebar-footer { margin-top: 40px; }
+        .sidebar-nav a:hover, .sidebar-nav a:focus {
+            background: rgba(255,255,255,0.1); color: #fff; text-decoration: none;
+        }
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.14); color: #fff;
+            border-left-color: #fff;
+            font-weight: 700;
+        }
+        .sidebar-nav a .icon { width: 20px; display: inline-flex; justify-content: center; flex-shrink: 0; }
+        .sidebar-nav a .nav-badge {
+            margin-left: auto; background: #f59e0b; color: #fff;
+            font-size: 10px; font-weight: 800; padding: 2px 7px;
+            border-radius: 999px; line-height: 1.4;
+        }
+        .sidebar-footer { margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; }
+        .sidebar-admin-info { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .sidebar-admin-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0;
+        }
+        .sidebar-admin-name { font-size: 13px; font-weight: 700; color: #fff; }
+        .sidebar-admin-role { font-size: 11px; color: rgba(255,255,255,0.45); }
         .logout-button {
             display: inline-flex; align-items: center; gap: 10px;
             background: rgba(248,250,252,0.15); color: #fefefe;
@@ -50,19 +89,43 @@
         .flash-messages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
         .flash { border-radius: 14px; padding: 14px 18px; font-weight: 600; }
         .flash-success { background: rgba(34,197,94,0.16); color: #166534; }
-        .flash-error { background: rgba(248,113,113,0.18); color: #991b1b; }
+        .flash-error { background: rgba(239,68,68,0.18); color: #991b1b; }
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .summary-card { background: #fff; border-radius: 20px; padding: 20px 22px; box-shadow: 0 24px 48px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); }
-        .summary-card h2 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #6366f1; margin: 0 0 12px; }
-        .summary-value { font-size: 32px; font-weight: 700; color: #1f2937; }
-        .summary-caption { font-size: 13px; color: #6b7280; margin-top: 8px; }
+        .summary-card { background: #fff; border-radius: 20px; padding: 20px 22px; box-shadow: 0 24px 48px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); position: relative; overflow: hidden; }
+        .summary-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:20px 20px 0 0; }
+        .summary-card.card-total::before  { background: linear-gradient(90deg,#6366f1,#818cf8); }
+        .summary-card.card-pending::before { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+        .summary-card.card-approved::before { background: linear-gradient(90deg,#10b981,#34d399); }
+        .summary-card.card-declined::before { background: linear-gradient(90deg,#ef4444,#f87171); }
+        .summary-card h2 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin: 0 0 10px; display:flex; align-items:center; gap:7px; }
+        .summary-card h2 i { font-size:14px; }
+        .summary-card.card-total h2 i   { color:#6366f1; }
+        .summary-card.card-pending h2 i  { color:#f59e0b; }
+        .summary-card.card-approved h2 i { color:#10b981; }
+        .summary-card.card-declined h2 i { color:#ef4444; }
+        .summary-value { font-size: 34px; font-weight: 800; color: #1f2937; line-height:1; }
+        .summary-caption { font-size: 13px; color: #9ca3af; margin-top: 8px; }
+        .quick-actions { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:28px; }
+        .quick-action-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:12px; border:1.5px solid rgba(99,102,241,0.2); background:#fff; color:#4f46e5; font-size:13px; font-weight:600; text-decoration:none; box-shadow:0 2px 8px rgba(99,102,241,0.07); transition:all .18s; cursor:pointer; }
+        .quick-action-btn:hover { background:#4f46e5; color:#fff; border-color:#4f46e5; transform:translateY(-1px); }
+        .quick-action-btn i { font-size:13px; }
+        .event-progress { margin-top:8px; height:4px; border-radius:999px; background:#f1f5f9; overflow:hidden; }
+        .event-progress-bar { height:100%; border-radius:999px; transition:width .6s ease; }
+        .event-card.wedding .event-progress-bar { background:linear-gradient(90deg,#ec4899,#f472b6); }
+        .event-card.baptism .event-progress-bar { background:linear-gradient(90deg,#14b8a6,#2dd4bf); }
+        .event-card.funeral .event-progress-bar { background:linear-gradient(90deg,#475569,#64748b); }
+        .event-type-tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+        .event-type-tag.wedding  { background:rgba(244,114,182,0.14); color:#db2777; }
+        .event-type-tag.baptism  { background:rgba(22,163,74,0.14);   color:#16a34a; }
+        .event-type-tag.funeral  { background:rgba(100,116,139,0.14); color:#475569; }
         .overview-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
         .overview-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
         .overview-list li { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(148,163,184,0.18); background: #f8fafc; }
         .overview-list-primary { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
         .overview-list-title { font-weight: 700; color: #1f2937; }
         .overview-list-name { font-size: 13px; color: #64748b; }
-        .overview-list-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #475569; }
+        .overview-list-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #475569; align-items: center; }
+        .overview-list-meta .badge { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
         .overview-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-weight: 600; color: #4338ca; text-decoration: none; }
         .overview-link i { transition: transform 0.2s ease; }
         .overview-link:hover i, .overview-link:focus i { transform: translateX(4px); }
@@ -74,7 +137,8 @@
         .reservation-filter-form { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
         .reservation-filter-form .form-group { margin: 0; }
         .reservation-filter-form label { font-size: 13px; font-weight: 600; color: #4b5563; margin-bottom: 6px; }
-        .reservation-filter-form select, .reservation-filter-form input[type="date"] { min-width: 180px; }
+        .reservation-filter-form select { min-width: 160px; padding-right: 36px !important; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
+        .reservation-filter-form input[type="date"] { min-width: 160px; }
         .reservation-filter-actions { display: flex; gap: 10px; align-items: center; }
         .reservation-filter-summary { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #475569; }
         .reservation-filter-summary strong { font-size: 16px; color: #111827; }
@@ -102,7 +166,7 @@
         .status-column .empty-state { font-style: italic; color: #94a3b8; }
         .status-column-pending::before { background: linear-gradient(135deg,#f97316,#fb923c); }
         .status-column-approved::before { background: linear-gradient(135deg,#10b981,#34d399); }
-        .status-column-declined::before { background: linear-gradient(135deg,#ef4444,#f87171); }
+        .status-column-declined::before { background: linear-gradient(135deg,#ef4444,#dc2626); }
         .reservation-card { background: #fff; border-radius: 18px; padding: 20px; margin-bottom: 18px; box-shadow: 0 14px 32px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); }
         .reservation-card:last-child { margin-bottom: 0; }
         .reservation-card h4 { margin: 0 0 8px; font-size: 18px; color: #1f2937; }
@@ -120,23 +184,76 @@
         .status-actions .btn { border-radius: 999px; padding: 6px 16px; font-weight: 600; }
         .view-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(99,102,241,0.4); color: #312e81; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
         .view-link:hover, .view-link:focus { background: rgba(99,102,241,0.1); color: #1e1b4b; }
-        .announcement-grid { display: grid; grid-template-columns: minmax(260px,1fr) minmax(280px,1fr); gap: 32px; }
-        .announcement-form { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 22px 48px rgba(15,23,42,0.08); }
-        .announcement-form .form-group label { font-weight: 600; color: #1f2937; }
-        .announcement-list { display: flex; flex-direction: column; gap: 20px; }
-        .announcement-item { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 20px 40px rgba(15,23,42,0.08); border: 1px solid rgba(148,163,184,0.2); }
-        .announcement-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-        .announcement-item-header h3 { margin: 0; font-size: 18px; color: #1e293b; }
-        .announcement-date { font-size: 13px; color: #64748b; display: inline-flex; align-items: center; gap: 6px; }
-        .announcement-image { margin-top: 16px; border-radius: 14px; overflow: hidden; background: #0f172a; }
-        .announcement-image img { display: block; width: 100%; height: auto; }
-        .announcement-body { margin-top: 16px; font-size: 14px; color: #374151; line-height: 1.6; white-space: pre-line; }
-        .announcement-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; }
-        .announcement-actions { display: flex; gap: 10px; align-items: center; }
-        .announcement-actions form { margin: 0; }
-        .visibility-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-        .visibility-badge.visible { background: rgba(34,197,94,0.16); color: #166534; }
-        .visibility-badge.hidden { background: rgba(148,163,184,0.18); color: #475569; }
+        /* ── ANNOUNCEMENTS ── */
+        .ann-stats-bar { display:flex; gap:0; background:#f8fafc; border:1px solid #e5e7eb; border-radius:14px; padding:14px 24px; margin-bottom:22px; }
+        .ann-stat { display:flex; flex-direction:column; align-items:center; flex:1; gap:2px; }
+        .ann-stat-num { font-size:24px; font-weight:800; color:#312e81; line-height:1; }
+        .ann-stat-num.live { color:#059669; }
+        .ann-stat-num.hidden { color:#94a3b8; }
+        .ann-stat-label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; }
+        .ann-stat-divider { width:1px; height:36px; background:#e5e7eb; margin:0 8px; align-self:center; }
+
+        .announcement-grid { display:grid; grid-template-columns:minmax(260px,380px) 1fr; gap:28px; align-items:start; }
+        .announcement-form { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 4px 24px rgba(15,23,42,0.07); border:1px solid rgba(148,163,184,0.18); position:sticky; top:24px; }
+        .ann-form-header { background:linear-gradient(135deg,#4f46e5,#7c3aed); padding:18px 22px; }
+        .ann-form-header h3 { margin:0; color:#fff; font-size:15px; font-weight:700; }
+        .ann-form-header p { margin:4px 0 0; color:rgba(255,255,255,0.75); font-size:12px; }
+        .ann-form-body { padding:22px; }
+        .ann-form-body .form-group { margin-bottom:16px; }
+        .ann-form-body .form-group label { font-weight:600; color:#374151; font-size:13px; margin-bottom:5px; display:flex; justify-content:space-between; }
+        .ann-form-body .form-group label span { font-weight:400; color:#9ca3af; font-size:12px; }
+        .ann-form-body .form-control { border-radius:10px; border:1.5px solid #e5e7eb; font-size:14px; padding:9px 12px; }
+        .ann-form-body .form-control:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+        .ann-form-body textarea.form-control { resize:vertical; min-height:110px; }
+        .ann-form-body select.form-control { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+        .ann-visibility-toggle { display:flex; align-items:center; gap:10px; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:10px; padding:10px 14px; margin-bottom:16px; cursor:pointer; }
+        .ann-visibility-toggle input[type=checkbox] { width:16px; height:16px; accent-color:#4f46e5; cursor:pointer; }
+        .ann-visibility-toggle-label { font-size:13px; font-weight:600; color:#374151; margin:0; cursor:pointer; }
+        .ann-visibility-toggle-sub { font-size:11px; color:#6b7280; display:block; font-weight:400; }
+        .ann-publish-btn { width:100%; padding:11px; border-radius:10px; font-weight:700; font-size:14px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .ann-publish-btn:hover { opacity:0.9; }
+
+        .announcement-list { display:flex; flex-direction:column; gap:16px; }
+        .announcement-item { background:#fff; border-radius:16px; border:1px solid rgba(148,163,184,0.2); overflow:hidden; box-shadow:0 2px 12px rgba(15,23,42,0.05); display:flex; }
+        .ann-accent { width:5px; flex-shrink:0; }
+        .ann-accent.live { background:linear-gradient(180deg,#10b981,#34d399); }
+        .ann-accent.hidden { background:#e2e8f0; }
+        .ann-content { flex:1; padding:18px 20px; min-width:0; }
+        .ann-header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px; }
+        .ann-title-block { display:flex; flex-direction:column; gap:4px; min-width:0; }
+        .ann-title { font-size:15px; font-weight:700; color:#111827; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ann-date { font-size:12px; color:#94a3b8; display:inline-flex; align-items:center; gap:5px; }
+        .ann-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0; letter-spacing:.3px; }
+        .ann-badge.live { background:#dcfce7; color:#15803d; border:1.5px solid #bbf7d0; }
+        .ann-badge.live::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.3); animation:livePulse 1.8s ease-in-out infinite; }
+        .ann-badge.hidden { background:#f1f5f9; color:#64748b; border:1.5px solid #e2e8f0; }
+        .ann-badge.hidden::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:#94a3b8; }
+        @keyframes livePulse { 0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.3)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,.08)} }
+        .ann-image-thumb { width:64px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0; border:1px solid #e5e7eb; }
+        .ann-body { font-size:13px; color:#4b5563; line-height:1.6; margin-bottom:6px; white-space:pre-line; }
+        .ann-body.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .ann-read-more-btn { background:none; border:none; padding:0; font-size:12px; font-weight:700; color:#4f46e5; cursor:pointer; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px; }
+        .ann-read-more-btn:hover { opacity:.75; }
+        .ann-footer { display:flex; justify-content:space-between; align-items:center; gap:8px; padding-top:12px; border-top:1px solid #f1f5f9; }
+        .ann-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        .ann-actions form { margin:0; }
+        .ann-toggle-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid; cursor:pointer; background:transparent; }
+        .ann-toggle-btn.make-live { color:#059669; border-color:rgba(5,150,105,0.3); }
+        .ann-toggle-btn.make-live:hover { background:rgba(5,150,105,0.07); }
+        .ann-toggle-btn.make-hidden { color:#64748b; border-color:rgba(100,116,139,0.3); }
+        .ann-toggle-btn.make-hidden:hover { background:rgba(100,116,139,0.07); }
+        .ann-edit-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid rgba(99,102,241,0.3); color:#4f46e5; background:transparent; cursor:pointer; }
+        .ann-edit-btn:hover { background:rgba(99,102,241,0.06); }
+        .ann-delete-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid rgba(239,68,68,0.25); color:#dc2626; background:transparent; cursor:pointer; }
+        .ann-delete-btn:hover { background:rgba(239,68,68,0.06); }
+        .ann-category-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#ede9fe; color:#5b21b6; margin-bottom:6px; }
+        .ann-img-preview { margin-top:8px; display:none; }
+        .ann-img-preview img { width:100%; max-height:140px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb; }
+        .visibility-badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.3px; }
+        .visibility-badge.visible { background:#dcfce7; color:#15803d; border:1.5px solid #bbf7d0; }
+        .visibility-badge.visible::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; animation:livePulse 1.8s ease-in-out infinite; }
+        .visibility-badge.hidden { background:#f1f5f9; color:#64748b; border:1.5px solid #e2e8f0; }
+        .visibility-badge.hidden::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#94a3b8; }
         .empty-block { font-style: italic; color: #94a3b8; }
         .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 16px; }
         .login-card { width: 100%; max-width: 420px; background: #fff; border-radius: 24px; padding: 36px; box-shadow: 0 28px 60px rgba(79,70,229,0.18); border: 1px solid rgba(99,102,241,0.14); }
@@ -199,26 +316,10 @@
     color: #0f172a !important;
 }
 
-/* small top-right status dot */
+/* top-right status dot removed — replaced by colored event-type dots */
 .admin-availability-calendar .calendar_day.status_booked::after,
 .admin-availability-calendar .calendar_day.status_done::after {
-    content: "";
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 11px;
-    height: 11px;
-    border-radius: 999px;
-    border: 3px solid #fff;
-    box-shadow: 0 4px 10px rgba(15,23,42,0.12);
-}
-
-.admin-availability-calendar .calendar_day.status_booked::after {
-    background: #60a5fa;
-}
-
-.admin-availability-calendar .calendar_day.status_done::after {
-    background: #facc15;
+    content: none;
 }
 
 /* booking badge */
@@ -456,11 +557,11 @@
 
 /* COLORS */
 .event-card.wedding .event-icon {
-    background: linear-gradient(135deg, #ef4444, #f87171);
+    background: linear-gradient(135deg, #ec4899, #f472b6);
 }
 
 .event-card.baptism .event-icon {
-    background: linear-gradient(135deg, #10b981, #34d399);
+    background: linear-gradient(135deg, #14b8a6, #2dd4bf);
 }
 
 .event-card.funeral .event-icon {
@@ -498,16 +599,6 @@
     justify-content: space-between;
 }
 
-.event-mini-chart {
-    width: 90px;
-    height: 50px;
-}
-
-.event-mini-chart canvas {
-    width: 100% !important;
-    height: 100% !important;
-}
-
 .event-summary-row {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -542,19 +633,6 @@
     line-height: 1.1;
 }
 
-.event-mini-chart {
-    width: 115px !important;
-    height: 58px !important;
-    flex: 0 0 115px !important;
-}
-
-.event-mini-chart canvas {
-    width: 115px !important;
-    height: 58px !important;
-    max-width: 115px !important;
-    max-height: 58px !important;
-}
-
 @media (max-width: 992px) {
     .event-summary-row {
         grid-template-columns: 1fr;
@@ -575,46 +653,102 @@
     margin: 0;
 }
 
-.customer-disable-reason {
-    width: 230px;
-    height: 34px;
-    border-radius: 10px;
-    font-size: 13px;
+/* ── CUSTOMER CARDS ── */
+.att-filter-btn {
+    padding: 6px 16px; border-radius: 999px; border: 1.5px solid #e5e7eb;
+    background: #fff; font-size: 13px; font-weight: 600; color: #6b7280;
+    cursor: pointer; transition: background .15s, color .15s;
 }
+.att-filter-btn:hover { background: #f8fafc; }
+.att-filter-btn.active-att { background: #4f46e5; border-color: #4f46e5; color: #fff !important; }
 
-.customer-actions .btn {
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
+.cust-stats-bar { display:flex; gap:0; background:#f8fafc; border:1px solid #e5e7eb; border-radius:14px; padding:14px 24px; margin-bottom:20px; }
+.cust-stat { display:flex; flex-direction:column; align-items:center; flex:1; gap:2px; }
+.cust-stat-num { font-size:24px; font-weight:800; color:#312e81; line-height:1; }
+.cust-stat-num.active { color:#059669; }
+.cust-stat-num.disabled { color:#ef4444; }
+.cust-stat-label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; }
+.cust-stat-divider { width:1px; height:36px; background:#e5e7eb; margin:0 8px; align-self:center; }
 
-.customer-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
+.cust-search-bar { display:flex; gap:12px; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap; }
+.cust-search-input-wrap { flex:1; min-width:200px; position:relative; }
+.cust-search-input-wrap i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:14px; pointer-events:none; }
+.cust-search-input { width:100%; padding:10px 13px 10px 36px; border-radius:12px; border:1.5px solid #e5e7eb; font-size:14px; outline:none; box-sizing:border-box; }
+.cust-search-input:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+.cust-filter-pills { display:flex; gap:6px; }
+.cust-filter-pill { padding:8px 16px; border-radius:999px; border:1.5px solid #e5e7eb; background:#fff; font-size:13px; font-weight:600; color:#6b7280; cursor:pointer; text-decoration:none; white-space:nowrap; }
+.cust-filter-pill.active-pill { background:#4f46e5; border-color:#4f46e5; color:#fff; }
+.cust-filter-pill:hover:not(.active-pill) { border-color:#6366f1; color:#4f46e5; text-decoration:none; }
+.cust-result-count { font-size:13px; color:#94a3b8; align-self:center; white-space:nowrap; }
 
-.customer-actions form {
-    margin: 0;
-}
+.cust-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+.cust-card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 2px 10px rgba(15,23,42,0.05); transition:box-shadow 0.2s,transform 0.2s; }
+.cust-card:hover { box-shadow:0 8px 24px rgba(15,23,42,0.1); transform:translateY(-2px); }
+.cust-card-top { display:flex; align-items:center; gap:14px; padding:18px 18px 14px; }
+.cust-avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; color:#fff; flex-shrink:0; }
+.cust-avatar.active { background:linear-gradient(135deg,#4f46e5,#7c3aed); }
+.cust-avatar.disabled { background:linear-gradient(135deg,#94a3b8,#64748b); }
+.cust-info { flex:1; min-width:0; }
+.cust-name { font-size:15px; font-weight:700; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+.cust-email { font-size:12px; color:#6b7280; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cust-status-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; flex-shrink:0; }
+.cust-status-badge.active { background:rgba(16,185,129,0.1); color:#065f46; border:1px solid rgba(16,185,129,0.25); }
+.cust-status-badge.disabled { background:rgba(239,68,68,0.1); color:#991b1b; border:1px solid rgba(239,68,68,0.2); }
+.cust-meta { display:flex; gap:0; padding:0 18px 14px; flex-wrap:wrap; }
+.cust-meta-item { display:flex; align-items:center; gap:5px; font-size:12px; color:#6b7280; margin-right:14px; margin-bottom:4px; }
+.cust-meta-item i { color:#94a3b8; font-size:12px; }
+.cust-res-count { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; background:rgba(99,102,241,0.08); border-radius:999px; font-size:12px; font-weight:700; color:#4338ca; }
+.cust-footer { display:flex; gap:8px; padding:12px 18px; border-top:1px solid #f1f5f9; margin-top:auto; }
+.cust-footer form { margin:0; }
+.cust-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:9px; font-size:12px; font-weight:700; border:1.5px solid; cursor:pointer; white-space:nowrap; text-decoration:none; background:transparent; }
+.cust-btn.view { color:#4f46e5; border-color:rgba(99,102,241,0.3); }
+.cust-btn.view:hover { background:rgba(99,102,241,0.07); }
+.cust-btn.enable { color:#059669; border-color:rgba(5,150,105,0.3); }
+.cust-btn.enable:hover { background:rgba(5,150,105,0.07); }
+.cust-btn.disable { color:#dc2626; border-color:rgba(239,68,68,0.25); }
+.cust-btn.disable:hover { background:rgba(239,68,68,0.06); }
+.cust-btn.reset { color:#64748b; border-color:rgba(100,116,139,0.25); }
+.cust-btn.reset:hover { background:rgba(100,116,139,0.06); }
 
-.customer-action-btn {
-    height: 38px;
-    min-width: 145px;
-    border-radius: 999px !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    font-weight: 700;
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
-}
+/* modal profile */
+.cust-modal-header { padding:24px 24px 0; }
+.cust-modal-avatar-row { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.cust-modal-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:#fff; flex-shrink:0; }
+.cust-modal-avatar.active { background:linear-gradient(135deg,#4f46e5,#7c3aed); }
+.cust-modal-avatar.disabled { background:linear-gradient(135deg,#94a3b8,#64748b); }
+.cust-modal-name { font-size:18px; font-weight:800; color:#1e1b4b; margin:0 0 4px; }
+.cust-modal-sub { font-size:13px; color:#64748b; margin:0; }
+.cust-modal-meta { display:flex; flex-wrap:wrap; gap:10px; padding:16px 24px; background:#f8fafc; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; }
+.cust-modal-meta-item { display:flex; align-items:center; gap:6px; font-size:13px; color:#374151; }
+.cust-modal-meta-item i { color:#9ca3af; }
+.cust-modal-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:20px 24px; }
+.cust-modal-stat { border-radius:12px; padding:14px; text-align:center; }
+.cust-modal-stat-num { font-size:22px; font-weight:800; line-height:1; margin-bottom:4px; }
+.cust-modal-stat-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; }
+.cust-modal-stat.total { background:rgba(99,102,241,0.08); }
+.cust-modal-stat.total .cust-modal-stat-num { color:#4338ca; }
+.cust-modal-stat.total .cust-modal-stat-label { color:#6366f1; }
+.cust-modal-stat.approved { background:rgba(16,185,129,0.08); }
+.cust-modal-stat.approved .cust-modal-stat-num { color:#065f46; }
+.cust-modal-stat.approved .cust-modal-stat-label { color:#10b981; }
+.cust-modal-stat.pending { background:rgba(245,158,11,0.08); }
+.cust-modal-stat.pending .cust-modal-stat-num { color:#92400e; }
+.cust-modal-stat.pending .cust-modal-stat-label { color:#f59e0b; }
+.cust-modal-stat.declined { background:rgba(239,68,68,0.08); }
+.cust-modal-stat.declined .cust-modal-stat-num { color:#991b1b; }
+.cust-modal-stat.declined .cust-modal-stat-label { color:#ef4444; }
+.cust-modal-history { padding:0 24px 24px; }
+.cust-modal-history h6 { font-size:13px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+.cust-history-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+.cust-history-row:last-child { border-bottom:none; }
+.cust-history-evtype { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+.cust-history-id { font-size:12px; color:#94a3b8; flex-shrink:0; }
+.cust-history-date { font-size:12px; color:#6b7280; margin-left:auto; white-space:nowrap; }
 
-.customer-action-btn:hover {
-    transform: translateY(-1px);
-}
+.customer-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.customer-actions form { margin:0; }
+.customer-action-btn { height:38px; min-width:145px; border-radius:999px !important; display:inline-flex; align-items:center; justify-content:center; gap:7px; font-weight:700; box-shadow:0 10px 22px rgba(15,23,42,0.08); }
+.customer-action-btn:hover { transform:translateY(-1px); }
 
 .customer-disable-modal {
     border: 0;
@@ -689,6 +823,225 @@
     text-decoration: none;
 }
 
+/* ── SCHEDULE STATS BAR ── */
+.schedule-stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+}
+.schedule-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: 3px;
+}
+.schedule-stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: #312e81;
+    line-height: 1;
+}
+.schedule-stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.schedule-stat-divider {
+    width: 1px;
+    height: 40px;
+    background: #e5e7eb;
+    margin: 0 8px;
+}
+
+/* ── CALENDAR COLORED DOTS ── */
+.legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+.cal-dots {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.cal-ev-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ── DETAIL CARD TAGS ── */
+.admin-detail-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 12px;
+    flex-wrap: wrap;
+}
+.admin-ev-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.admin-days-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(99,102,241,0.09);
+    color: #312e81;
+    border: 1px solid rgba(99,102,241,0.18);
+}
+.admin-days-badge.is-done {
+    background: rgba(100,116,139,0.09);
+    color: #475569;
+    border-color: rgba(100,116,139,0.2);
+}
+
+/* ── UPCOMING STRIP ── */
+.schedule-upcoming-strip {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+.schedule-upcoming-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.schedule-upcoming-list {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.schedule-upcoming-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 180px;
+    flex: 1;
+}
+.schedule-upcoming-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.schedule-upcoming-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+.schedule-upcoming-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.schedule-upcoming-type {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.schedule-upcoming-date {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    white-space: nowrap;
+}
+.schedule-upcoming-datestr {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+.schedule-upcoming-days {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+/* ── REPORTS SECTION ── */
+.rpt-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+.rpt-label { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
+.rpt-label span { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.10em; white-space: nowrap; }
+.rpt-label-line { flex: 1; height: 1px; background: #e5e7eb; }
+.rpt-summary-box { border-left: 4px solid #6366f1; background: #f8fafc; border-radius: 0 16px 16px 0; padding: 18px 20px; margin-bottom: 24px; }
+.rpt-summary-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-weight: 700; color: #1e1b4b; font-size: 15px; }
+.rpt-summary-badge { font-size: 12px; padding: 3px 12px; border-radius: 999px; background: rgba(99,102,241,0.12); color: #4338ca; font-weight: 600; }
+.rpt-summary-text { font-size: 13px; color: #475569; line-height: 1.75; margin-bottom: 16px; }
+.rpt-highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.rpt-hl { background: #fff; border-radius: 12px; padding: 12px 14px; border: 1px solid rgba(99,102,241,0.14); }
+.rpt-hl-label { font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.rpt-hl-val { font-size: 22px; font-weight: 700; color: #1f2937; }
+.rpt-hl-sub { font-size: 11px; color: #10b981; margin-top: 3px; }
+.rpt-pie-legend { display: flex; flex-direction: column; gap: 10px; }
+.rpt-pie-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; }
+.rpt-pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.rpt-pie-pct { margin-left: auto; font-weight: 700; color: #1f2937; }
+.rpt-status-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.rpt-stot { background: #f8fafc; border-radius: 10px; padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; }
+.rpt-stot-label { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.rpt-stot-val { font-size: 20px; font-weight: 700; }
+.rpt-heatmap-wrap { overflow-x: auto; padding-bottom: 4px; }
+.rpt-hm-month-row { display: flex; margin-bottom: 5px; }
+.rpt-hm-spacer { width: 76px; flex-shrink: 0; }
+.rpt-hm-ml { flex: 1; font-size: 10px; color: #9ca3af; text-align: center; }
+.rpt-hm-row { display: flex; align-items: center; margin-bottom: 5px; }
+.rpt-hm-rl { width: 76px; flex-shrink: 0; font-size: 12px; color: #64748b; text-align: right; padding-right: 10px; }
+.rpt-hm-cells { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; flex: 1; min-width: 480px; }
+.rpt-hm-cell { height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; cursor: default; transition: transform 0.15s ease; }
+.rpt-hm-cell:hover { transform: scale(1.12); z-index: 1; }
+.rpt-scale-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.rpt-scale-lbl { font-size: 10px; color: #9ca3af; }
+.rpt-scale-bar { display: flex; gap: 3px; }
+.rpt-sc { width: 18px; height: 10px; border-radius: 3px; }
+.rpt-placeholder-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; border: 1.5px dashed #c7d2fe; border-radius: 16px; background: #f8fafc; text-align: center; }
+        .don-hidden { display: none; }
+.rpt-placeholder-title { font-size: 14px; font-weight: 600; color: #64748b; margin: 10px 0 6px; }
+.rpt-placeholder-sub { font-size: 12px; color: #94a3b8; max-width: 280px; line-height: 1.6; }
+.rpt-placeholder-badge { font-size: 10px; padding: 3px 10px; border-radius: 999px; background: rgba(148,163,184,0.18); color: #64748b; font-weight: 600; white-space: nowrap; border: 1px solid #e2e8f0; }
+@media (max-width: 992px) {
+    .rpt-two-col { grid-template-columns: 1fr; }
+    .rpt-highlights { grid-template-columns: 1fr 1fr; }
+    .rpt-status-totals { grid-template-columns: repeat(3, 1fr); }
+}
+
     </style>
 </head>
 <body>
@@ -736,8 +1089,9 @@ $sectionCopy = [
     'reservations'  => ['title'=>'Manage Reservations',      'subtitle'=>'Approve, decline, or follow up on reservation requests.'],
     'schedule'      => ['title'=>'Daily Schedule',           'subtitle'=>'Review approved reservations scheduled for a specific day.'],
     'announcements' => ['title'=>'Announcements Board',      'subtitle'=>'Publish timely updates and control what appears on the website.'],
-    'analytics'     => ['title'=>'Predictive Analytics',     'subtitle'=>'Forecast busy months for baptism, wedding, and funeral reservations.'],
     'customers'     => ['title'=>'Manage Customers',          'subtitle'=>'Review customer accounts, reservation activity, and password reset status.'],
+    'reports'       => ['title'=>'Reports & Visualization', 'subtitle'=>'Monthly statistics on sacraments, reservation trends, and schedule utilization.'],
+    'donations'     => ['title'=>'Donation Monitoring',    'subtitle'=>'Record and track all parish donations — who gave, how much, when, and for what purpose.'],
 ];
 $pageCopy = $sectionCopy[$section] ?? $sectionCopy['overview'];
 
@@ -779,30 +1133,57 @@ function adminStatusBadge(string $status): string {
 <div class="admin-layout">
     <aside class="admin-sidebar">
         <div class="sidebar-brand">
-            St. John the Baptist Parish
-            <span>Administration</span>
+            <div class="sidebar-brand-icon">&#10013;</div>
+            <div class="sidebar-brand-name">St. John the Baptist Parish</div>
+            <div class="sidebar-brand-sub">Administration Panel</div>
         </div>
+
+        <div class="sidebar-divider"></div>
+
         <nav class="sidebar-nav">
+            @if($adminRole === 'admin')
+            <div class="sidebar-group-label">Dashboard</div>
             <a href="{{ route('admin.index') }}" class="{{ $section === 'overview' ? 'active' : '' }}">
-                <span class="icon"><i class="fa fa-bar-chart"></i></span>Overview
+                <span class="icon"><i class="fa fa-bar-chart"></i></span> Overview
             </a>
-            <a href="{{ route('admin.index', ['section'=>'analytics']) }}" class="{{ $section === 'analytics' ? 'active' : '' }}">
-                <span class="icon"><i class="fa fa-line-chart"></i></span>Analytics
+            <a href="{{ route('admin.index', ['section'=>'reports']) }}" class="{{ $section === 'reports' ? 'active' : '' }}">
+                <span class="icon"><i class="fa fa-pie-chart"></i></span> Reports
             </a>
+            @endif
+
+            <div class="sidebar-group-label">Manage</div>
             <a href="{{ route('admin.index', ['section'=>'reservations']) }}" class="{{ $section === 'reservations' ? 'active' : '' }}">
-                <span class="icon"><i class="fa fa-calendar"></i></span>Reservations
+                <span class="icon"><i class="fa fa-calendar"></i></span> Reservations
+                @if(($summaryTotals['pending'] ?? 0) > 0)
+                    <span class="nav-badge">{{ $summaryTotals['pending'] }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.index', ['section'=>'schedule']) }}" class="{{ $section === 'schedule' ? 'active' : '' }}">
-                <span class="icon"><i class="fa fa-list-alt"></i></span>Schedule
-            </a>
-            <a href="{{ route('admin.index', ['section'=>'announcements']) }}" class="{{ $section === 'announcements' ? 'active' : '' }}">
-                <span class="icon"><i class="fa fa-bullhorn"></i></span>Announcements
+                <span class="icon"><i class="fa fa-calendar-check-o"></i></span> Schedule
             </a>
             <a href="{{ route('admin.index', ['section'=>'customers']) }}" class="{{ $section === 'customers' ? 'active' : '' }}">
-    <span class="icon"><i class="fa fa-users"></i></span>Customers
-</a>
+                <span class="icon"><i class="fa fa-users"></i></span> Customers
+            </a>
+
+            <div class="sidebar-group-label">Content</div>
+            @if($adminRole === 'admin')
+            <a href="{{ route('admin.index', ['section'=>'announcements']) }}" class="{{ $section === 'announcements' ? 'active' : '' }}">
+                <span class="icon"><i class="fa fa-bullhorn"></i></span> Announcements
+            </a>
+            @endif
+            <a href="{{ route('admin.index', ['section'=>'donations']) }}" class="{{ $section === 'donations' ? 'active' : '' }}">
+                <span class="icon"><i class="fa fa-money"></i></span> Donations
+            </a>
         </nav>
+
         <div class="sidebar-footer">
+            <div class="sidebar-admin-info">
+                <div class="sidebar-admin-avatar">{{ strtoupper(substr(Session::get('admin_username', 'A'), 0, 1)) }}</div>
+                <div>
+                    <div class="sidebar-admin-name">{{ Session::get('admin_username', 'Admin') }}</div>
+                    <div class="sidebar-admin-role">{{ $adminRole === 'secretary' ? 'Secretary' : 'Administrator' }}</div>
+                </div>
+            </div>
             <a class="logout-button" href="{{ route('admin.logout') }}"><i class="fa fa-sign-out"></i><span>Logout</span></a>
         </div>
     </aside>
@@ -825,6 +1206,16 @@ function adminStatusBadge(string $status): string {
                     <span><i class="fa fa-bullhorn"></i> {{ $announcementCount }} announcements</span>
                     <span><i class="fa fa-eye"></i> {{ $visibleAnnouncementCount }} live</span>
                 @endif
+                @if($section === 'reports')
+                    <span><i class="fa fa-calendar-check-o"></i> {{ $reportTotals['approved'] }} approved</span>
+                    <span><i class="fa fa-clock-o"></i> {{ $reportTotals['pending'] }} pending</span>
+                    <span><i class="fa fa-times-circle-o"></i> {{ $reportTotals['declined'] }} declined</span>
+                    <span><i class="fa fa-bar-chart"></i> {{ $reportTotals['baptism'] + $reportTotals['wedding'] + $reportTotals['funeral'] }} total</span>
+                @endif
+                @if($section === 'donations')
+                    <span><i class="fa fa-money"></i> ₱{{ number_format($donationSectionTotal, 2) }} collected</span>
+                    <span><i class="fa fa-list"></i> {{ count($donationsList) }} records</span>
+                @endif
             </div>
         </header>
 
@@ -842,76 +1233,91 @@ function adminStatusBadge(string $status): string {
         {{-- ==================== OVERVIEW ==================== --}}
         @if($section === 'overview')
             <div class="summary-cards">
-                <div class="summary-card">
-                    <h2>Total Requests</h2>
+                <div class="summary-card card-total">
+                    <h2><i class="fa fa-inbox"></i>Total Requests</h2>
                     <div class="summary-value">{{ $summaryTotals['total'] }}</div>
                     <div class="summary-caption">All reservation submissions</div>
                 </div>
-                <div class="summary-card">
-                    <h2>Pending</h2>
+                <div class="summary-card card-pending">
+                    <h2><i class="fa fa-clock-o"></i>Pending</h2>
                     <div class="summary-value">{{ $summaryTotals['pending'] }}</div>
-                    <div class="summary-caption">Awaiting review</div>
+                    <div class="summary-caption">Awaiting your review</div>
                 </div>
-                <div class="summary-card">
-                    <h2>Approved</h2>
+                <div class="summary-card card-approved">
+                    <h2><i class="fa fa-check-circle"></i>Approved</h2>
                     <div class="summary-value">{{ $summaryTotals['approved'] }}</div>
                     <div class="summary-caption">Ready to proceed</div>
                 </div>
-                <div class="summary-card">
-                    <h2>Declined</h2>
+                <div class="summary-card card-declined">
+                    <h2><i class="fa fa-times-circle"></i>Declined</h2>
                     <div class="summary-value">{{ $summaryTotals['declined'] }}</div>
                     <div class="summary-caption">Not moving forward</div>
                 </div>
             </div>
 
+            {{-- Quick actions --}}
+            <div class="quick-actions">
+                <a class="quick-action-btn" href="{{ route('admin.index', ['section'=>'reservations']) }}">
+                    <i class="fa fa-clock-o"></i> View Pending
+                </a>
+                <a class="quick-action-btn" href="{{ route('admin.index', ['section'=>'schedule']) }}">
+                    <i class="fa fa-calendar"></i> Daily Schedule
+                </a>
+                <a class="quick-action-btn" href="{{ route('admin.index', ['section'=>'announcements']) }}">
+                    <i class="fa fa-bullhorn"></i> Add Announcement
+                </a>
+                <a class="quick-action-btn" href="{{ route('admin.index', ['section'=>'donations']) }}">
+                    <i class="fa fa-money"></i> Record Donation
+                </a>
+                <a class="quick-action-btn" href="{{ route('admin.index', ['section'=>'reports']) }}">
+                    <i class="fa fa-pie-chart"></i> View Reports
+                </a>
+            </div>
+
             @php
     $eventTotal = max(1, array_sum($eventCounts ?? []));
+    $weddingPct = round(($eventCounts['Wedding'] ?? 0) / $eventTotal * 100);
+    $baptismPct = round(($eventCounts['Baptism'] ?? 0) / $eventTotal * 100);
+    $funeralPct = round(($eventCounts['Funeral'] ?? 0) / $eventTotal * 100);
 @endphp
 
 <div class="event-summary-row">
 
     <div class="event-card wedding">
-    <div class="event-icon">
-        <i class="fa fa-heart"></i>
+        <div class="event-icon"><i class="fa fa-heart"></i></div>
+        <div class="event-info">
+            <span>Wedding reservations</span>
+            <strong class="count-up" data-count="{{ $eventCounts['Wedding'] ?? 0 }}">0</strong>
+            <div class="event-progress">
+                <div class="event-progress-bar" style="width:{{ $weddingPct }}%"></div>
+            </div>
+            <span style="font-size:11px;color:#94a3b8;margin-top:3px;display:block">{{ $weddingPct }}% of total</span>
+        </div>
     </div>
 
-    <div class="event-info">
-        <span>Wedding reservations</span>
-        <strong class="count-up" data-count="{{ $eventCounts['Wedding'] ?? 0 }}">0</strong>
+    <div class="event-card baptism">
+        <div class="event-icon event-symbol">✝</div>
+        <div class="event-info">
+            <span>Baptism reservations</span>
+            <strong class="count-up" data-count="{{ $eventCounts['Baptism'] ?? 0 }}">0</strong>
+            <div class="event-progress">
+                <div class="event-progress-bar" style="width:{{ $baptismPct }}%"></div>
+            </div>
+            <span style="font-size:11px;color:#94a3b8;margin-top:3px;display:block">{{ $baptismPct }}% of total</span>
+        </div>
     </div>
 
-    <div class="event-mini-chart">
-        <canvas id="miniWeddingChart"></canvas>
+    <div class="event-card funeral">
+        <div class="event-icon event-symbol">⚰</div>
+        <div class="event-info">
+            <span>Funeral reservations</span>
+            <strong class="count-up" data-count="{{ $eventCounts['Funeral'] ?? 0 }}">0</strong>
+            <div class="event-progress">
+                <div class="event-progress-bar" style="width:{{ $funeralPct }}%"></div>
+            </div>
+            <span style="font-size:11px;color:#94a3b8;margin-top:3px;display:block">{{ $funeralPct }}% of total</span>
+        </div>
     </div>
-</div>
-
-
-<div class="event-card baptism">
-    <div class="event-icon event-symbol">✝</div>
-
-    <div class="event-info">
-        <span>Baptism reservations</span>
-        <strong class="count-up" data-count="{{ $eventCounts['Baptism'] ?? 0 }}">0</strong>
-    </div>
-
-    <div class="event-mini-chart">
-        <canvas id="miniBaptismChart"></canvas>
-    </div>
-</div>
-
-
-<div class="event-card funeral">
-    <div class="event-icon event-symbol">⚰</div>
-
-    <div class="event-info">
-        <span>Funeral reservations</span>
-        <strong class="count-up" data-count="{{ $eventCounts['Funeral'] ?? 0 }}">0</strong>
-    </div>
-
-    <div class="event-mini-chart">
-        <canvas id="miniFuneralChart"></canvas>
-    </div>
-</div>
 
 </div>
 
@@ -925,15 +1331,20 @@ function adminStatusBadge(string $status): string {
                     @else
                         <ul class="overview-list">
                             @foreach($recentReservations as $r)
+                                @php $evType = strtolower($r['event_type'] ?? ''); @endphp
                                 <li>
                                     <div class="overview-list-primary">
-                                        <span class="overview-list-title">Reservation #{{ $r['id'] }}</span>
-                                        <span class="overview-list-name">{{ $r['name'] ?? $r['customer_name'] ?? 'No name provided' }}</span>
+                                        <div style="display:flex;align-items:center;gap:8px">
+                                            <span class="overview-list-title">{{ $r['name'] ?? $r['customer_name'] ?? 'No name' }}</span>
+                                            @if($evType)
+                                            <span class="event-type-tag {{ $evType }}">{{ ucfirst($evType) }}</span>
+                                            @endif
+                                        </div>
+                                        {!! adminStatusBadge($r['status'] ?? 'pending') !!}
                                     </div>
                                     <div class="overview-list-meta">
-                                        <span>{{ adminFormatDate($r['preferred_date'] ?? $r['reservation_date'] ?? null) }}</span>
-                                        <span>{{ adminFormatTime($r['preferred_time'] ?? $r['reservation_time'] ?? null) }}</span>
-                                        {!! adminStatusBadge($r['status'] ?? 'pending') !!}
+                                        <span><i class="fa fa-calendar" style="margin-right:4px;opacity:.5"></i>{{ adminFormatDate($r['preferred_date'] ?? $r['reservation_date'] ?? null) }}</span>
+                                        <span><i class="fa fa-clock-o" style="margin-right:4px;opacity:.5"></i>{{ adminFormatTime($r['preferred_time'] ?? $r['reservation_time'] ?? null) }}</span>
                                     </div>
                                 </li>
                             @endforeach
@@ -953,17 +1364,22 @@ function adminStatusBadge(string $status): string {
                     @else
                         <ul class="overview-list">
                             @foreach($recentAnnouncements as $a)
-                                @php $isVisible = (int)($a->show_on_home ?? 0) === 1; @endphp
+                                @php
+                                    $isVisible = (int)($a->show_on_home ?? 0) === 1;
+                                    $preview = mb_strimwidth(strip_tags($a->content ?? $a->body ?? ''), 0, 80, '...');
+                                @endphp
                                 <li>
                                     <div class="overview-list-primary">
                                         <span class="overview-list-title">{{ $a->title }}</span>
-                                        <span class="overview-list-name">Posted {{ adminFormatCreatedAt($a->created_at ?? '') }}</span>
-                                    </div>
-                                    <div class="overview-list-meta">
                                         <span class="visibility-badge {{ $isVisible ? 'visible' : 'hidden' }}">
-                                            <i class="fa {{ $isVisible ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                                            {{ $isVisible ? 'Visible' : 'Hidden' }}
+                                            {{ $isVisible ? 'Live' : 'Hidden' }}
                                         </span>
+                                    </div>
+                                    @if($preview)
+                                    <div style="font-size:12px;color:#94a3b8;line-height:1.5;margin-top:2px">{{ $preview }}</div>
+                                    @endif
+                                    <div class="overview-list-meta">
+                                        <span><i class="fa fa-clock-o" style="margin-right:4px;opacity:.5"></i>Posted {{ adminFormatCreatedAt($a->created_at ?? '') }}</span>
                                     </div>
                                 </li>
                             @endforeach
@@ -990,15 +1406,36 @@ function adminStatusBadge(string $status): string {
             </div>
         </div>
 
+        {{-- Stats bar --}}
+        <div class="schedule-stats-bar">
+            <div class="schedule-stat">
+                <span class="schedule-stat-num">{{ $scheduleTodayCount }}</span>
+                <span class="schedule-stat-label">Today</span>
+            </div>
+            <div class="schedule-stat-divider"></div>
+            <div class="schedule-stat">
+                <span class="schedule-stat-num">{{ $scheduleWeekCount }}</span>
+                <span class="schedule-stat-label">This week</span>
+            </div>
+            <div class="schedule-stat-divider"></div>
+            <div class="schedule-stat">
+                <span class="schedule-stat-num">{{ $scheduleMonthCount }}</span>
+                <span class="schedule-stat-label">This month</span>
+            </div>
+            <div class="schedule-stat-divider"></div>
+            <div class="schedule-stat">
+                <span class="schedule-stat-num">{{ $scheduleReservationCount }}</span>
+                <span class="schedule-stat-label">Total approved</span>
+            </div>
+        </div>
+
         <div class="admin-calendar-layout">
             <div class="admin-calendar-card">
                <div class="calendar_legend mb-3">
-    <span>
-        <span class="legend booked"></span> Reservation on file
-    </span>
-    <span>
-        <span class="legend done"></span> Done / past reservation
-    </span>
+    <span><span class="legend-dot" style="background:#f472b6;"></span> Wedding</span>
+    <span><span class="legend-dot" style="background:#2dd4bf;"></span> Baptism</span>
+    <span><span class="legend-dot" style="background:#64748b;"></span> Funeral</span>
+    <span><span class="legend done"></span> Past</span>
 </div>
 
                 <div class="availability_calendar admin-availability-calendar" id="admin-schedule-calendar"></div>
@@ -1012,6 +1449,37 @@ function adminStatusBadge(string $status): string {
                 </div>
             </div>
         </div>
+
+        {{-- Upcoming reservations strip --}}
+        @if(count($scheduleUpcoming))
+        <div class="schedule-upcoming-strip">
+            <div class="schedule-upcoming-title"><i class="fa fa-clock-o"></i> Upcoming reservations</div>
+            <div class="schedule-upcoming-list">
+                @foreach($scheduleUpcoming as $ur)
+                    @php
+                        $urDate    = $ur['preferred_date'] ?? $ur['reservation_date'] ?? null;
+                        $urDateStr = $urDate ? (new DateTimeImmutable((string)$urDate))->format('Y-m-d') : null;
+                        $urEt      = strtolower(trim($ur['event_type'] ?? ''));
+                        $urColor   = match($urEt) { 'wedding'=>'#f472b6', 'baptism'=>'#2dd4bf', 'funeral'=>'#64748b', default=>'#94a3b8' };
+                        $urLabel   = ucfirst($urEt ?: 'Unknown');
+                        $urDays    = $urDateStr ? (new DateTimeImmutable($urDateStr))->diff(new DateTimeImmutable('today'))->days : null;
+                        $urDaysLabel = $urDays === 0 ? 'Today' : ($urDays === 1 ? 'Tomorrow' : 'In ' . $urDays . ' days');
+                    @endphp
+                    <div class="schedule-upcoming-card">
+                        <span class="schedule-upcoming-dot" style="background:{{ $urColor }};"></span>
+                        <div class="schedule-upcoming-info">
+                            <span class="schedule-upcoming-name">{{ $ur['name'] ?? 'N/A' }}</span>
+                            <span class="schedule-upcoming-type" style="color:{{ $urColor }};">{{ $urLabel }}</span>
+                        </div>
+                        <div class="schedule-upcoming-date">
+                            <span class="schedule-upcoming-datestr">{{ $urDateStr ? (new DateTimeImmutable($urDateStr))->format('M j') : '—' }}</span>
+                            <span class="schedule-upcoming-days">{{ $urDaysLabel }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </section>
 @endif
          
@@ -1042,6 +1510,15 @@ function adminStatusBadge(string $status): string {
                             <input type="date" class="form-control form-control-sm" id="reservation_filter_date" name="date"
                                 value="{{ $reservationFilterDate ?? '' }}">
                         </div>
+                        <div class="form-group">
+                            <label for="reservation_filter_type">Event type</label>
+                            <select class="form-control form-control-sm" id="reservation_filter_type" name="event_type">
+                                <option value="all"     {{ $reservationFilterType === 'all'     ? 'selected' : '' }}>All types</option>
+                                <option value="baptism" {{ $reservationFilterType === 'baptism' ? 'selected' : '' }}>Baptism</option>
+                                <option value="wedding" {{ $reservationFilterType === 'wedding' ? 'selected' : '' }}>Wedding</option>
+                                <option value="funeral" {{ $reservationFilterType === 'funeral' ? 'selected' : '' }}>Funeral</option>
+                            </select>
+                        </div>
                         <div class="reservation-filter-actions">
                             <button type="submit" class="btn btn-primary btn-sm">Apply</button>
                             @if($hasActiveFilter)
@@ -1055,6 +1532,35 @@ function adminStatusBadge(string $status): string {
                     </div>
                 </div>
 
+                @if($cancelRequestCount > 0 || $cancelFilterActive)
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e11d48;border-radius:8px;color:#fff;font-size:14px;">
+                            <i class="fa fa-exclamation"></i>
+                        </span>
+                        <div>
+                            <div style="font-size:13px;font-weight:700;color:#92400e;">
+                                {{ $cancelRequestCount }} Cancellation Request{{ $cancelRequestCount !== 1 ? 's' : '' }} Pending
+                            </div>
+                            <div style="font-size:12px;color:#b45309;margin-top:1px;">
+                                {{ $cancelFilterActive ? 'Currently filtered — showing only cancellation requests.' : 'Customers are waiting for a response.' }}
+                            </div>
+                        </div>
+                    </div>
+                    @if($cancelFilterActive)
+                        <a href="{{ route('admin.index', ['section' => 'reservations']) }}"
+                           style="font-size:12px;font-weight:700;color:#92400e;text-decoration:none;white-space:nowrap;padding:6px 12px;border:1.5px solid #fed7aa;border-radius:6px;background:#fff;">
+                            <i class="fa fa-times"></i> Clear filter
+                        </a>
+                    @else
+                        <a href="{{ route('admin.index', array_merge(request()->query(), ['section' => 'reservations', 'cancel_filter' => '1'])) }}"
+                           style="font-size:12px;font-weight:700;color:#fff;text-decoration:none;white-space:nowrap;padding:6px 12px;border-radius:6px;background:#e11d48;">
+                            View requests
+                        </a>
+                    @endif
+                </div>
+                @endif
+
                 @if($filteredTotals['total'] === 0)
                     <p class="empty-block">
                         {{ $summaryTotals['total'] === 0 ? 'No reservations have been submitted yet.' : 'No reservations match the selected filters.' }}
@@ -1063,29 +1569,99 @@ function adminStatusBadge(string $status): string {
                     <div class="status-columns">
                         @foreach($statusMeta as $statusKey => $meta)
                             <div class="status-column {{ $meta['class'] }}">
-                                <h3>{{ $meta['title'] }}</h3>
+                                <h3>
+                                    {{ $meta['title'] }}
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;margin-left:8px;background:rgba(99,102,241,0.12);color:#4f46e5">{{ count($filteredGrouped[$statusKey] ?? []) }}</span>
+                                </h3>
                                 <p>{{ $meta['subtitle'] }}</p>
 
                                 @if(empty($filteredGrouped[$statusKey]))
                                     <p class="empty-state">{{ $meta['empty'] }}</p>
                                 @else
+                                    @if($statusKey === 'approved')
+                                    @php
+                                        $pastDoneList = array_values(array_filter(
+                                            $filteredGrouped['approved'],
+                                            fn($r) => ($r['preferred_date'] ?? $r['reservation_date'] ?? '') < date('Y-m-d')
+                                        ));
+                                    @endphp
+                                    @if(count($pastDoneList) > 0)
+                                    <button onclick="togglePastApproved(this)"
+                                        style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 12px;margin-bottom:12px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;color:#15803d;font-size:12px;font-weight:700;cursor:pointer;text-align:left">
+                                        <i class="fa fa-history"></i>
+                                        <span>{{ count($pastDoneList) }} completed event{{ count($pastDoneList) > 1 ? 's' : '' }}</span>
+                                        <i class="fa fa-chevron-down" style="margin-left:auto;margin-right:10px;font-size:10px;transition:transform .2s"></i>
+                                    </button>
+                                    <div id="pastApprovedSection" style="display:none;margin-bottom:14px;border:1.5px solid #dcfce7;border-radius:10px;overflow:hidden">
+                                        @foreach($pastDoneList as $r)
+                                        @php
+                                            $pdEvType  = strtolower($r['event_type'] ?? '');
+                                            $pdDate    = $r['preferred_date'] ?? $r['reservation_date'] ?? null;
+                                            $pdColors  = ['wedding'=>['bg'=>'rgba(244,114,182,0.14)','color'=>'#db2777'],'baptism'=>['bg'=>'rgba(22,163,74,0.14)','color'=>'#16a34a'],'funeral'=>['bg'=>'rgba(100,116,139,0.14)','color'=>'#475569']];
+                                            $pdColor   = $pdColors[$pdEvType] ?? ['bg'=>'rgba(148,163,184,0.12)','color'=>'#64748b'];
+                                            $pdPriest  = collect($officiantWorkload)->firstWhere('id', (int)($r['officiant_id'] ?? 0));
+                                        @endphp
+                                        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0fdf4;background:#fff">
+                                            <i class="fa fa-check-circle" style="color:#22c55e;font-size:15px;flex-shrink:0"></i>
+                                            <div style="flex:1;min-width:0">
+                                                <div style="font-size:13px;font-weight:700;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                                    {{ $r['name'] ?? 'No name' }} <span style="font-weight:400;color:#9ca3af;font-size:12px">#{{ $r['id'] }}</span>
+                                                </div>
+                                                <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">
+                                                    @if($pdEvType)
+                                                    <span style="padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;background:{{ $pdColor['bg'] }};color:{{ $pdColor['color'] }}">{{ ucfirst($pdEvType) }}</span>
+                                                    @endif
+                                                    <span style="font-size:11px;color:#94a3b8"><i class="fa fa-calendar"></i> {{ $pdDate ? date('M j, Y', strtotime($pdDate)) : '—' }}</span>
+                                                    @if($pdPriest)
+                                                    <span style="font-size:11px;color:#6b7280"><i class="fa fa-user-circle-o"></i> {{ $pdPriest['name'] }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @endif
+                                    @endif
+
                                     @foreach($filteredGrouped[$statusKey] as $r)
     @php
-        $reservationDate = $r['preferred_date'] ?? $r['reservation_date'] ?? null;
-        $isPastApproved = $statusKey === 'approved'
-            && $reservationDate
-            && strtotime($reservationDate) < strtotime(date('Y-m-d'));
+        $evDate        = $r['preferred_date'] ?? $r['reservation_date'] ?? null;
+        $isPastEvent   = $evDate && $evDate < date('Y-m-d');
+        $evType        = strtolower($r['event_type'] ?? '');
+        $daysUntil     = $evDate ? (int) ceil((strtotime($evDate) - strtotime('today')) / 86400) : null;
+        $isUrgent      = $statusKey === 'pending' && $daysUntil !== null && $daysUntil >= 0 && $daysUntil <= 7;
+        $evTypeColors  = ['wedding'=>['bg'=>'rgba(244,114,182,0.14)','color'=>'#db2777'],'baptism'=>['bg'=>'rgba(22,163,74,0.14)','color'=>'#16a34a'],'funeral'=>['bg'=>'rgba(100,116,139,0.14)','color'=>'#475569']];
+        $evColor       = $evTypeColors[$evType] ?? ['bg'=>'rgba(148,163,184,0.12)','color'=>'#64748b'];
     @endphp
-
-    @if($isPastApproved)
-        @continue
-    @endif
+    @if($statusKey === 'approved' && $isPastEvent) @continue @endif
                                         <div class="reservation-card">
-                                            <div class="status-badge">{!! adminStatusBadge($r['status']) !!}</div>
-                                            <h4>
-    Reservation #{{ $r['id'] ?? '—' }} · 
-    {{ $r['name'] ?? $r['details']['name'] ?? $r['customer_name'] ?? 'No name provided' }}
-</h4>
+                                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+                                                <div class="status-badge">{!! adminStatusBadge($r['status']) !!}</div>
+                                                @if($evType)
+                                                <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:{{ $evColor['bg'] }};color:{{ $evColor['color'] }}">
+                                                    @if($evType === 'funeral')
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width=".82em" height=".82em" fill="currentColor" style="vertical-align:-.05em;"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>
+                                                    @else
+                                                        <i class="fa {{ $evType === 'wedding' ? 'fa-heart' : 'fa-plus' }}"></i>
+                                                    @endif
+                                                    {{ ucfirst($evType) }}
+                                                </span>
+                                                @endif
+                                                @if($isUrgent)
+                                                <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;background:rgba(239,68,68,0.12);color:#dc2626"><i class="fa fa-exclamation-circle"></i> Urgent</span>
+                                                @endif
+                                                @if($daysUntil !== null)
+                                                <span style="font-size:11px;color:#94a3b8;margin-left:auto">
+                                                    @if($daysUntil < 0) {{ abs($daysUntil) }}d ago
+                                                    @elseif($daysUntil === 0) Today
+                                                    @elseif($daysUntil === 1) Tomorrow
+                                                    @elseif($daysUntil < 14) In {{ $daysUntil }} days
+                                                    @else In {{ ceil($daysUntil / 7) }} weeks
+                                                    @endif
+                                                </span>
+                                                @endif
+                                            </div>
+                                            <h4 style="margin:0 0 8px">{{ $r['name'] ?? $r['details']['name'] ?? $r['customer_name'] ?? 'No name provided' }} <span style="font-weight:400;color:#94a3b8;font-size:13px">#{{ $r['id'] ?? '—' }}</span></h4>
                                             <div class="reservation-meta">
                                                 <span>
                                                     <i class="fa fa-envelope"></i>
@@ -1140,6 +1716,23 @@ function adminStatusBadge(string $status): string {
     </div>
 @endif
 
+@if($statusKey !== 'declined' && count($priests) > 0)
+@php $currentOfficiant = (int)($r['officiant_id'] ?? 0); @endphp
+<form method="POST" action="{{ route('admin.reservations.officiant', $r['id']) }}" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    @csrf
+    <label style="font-size:12px;font-weight:600;color:#64748b;white-space:nowrap"><i class="fa fa-user-circle-o"></i> Officiant</label>
+    <select name="officiant_id" onchange="this.form.submit()"
+        style="flex:1;min-width:140px;padding:5px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;color:#374151;background:#fff">
+        <option value="">— Unassigned —</option>
+        @foreach($priests as $p)
+        <option value="{{ $p['id'] }}" {{ $currentOfficiant === (int)($p['id'] ?? 0) ? 'selected' : '' }}>
+            {{ ($p['title'] ?? 'Fr.') . ' ' . ($p['name'] ?? '') }}
+        </option>
+        @endforeach
+    </select>
+</form>
+@endif
+
 <div class="admin-note-field">
     <label>Admin note</label>
     <textarea
@@ -1154,16 +1747,80 @@ function adminStatusBadge(string $status): string {
         <i class="fa fa-eye"></i><span>View details</span>
     </a>
 
+    @if(!empty($r['cancellation_requested']))
+        <div style="width:100%;margin:8px 0 4px;padding:10px 14px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div style="font-size:.8rem;color:#92400e;min-width:0;">
+                <div style="font-weight:700;"><i class="fa fa-exclamation-triangle"></i> Cancellation Requested</div>
+                @if(!empty($r['cancel_reason']))
+                    <div style="color:#b45309;margin-top:2px;font-size:.75rem;">{{ $r['cancel_reason'] }}</div>
+                @endif
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <form method="POST" action="{{ route('admin.handle') }}" style="margin:0;">
+                    @csrf
+                    <input type="hidden" name="action" value="approve_cancellation">
+                    <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
+                    <input type="hidden" name="admin_note" value="Your cancellation request has been approved.">
+                    <input type="hidden" name="redirect_section" value="reservations">
+                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                </form>
+                <button type="button" class="btn btn-danger btn-sm"
+                    data-toggle="modal" data-target="#denyCancelModal{{ $r['id'] }}">
+                    Deny
+                </button>
+            </div>
+        </div>
+        <div class="modal fade" id="denyCancelModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content customer-disable-modal">
+                    <form method="POST" action="{{ route('admin.handle') }}">
+                        @csrf
+                        <input type="hidden" name="action" value="deny_cancellation">
+                        <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
+                        <input type="hidden" name="redirect_section" value="reservations">
+                        <div class="modal-header customer-disable-header">
+                            <div>
+                                <h5 class="modal-title">Deny Cancellation</h5>
+                                <small>{{ $r['name'] ?? 'Customer' }}</small>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <label class="customer-disable-label">Reason for denying</label>
+                            <textarea name="admin_note" class="form-control customer-disable-textarea" rows="3"
+                                placeholder="e.g. The reservation is already confirmed and scheduled…" required></textarea>
+                        </div>
+                        <div class="modal-footer customer-disable-footer">
+                            <button type="button" class="btn btn-light customer-action-btn" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger customer-action-btn">
+                                <i class="fa fa-times-circle"></i> Deny Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if($r['status'] !== 'approved')
-        <form method="POST" action="{{ route('admin.handle') }}">
-            @csrf
-            <input type="hidden" name="action" value="update_status">
-            <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
-            <input type="hidden" name="status" value="approved">
-            <input type="hidden" name="admin_note" class="admin-note-{{ $r['id'] }}">
-            <input type="hidden" name="redirect_section" value="reservations">
-            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-        </form>
+        @if(!empty($r['officiant_id']))
+            <form method="POST" action="{{ route('admin.handle') }}">
+                @csrf
+                <input type="hidden" name="action" value="update_status">
+                <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
+                <input type="hidden" name="status" value="approved">
+                <input type="hidden" name="admin_note" class="admin-note-{{ $r['id'] }}">
+                <input type="hidden" name="redirect_section" value="reservations">
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+            </form>
+        @else
+            <button type="button" class="btn btn-success btn-sm"
+                disabled
+                title="Assign a priest before approving"
+                style="opacity:0.45;cursor:not-allowed">
+                Approve
+            </button>
+        @endif
     @endif
 
     @if($r['status'] !== 'declined')
@@ -1200,420 +1857,563 @@ function adminStatusBadge(string $status): string {
             </section>
         @endif
 
-        <style>
-    .analytics-reposition-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 325px;
-        gap: 28px;
-        align-items: start;
+{{-- ==================== REPORTS ==================== --}}
+@if($section === 'reports')
+@php
+    $rptLabels   = array_keys($reportMonthlyData);
+    $rptBaptism  = array_values(array_column($reportMonthlyData, 'baptism'));
+    $rptWedding  = array_values(array_column($reportMonthlyData, 'wedding'));
+    $rptFuneral  = array_values(array_column($reportMonthlyData, 'funeral'));
+    $rptApproved = array_values(array_column($reportMonthlyData, 'approved'));
+    $rptPending  = array_values(array_column($reportMonthlyData, 'pending'));
+    $rptDeclined = array_values(array_column($reportMonthlyData, 'declined'));
+
+    $rptDayLabels = array_keys($reportDayData);
+    $rptDayBap    = array_values(array_column($reportDayData, 'baptism'));
+    $rptDayWed    = array_values(array_column($reportDayData, 'wedding'));
+    $rptDayFun    = array_values(array_column($reportDayData, 'funeral'));
+
+    $rptTotal  = $reportTotals['total'];
+    $rptPieBap = $rptTotal > 0 ? round($reportTotals['baptism'] / $rptTotal * 100) : 0;
+    $rptPieWed = $rptTotal > 0 ? round($reportTotals['wedding'] / $rptTotal * 100) : 0;
+    $rptPieFun = $rptTotal > 0 ? round($reportTotals['funeral'] / $rptTotal * 100) : 0;
+
+    $rptPeakMonth = '—'; $rptPeakVal = 0;
+    $rptPeakBapM  = '—'; $rptPeakBapV = 0;
+    $rptPeakWedM  = '—'; $rptPeakWedV = 0;
+    $rptPeakFunM  = '—'; $rptPeakFunV = 0;
+    foreach ($reportMonthlyData as $mn => $md) {
+        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'];
+        if ($mt > $rptPeakVal)       { $rptPeakVal = $mt;          $rptPeakMonth = $mn; }
+        if ($md['baptism'] > $rptPeakBapV) { $rptPeakBapV = $md['baptism']; $rptPeakBapM = $mn; }
+        if ($md['wedding'] > $rptPeakWedV) { $rptPeakWedV = $md['wedding']; $rptPeakWedM = $mn; }
+        if ($md['funeral'] > $rptPeakFunV) { $rptPeakFunV = $md['funeral']; $rptPeakFunM = $mn; }
     }
 
-    .analytics-left-charts,
-    .analytics-right-cards {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
+    $rptMaxBap = max(1, max($rptBaptism ?: [0]));
+    $rptMaxWed = max(1, max($rptWedding ?: [0]));
+    $rptMaxFun = max(1, max($rptFuneral ?: [0]));
+
+    $rptBusiestDay = '—'; $rptBusiestMax = 0;
+    foreach ($reportDayData as $d => $dd) {
+        if ($dd['total'] > $rptBusiestMax) { $rptBusiestMax = $dd['total']; $rptBusiestDay = $d; }
     }
 
-    .analytics-right-cards .summary-card {
-        margin: 0;
-        min-height: 132px;
-    }
+    $rptCell = function(int $val, int $max, string $rgb): string {
+        $pct = $max > 0 ? $val / $max : 0;
+        if ($pct === 0.0) return 'background:#f1f5f9;color:#cbd5e1';
+        if ($pct < 0.25)  return "background:rgba({$rgb},0.14);color:rgba(30,27,75,0.55)";
+        if ($pct < 0.50)  return "background:rgba({$rgb},0.30);color:rgba(30,27,75,0.75)";
+        if ($pct < 0.75)  return "background:rgba({$rgb},0.55);color:#1e1b4b";
+        return "background:rgba({$rgb},0.82);color:#fff";
+    };
 
-    .analytics-left-charts .section-card {
-        margin-bottom: 0 !important;
-    }
+    $rptGreen = '45,212,191';
+    $rptRed   = '244,114,182';
+    $rptGray  = '100,116,139';
+@endphp
 
-    @media (max-width: 992px) {
-        .analytics-reposition-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+{{-- ── Filter toolbar ── --}}
+<section class="section-card" style="margin-bottom:24px">
+    <form method="GET" action="{{ route('admin.index') }}" id="rptFilterForm"
+          style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;padding:20px 24px;
+                 background:#f8fafc;border-radius:18px;border:1px solid rgba(99,102,241,0.13);
+                 margin-bottom:28px">
+        <input type="hidden" name="section" value="reports">
 
-        {{-- ==================== ANALYTICS ==================== --}}
-@if($section === 'analytics')
-    <section class="section-card">
-        <div class="section-header">
-            <div>
-                <h2>Predictive Analytics Dashboard</h2>
-                <p>Forecasted reservation demand for Baptism, Wedding, and Funeral based on historical monthly bookings.</p>
+        @php
+            $rptMonthOpts = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        @endphp
+
+        <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">From</label>
+            <div style="display:flex;gap:6px;align-items:center">
+                <select name="report_from_month" onchange="document.getElementById('rptFilterForm').submit()"
+                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                    @foreach($rptMonthOpts as $rmi => $rmn)
+                        <option value="{{ $rmi + 1 }}" {{ $reportFromMonth === $rmi + 1 ? 'selected' : '' }}>{{ $rmn }}</option>
+                    @endforeach
+                </select>
+                <select name="report_from_year" onchange="document.getElementById('rptFilterForm').submit()"
+                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                    @for($y = now()->year + 1; $y >= now()->year - 4; $y--)
+                        <option value="{{ $y }}" {{ $reportFromYear === $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
             </div>
         </div>
 
-        <div class="analytics-reposition-layout">
+        <div style="display:flex;align-items:flex-end;padding-bottom:10px;color:#9ca3af;font-size:14px;font-weight:600">→</div>
 
-    {{-- LEFT SIDE: CHARTS --}}
-    <div class="analytics-left-charts">
-        <div class="section-card" style="margin-bottom:0;">
-            <div class="section-header">
-                <div><h2>Baptism Monthly Trend</h2><p>Historical monthly count of baptism reservations</p></div>
-            </div>
-            <canvas id="baptismChart" height="120"></canvas>
-        </div>
-
-        <div class="section-card" style="margin-bottom:0;">
-            <div class="section-header">
-                <div><h2>Wedding Monthly Trend</h2><p>Historical monthly count of wedding reservations</p></div>
-            </div>
-            <canvas id="weddingChart" height="120"></canvas>
-        </div>
-
-        <div class="section-card" style="margin-bottom:0;">
-            <div class="section-header">
-                <div><h2>Funeral Monthly Trend</h2><p>Historical monthly count of funeral reservations</p></div>
-            </div>
-            <canvas id="funeralChart" height="120"></canvas>
-        </div>
-    </div>
-
-    {{-- RIGHT SIDE: SAME OLD CARDS --}}
-    <div class="analytics-right-cards">
-        <div class="summary-card">
-            <h2>Predicted Baptism</h2>
-            <div class="summary-value">{{ (int)$baptismForecast }}</div>
-            <div class="summary-caption">Expected bookings next month</div>
-        </div>
-
-        <div class="summary-card">
-            <h2>Predicted Wedding</h2>
-            <div class="summary-value">{{ (int)$weddingForecast }}</div>
-            <div class="summary-caption">Expected bookings next month</div>
-        </div>
-
-        <div class="summary-card">
-            <h2>Predicted Funeral</h2>
-            <div class="summary-value">{{ (int)$funeralForecast }}</div>
-            <div class="summary-caption">Expected bookings next month</div>
-        </div>
-
-        <div class="summary-card">
-            <h2>Peak Baptism Month</h2>
-            <div class="summary-value" style="font-size:22px;">{{ $weddingPeak['label'] ?? 'No data' }}
-                @if($baptismPeak)
-                    {{ $baptismPeak['label'] }}
-                @else
-                    No data
-                @endif
-            </div>
-            <div class="summary-caption">
-                {{ $baptismPeak ? (int)$baptismPeak['total'].' reservations' : 'No historical data available' }}
+        <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">To</label>
+            <div style="display:flex;gap:6px;align-items:center">
+                <select name="report_to_month" onchange="document.getElementById('rptFilterForm').submit()"
+                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                    @foreach($rptMonthOpts as $rmi => $rmn)
+                        <option value="{{ $rmi + 1 }}" {{ $reportToMonth === $rmi + 1 ? 'selected' : '' }}>{{ $rmn }}</option>
+                    @endforeach
+                </select>
+                <select name="report_to_year" onchange="document.getElementById('rptFilterForm').submit()"
+                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                    @for($y = now()->year + 1; $y >= now()->year - 4; $y--)
+                        <option value="{{ $y }}" {{ $reportToYear === $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
             </div>
         </div>
 
-        <div class="summary-card">
-            <h2>Peak Wedding Month</h2>
-            <div class="summary-value" style="font-size:22px;">
-                @if($weddingPeak)
-                    {{ $weddingPeak['label'] ?? 'No data' }}
-                @else
-                    No data
-                @endif
-            </div>
-            <div class="summary-caption">
-                {{ $weddingPeak ? (int)$weddingPeak['total'].' reservations' : 'No historical data available' }}
-            </div>
-        </div>
-
-        <div class="summary-card">
-            <h2>Peak Funeral Month</h2>
-            <div class="summary-value" style="font-size:22px;">
-                @if($funeralPeak)
-                    {{ $funeralPeak['label'] ?? 'No data' }}
-                @else
-                    No data
-                @endif
-            </div>
-            <div class="summary-caption">
-                {{ $funeralPeak ? (int)$funeralPeak['total'].' reservations' : 'No historical data available' }}
-            </div>
-        </div>
-    </div>
-
-</div>
-
-        <div class="section-card" style="margin-top:24px; margin-bottom:0;">
-            <div class="section-header">
-                <div><h2>Forecast Insights</h2><p>System-generated planning insights for administrators</p></div>
-            </div>
-
-            <ul class="overview-list">
-                <li>
-                    <div class="overview-list-title">Predicted baptism bookings next month: {{ (int)$baptismForecast }}</div>
-                    <div class="overview-list-name">
-                        @if($baptismPeak)
-                            Highest historical baptism demand was in {{ $baptismPeak['label'] }} with {{ (int)$baptismPeak['total'] }} reservations.
-                        @else
-                            No baptism data available yet.
-                        @endif
-                    </div>
-                </li>
-
-                <li>
-                    <div class="overview-list-title">Predicted wedding bookings next month: {{ (int)$weddingForecast }}</div>
-                    <div class="overview-list-name">
-                        @if($weddingPeak)
-                            Highest historical wedding demand was in {{ $weddingPeak['label'] ?? 'No data' }} with {{ (int)$weddingPeak['total'] }} reservations.
-                        @else
-                            No wedding data available yet.
-                        @endif
-                    </div>
-                </li>
-
-                <li>
-                    <div class="overview-list-title">Predicted funeral bookings next month: {{ (int)$funeralForecast }}</div>
-                    <div class="overview-list-name">
-                        @if($funeralPeak)
-                            Highest historical funeral demand was in {{ $funeralPeak['label'] ?? 'No data' }} with {{ (int)$funeralPeak['total'] }} reservations.
-                        @else
-                            No funeral data available yet.
-                        @endif
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const baptismLabels = @json($baptismChart['labels']);
-    const baptismTotals = @json($baptismChart['totals']);
-
-    const weddingLabels = @json($weddingChart['labels']);
-    const weddingTotals = @json($weddingChart['totals']);
-
-    const funeralLabels = @json($funeralChart['labels']);
-    const funeralTotals = @json($funeralChart['totals']);
-
-    function createGradient(ctx, color) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(1, 'rgba(255,255,255,0)');
-        return gradient;
-    }
-
-    function makeChart(canvasId, labels, totals, label, color) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const gradient = createGradient(ctx, color);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: label,
-                    data: totals,
-                    borderColor: color,
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 3,          // small clean dots
-                    pointHoverRadius: 7
-                }]
-            },
-        options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-        legend: {
-            display: true
-        },
-        tooltip: {
-            enabled: true
-        }
-    },
-    scales: {
-        x: {
-            display: true
-        },
-        y: {
-            display: true,
-            beginAtZero: true,
-            ticks: {
-                precision: 0
-            }
-        }
-    }
-}
-        });
-    }
-
-    // COLORS (as you requested)
-    makeChart(
-        'baptismChart',
-        baptismLabels,
-        baptismTotals,
-        'Baptism Reservations',
-        '#86efac' // light green
-    );
-
-    makeChart(
-        'weddingChart',
-        weddingLabels,
-        weddingTotals,
-        'Wedding Reservations',
-        '#fca5a5' // light red
-    );
-
-    makeChart(
-        'funeralChart',
-        funeralLabels,
-        funeralTotals,
-        'Funeral Reservations',
-        '#9ca3af' // gray
-    );
-});
-</script>
-@endif
-
-{{-- ==================== CUSTOMERS ==================== --}}
-@if($section === 'customers')
-    <section class="section-card">
-        <div class="section-header">
-            <div>
-                <h2>Manage Customers</h2>
-                <p>View registered customer accounts and reservation history.</p>
-            </div>
-            <div class="header-meta">
-                <span><i class="fa fa-users"></i> {{ count($customers ?? []) }} customers</span>
-            </div>
-        </div>
-
-        <div class="reservation-toolbar">
-    <form method="GET" action="{{ route('admin.index') }}" class="reservation-filter-form">
-        <input type="hidden" name="section" value="customers">
-
-        <div class="form-group">
-            <label>Search customer</label>
-            <input type="text"
-            id="customerLiveSearch"
-                   class="form-control form-control-sm"
-                   name="customer_search"
-                   value="{{ $customerSearch ?? '' }}"
-                   placeholder="Name, email, or phone">
-        </div>
-
-        <div class="form-group">
-            <label>Status</label>
-            <select class="form-control form-control-sm" name="customer_status">
-                <option value="all" {{ ($customerStatus ?? 'all') === 'all' ? 'selected' : '' }}>All customers</option>
-                <option value="active" {{ ($customerStatus ?? 'all') === 'active' ? 'selected' : '' }}>Active</option>
-                <option value="disabled" {{ ($customerStatus ?? 'all') === 'disabled' ? 'selected' : '' }}>Disabled</option>
+        <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Type</label>
+            <select name="report_type" onchange="document.getElementById('rptFilterForm').submit()"
+                    style="min-width:170px;padding:9px 38px 9px 14px;border-radius:12px;border:1.5px solid rgba(99,102,241,0.25);
+                           background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;
+                           color:#1f2937;font-size:14px;font-weight:600;
+                           box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                <option value="all"     {{ $reportType === 'all'     ? 'selected' : '' }}>All sacraments</option>
+                <option value="baptism" {{ $reportType === 'baptism' ? 'selected' : '' }}>Baptism</option>
+                <option value="wedding" {{ $reportType === 'wedding' ? 'selected' : '' }}>Wedding</option>
+                <option value="funeral" {{ $reportType === 'funeral' ? 'selected' : '' }}>Funeral</option>
             </select>
         </div>
 
-        <div class="reservation-filter-actions">
-            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-            <a class="btn btn-link btn-sm" href="{{ route('admin.index', ['section' => 'customers']) }}">Reset</a>
+        @if($reportFromMonth !== 1 || $reportFromYear !== now()->year || $reportToMonth !== now()->month || $reportToYear !== now()->year || $reportType !== 'all')
+        <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;font-weight:700;color:transparent;letter-spacing:.07em">Reset</label>
+            <a href="{{ route('admin.index', ['section'=>'reports']) }}"
+               style="padding:9px 16px;border-radius:12px;border:1.5px solid #e5e7eb;background:#fff;
+                      color:#6b7280;font-size:13px;font-weight:600;text-decoration:none;
+                      display:inline-flex;align-items:center;gap:6px">
+                <i class="fa fa-times"></i> Clear filters
+            </a>
+        </div>
+        @endif
+
+        <div style="display:flex;flex-direction:column;gap:6px;margin-left:auto">
+            <label style="font-size:11px;font-weight:700;color:transparent;letter-spacing:.07em">Export</label>
+            <button type="button" onclick="window.print()"
+                    style="padding:9px 20px;border-radius:12px;border:1.5px solid rgba(99,102,241,0.35);
+                           background:#fff;color:#4338ca;font-size:14px;font-weight:700;cursor:pointer;
+                           display:inline-flex;align-items:center;gap:8px;
+                           box-shadow:0 2px 8px rgba(99,102,241,0.10);transition:all .2s ease"
+                    onmouseover="this.style.background='rgba(99,102,241,0.08)'"
+                    onmouseout="this.style.background='#fff'">
+                <i class="fa fa-download"></i> Export PDF
+            </button>
         </div>
     </form>
 
-    <div class="reservation-filter-summary">
-        <strong>{{ count($customers ?? []) }} customer(s)</strong>
-        <span>Filtered customer results</span>
+    {{-- Stat cards --}}
+    <div class="summary-cards" style="margin-bottom:24px">
+        <div class="summary-card">
+            <h2>Total Reservations</h2>
+            <div class="summary-value">{{ $rptTotal }}</div>
+            <div class="summary-caption">{{ $reportRangeLabel }}</div>
+        </div>
+        <div class="summary-card">
+            <h2>Baptisms</h2>
+            <div class="summary-value" style="color:#2dd4bf">{{ $reportTotals['baptism'] }}</div>
+            <div class="summary-caption">{{ $rptPeakBapM !== '—' ? 'Peak: ' . $rptPeakBapM : 'No data yet' }}</div>
+        </div>
+        <div class="summary-card">
+            <h2>Weddings</h2>
+            <div class="summary-value" style="color:#f472b6">{{ $reportTotals['wedding'] }}</div>
+            <div class="summary-caption">{{ $rptPeakWedM !== '—' ? 'Peak: ' . $rptPeakWedM : 'No data yet' }}</div>
+        </div>
+        <div class="summary-card">
+            <h2>Funerals</h2>
+            <div class="summary-value" style="color:#64748b">{{ $reportTotals['funeral'] }}</div>
+            <div class="summary-caption">{{ $rptPeakFunM !== '—' ? 'Peak: ' . $rptPeakFunM : 'No data yet' }}</div>
+        </div>
     </div>
-</div>
 
-        @if(empty($customers))
-            <p class="empty-block">No customers found.</p>
-        @else
-            <div class="overview-list">
-                @foreach($customers as $c)
-                    <div class="reservation-card customer-search-item"
-     data-customer-search="{{ strtolower(($c['name'] ?? '') . ' ' . ($c['email'] ?? '') . ' ' . ($c['phone'] ?? '')) }}">
-                        <div class="overview-list-primary">
-                            <div>
-                                <h4 style="margin-bottom:6px;">{{ $c['name'] ?? 'No name provided' }}</h4>
-                                <div class="reservation-meta">
-                                    <span><i class="fa fa-envelope"></i>{{ $c['email'] ?? 'No email' }}</span>
-                                    <span><i class="fa fa-phone"></i>{{ $c['phone'] ?? 'No phone' }}</span>
-                                    <span><i class="fa fa-calendar-check-o"></i>{{ $c['total_reservations'] ?? 0 }} reservation(s)</span>
-                                </div>
-                            </div>
-
-                            <span class="visibility-badge {{ ($c['status'] ?? 'active') === 'active' ? 'visible' : 'hidden' }}">
-                                <i class="fa {{ ($c['status'] ?? 'active') === 'active' ? 'fa-check-circle' : 'fa-ban' }}"></i>
-                                {{ ucfirst($c['status'] ?? 'active') }}
-                            </span>
-                        </div>
-
-                        <div class="status-actions customer-actions" style="margin-top:16px;">
-    <button type="button"
-            class="btn btn-primary btn-sm customer-action-btn"
-            data-toggle="modal"
-            data-target="#customerModal{{ $c['id'] }}">
-        <i class="fa fa-eye"></i> View Profile
-    </button>
-
-    @if(($c['status'] ?? 'active') === 'active')
-        <button type="button"
-                class="btn btn-danger btn-sm customer-action-btn"
-                data-toggle="modal"
-                data-target="#disableCustomerModal{{ $c['id'] }}">
-            <i class="fa fa-ban"></i> Disable
-        </button>
-    @else
-        <form method="POST" action="{{ route('admin.handle') }}">
-            @csrf
-            <input type="hidden" name="action" value="toggle_customer_status">
-            <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
-            <input type="hidden" name="status" value="active">
-
-            <button type="submit" class="btn btn-success btn-sm customer-action-btn">
-                <i class="fa fa-check"></i> Enable
-            </button>
-        </form>
+    {{-- Report summary --}}
+    @if($rptTotal > 0)
+    <div class="rpt-summary-box">
+        <div class="rpt-summary-header">
+            <span style="display:inline-flex;align-items:center;gap:8px">
+                Report Summary
+                @if($reportSummary)
+                    <span style="font-size:10px;padding:2px 9px;border-radius:999px;background:rgba(16,185,129,0.12);color:#059669;font-weight:700;letter-spacing:.05em;border:1px solid rgba(16,185,129,0.25)">AI</span>
+                @endif
+            </span>
+            <span class="rpt-summary-badge">{{ $reportRangeLabel }}</span>
+        </div>
+        <p class="rpt-summary-text">
+            @if($reportSummary)
+                {{ $reportSummary }}
+            @else
+                For <strong>{{ $reportRangeLabel }}</strong>, the parish recorded <strong>{{ $rptTotal }}</strong> total sacrament reservations.
+                Baptisms are the most common at <strong>{{ $reportTotals['baptism'] }}</strong> ({{ $rptPieBap }}%),
+                followed by weddings at <strong>{{ $reportTotals['wedding'] }}</strong> ({{ $rptPieWed }}%)
+                and funerals at <strong>{{ $reportTotals['funeral'] }}</strong> ({{ $rptPieFun }}%).
+                @if($rptPeakMonth !== '—') Peak activity was in <strong>{{ $rptPeakMonth }}</strong> with {{ $rptPeakVal }} total sacraments. @endif
+                @if($rptBusiestDay !== '—') The busiest day of the week is <strong>{{ $rptBusiestDay }}</strong>. @endif
+            @endif
+        </p>
+        <div class="rpt-highlights">
+            <div class="rpt-hl">
+                <div class="rpt-hl-label">Peak Month</div>
+                <div class="rpt-hl-val">{{ $rptPeakMonth }}</div>
+                <div class="rpt-hl-sub">{{ $rptPeakVal }} sacraments</div>
+            </div>
+            <div class="rpt-hl">
+                <div class="rpt-hl-label">Approved Total</div>
+                <div class="rpt-hl-val" style="color:#10b981">{{ $reportTotals['approved'] }}</div>
+                <div class="rpt-hl-sub">{{ $rptTotal > 0 ? round($reportTotals['approved'] / $rptTotal * 100) : 0 }}% approval rate</div>
+            </div>
+            <div class="rpt-hl">
+                <div class="rpt-hl-label">Busiest Day</div>
+                <div class="rpt-hl-val">{{ $rptBusiestDay }}</div>
+                <div class="rpt-hl-sub">{{ $rptBusiestMax }} sacraments</div>
+            </div>
+        </div>
+    </div>
     @endif
+</section>
 
-    <form method="POST" action="{{ route('admin.handle') }}">
-        @csrf
-        <input type="hidden" name="action" value="reset_password">
-        <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
+{{-- ── Sacrament Overview ── --}}
+<div class="rpt-label"><span>Sacrament Overview</span><div class="rpt-label-line"></div></div>
 
-        <button type="submit" class="btn btn-secondary btn-sm customer-action-btn">
-            <i class="fa fa-key"></i> Reset Password
-        </button>
-    </form>
+<div class="rpt-two-col" style="grid-template-columns:2fr 1fr">
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Monthly sacrament count</h2>
+                <p>Baptisms, weddings, and funerals per month — {{ $reportRangeLabel }}</p>
+            </div>
+        </div>
+        <div style="height:220px;position:relative"><canvas id="rptMonthlyChart"></canvas></div>
+    </section>
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Sacrament breakdown</h2>
+                <p>Share of total — {{ $reportRangeLabel }}</p>
+            </div>
+        </div>
+        @if($rptTotal > 0)
+            <div style="height:160px;position:relative;margin-bottom:16px"><canvas id="rptPieChart"></canvas></div>
+            <div class="rpt-pie-legend">
+                <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#2dd4bf"></div>Baptisms<span class="rpt-pie-pct">{{ $rptPieBap }}%</span></div>
+                <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#f472b6"></div>Weddings<span class="rpt-pie-pct">{{ $rptPieWed }}%</span></div>
+                <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#64748b"></div>Funerals<span class="rpt-pie-pct">{{ $rptPieFun }}%</span></div>
+            </div>
+        @else
+            <div class="empty-block" style="text-align:center;padding:48px 0">No sacrament data for {{ $reportRangeLabel }}.</div>
+        @endif
+    </section>
 </div>
 
-<div class="modal fade" id="disableCustomerModal{{ $c['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content customer-disable-modal">
-            <form method="POST" action="{{ route('admin.handle') }}">
-                @csrf
-                <input type="hidden" name="action" value="toggle_customer_status">
-                <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
-                <input type="hidden" name="status" value="disabled">
+{{-- ── Reservation Activity ── --}}
+<div class="rpt-label" style="margin-top:24px"><span>Reservation Activity</span><div class="rpt-label-line"></div></div>
 
-                <div class="modal-header customer-disable-header">
-                    <div>
-                        <h5 class="modal-title">Disable Customer</h5>
-                        <small>{{ $c['name'] ?? 'Customer account' }}</small>
+<div class="rpt-two-col">
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Sacraments by day of week</h2>
+                <p>Busiest days — stacked by type</p>
+            </div>
+        </div>
+        <div style="height:220px;position:relative"><canvas id="rptDayChart"></canvas></div>
+    </section>
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Reservation status over time</h2>
+                <p>Approved, pending, declined per month</p>
+            </div>
+        </div>
+        <div style="height:180px;position:relative"><canvas id="rptStatusChart"></canvas></div>
+        <div class="rpt-status-totals">
+            <div class="rpt-stot"><div class="rpt-stot-label">Approved</div><div class="rpt-stot-val" style="color:#10b981">{{ $reportTotals['approved'] }}</div></div>
+            <div class="rpt-stot"><div class="rpt-stot-label">Pending</div><div class="rpt-stot-val" style="color:#f59e0b">{{ $reportTotals['pending'] }}</div></div>
+            <div class="rpt-stot"><div class="rpt-stot-label">Declined</div><div class="rpt-stot-val" style="color:#ef4444">{{ $reportTotals['declined'] }}</div></div>
+        </div>
+    </section>
+</div>
+
+{{-- ── Peak Months Heatmap ── --}}
+<section class="section-card" style="margin-top:24px;margin-bottom:0">
+    <div class="section-header">
+        <div>
+            <h2>Peak months heatmap</h2>
+            <p>Activity intensity by sacrament type — darker cells indicate higher volume</p>
+        </div>
+    </div>
+    <div class="rpt-heatmap-wrap">
+        <div class="rpt-hm-month-row">
+            <div class="rpt-hm-spacer"></div>
+            @foreach($rptLabels as $ml)<div class="rpt-hm-ml">{{ $ml }}</div>@endforeach
+        </div>
+        <div class="rpt-hm-row">
+            <div class="rpt-hm-rl">Baptisms</div>
+            <div class="rpt-hm-cells">
+                @foreach($reportMonthlyData as $mn => $md)
+                    <div class="rpt-hm-cell" style="{{ $rptCell($md['baptism'], $rptMaxBap, $rptGreen) }}" title="{{ $mn }}: {{ $md['baptism'] }}">{{ $md['baptism'] > 0 ? $md['baptism'] : '' }}</div>
+                @endforeach
+            </div>
+        </div>
+        <div class="rpt-hm-row">
+            <div class="rpt-hm-rl">Weddings</div>
+            <div class="rpt-hm-cells">
+                @foreach($reportMonthlyData as $mn => $md)
+                    <div class="rpt-hm-cell" style="{{ $rptCell($md['wedding'], $rptMaxWed, $rptRed) }}" title="{{ $mn }}: {{ $md['wedding'] }}">{{ $md['wedding'] > 0 ? $md['wedding'] : '' }}</div>
+                @endforeach
+            </div>
+        </div>
+        <div class="rpt-hm-row">
+            <div class="rpt-hm-rl">Funerals</div>
+            <div class="rpt-hm-cells">
+                @foreach($reportMonthlyData as $mn => $md)
+                    <div class="rpt-hm-cell" style="{{ $rptCell($md['funeral'], $rptMaxFun, $rptGray) }}" title="{{ $mn }}: {{ $md['funeral'] }}">{{ $md['funeral'] > 0 ? $md['funeral'] : '' }}</div>
+                @endforeach
+            </div>
+        </div>
+        <div class="rpt-scale-row">
+            <span class="rpt-scale-lbl">Low</span>
+            <div class="rpt-scale-bar">
+                <div class="rpt-sc" style="background:#f1f5f9"></div>
+                <div class="rpt-sc" style="background:rgba(99,102,241,0.14)"></div>
+                <div class="rpt-sc" style="background:rgba(99,102,241,0.30)"></div>
+                <div class="rpt-sc" style="background:rgba(99,102,241,0.55)"></div>
+                <div class="rpt-sc" style="background:rgba(99,102,241,0.82)"></div>
+            </div>
+            <span class="rpt-scale-lbl">High</span>
+        </div>
+    </div>
+</section>
+
+{{-- ── Event Attendance ── --}}
+<div class="rpt-label" style="margin-top:24px"><span>Event Attendance</span><div class="rpt-label-line"></div></div>
+
+<div class="rpt-two-col" style="margin-bottom:24px">
+    {{-- Avg attendance chart --}}
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div><h2>Average attendance</h2><p>Average headcount per event type across all logged events</p></div>
+        </div>
+        @if(array_sum($attendanceAvg) === 0)
+            <div class="rpt-placeholder-box" style="padding:32px 16px">
+                <i class="fa fa-users" style="font-size:28px;color:#c7d2fe"></i>
+                <div class="rpt-placeholder-title">No attendance logged yet</div>
+                <div class="rpt-placeholder-sub">Log attendance on past events below to see averages here.</div>
+            </div>
+        @else
+            <div style="position:relative;height:200px"><canvas id="rptAttendanceChart"></canvas></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+                @foreach(['Wedding'=>'#f472b6','Baptism'=>'#2dd4bf','Funeral'=>'#64748b'] as $et=>$ec)
+                <div style="text-align:center;padding:10px;border-radius:10px;background:{{ $ec }}14;border:1px solid {{ $ec }}30">
+                    <div style="font-size:20px;font-weight:800;color:{{ $ec }}">{{ $attendanceAvg[$et] ?? 0 }}</div>
+                    <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.06em">{{ $et }}</div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </section>
+
+    {{-- Summary stats --}}
+    <section class="section-card" style="margin-bottom:0;overflow:hidden">
+        @php
+            $totalPast   = count($pastApproved);
+            $totalLogged = count(array_filter($pastApproved, fn($r) => isset($attendanceLookup[(int)($r['id'] ?? 0)])));
+            $pct = $totalPast > 0 ? round($totalLogged / $totalPast * 100) : 0;
+        @endphp
+
+        {{-- Stats view --}}
+        <div id="logProgressStats">
+            <div class="section-header" style="margin-bottom:0">
+                <div><h2>Logging progress</h2><p>How many past events have been logged</p></div>
+                @if($totalLogged > 0)
+                <button onclick="showLoggedCards()" id="btnShowLogged"
+                        style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;border:1.5px solid rgba(16,185,129,0.3);color:#059669;font-size:12px;font-weight:700;background:rgba(16,185,129,0.06);cursor:pointer;white-space:nowrap;flex-shrink:0">
+                    <i class="fa fa-check-circle"></i>
+                    View {{ $totalLogged }} logged
+                    <i class="fa fa-chevron-right" style="font-size:11px"></i>
+                </button>
+                @endif
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;padding:16px 0 0">
+                <div style="text-align:center">
+                    <div style="font-size:42px;font-weight:800;color:#4f46e5;line-height:1">{{ $totalLogged }}</div>
+                    <div style="font-size:13px;color:#6b7280">of {{ $totalPast }} past events logged</div>
+                </div>
+                <div style="background:#f1f5f9;border-radius:999px;height:10px;overflow:hidden">
+                    <div style="height:100%;width:{{ $pct }}%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:999px;transition:.3s"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <div style="padding:10px;border-radius:10px;background:rgba(16,185,129,.07);text-align:center">
+                        <div style="font-size:18px;font-weight:800;color:#065f46">{{ $totalLogged }}</div>
+                        <div style="font-size:11px;color:#6b7280;font-weight:600">Logged</div>
                     </div>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
+                    <div style="padding:10px;border-radius:10px;background:rgba(245,158,11,.07);text-align:center">
+                        <div style="font-size:18px;font-weight:800;color:#92400e">{{ $totalPast - $totalLogged }}</div>
+                        <div style="font-size:11px;color:#6b7280;font-weight:600">Pending log</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Logged events view (hidden by default) --}}
+        <div id="loggedCardsView" style="display:none;opacity:0;transition:opacity .25s ease">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <span style="font-size:14px;font-weight:700;color:#111827">{{ $totalLogged }} logged event{{ $totalLogged !== 1 ? 's' : '' }}</span>
+                <button onclick="hideLoggedCards()"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:9px;border:1.5px solid #e5e7eb;color:#6b7280;font-size:12px;font-weight:700;background:#fff;cursor:pointer">
+                    <i class="fa fa-arrow-left" style="font-size:11px"></i> Back
+                </button>
+            </div>
+            <div style="max-height:320px;overflow-y:auto;display:grid;grid-template-columns:1fr;gap:10px;padding-right:4px">
+                @foreach($pastApproved as $pr)
+                @php
+                    $prId      = (int)($pr['id'] ?? 0);
+                    $prEt      = strtolower(trim($pr['event_type'] ?? ''));
+                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' };
+                    $prDate    = $pr['preferred_date'] ?? $pr['reservation_date'] ?? null;
+                    $prDateFmt = $prDate ? (new DateTimeImmutable((string)$prDate))->format('M j, Y') : '—';
+                    $prAtt     = $attendanceLookup[$prId] ?? null;
+                @endphp
+                @if($prAtt)
+                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ $prColor }}18;color:{{ $prColor }};border:1px solid {{ $prColor }}40;flex-shrink:0">
+                        {{ ucfirst($prEt) }}
+                    </span>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-size:13px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $pr['name'] ?? '—' }}</div>
+                        <div style="font-size:11px;color:#94a3b8">{{ $prDateFmt }}</div>
+                    </div>
+                    <span style="font-size:22px;font-weight:800;color:#4f46e5;line-height:1;flex-shrink:0">{{ $prAtt['attended_count'] }}</span>
+                    <button type="button"
+                            style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid rgba(100,116,139,0.25);color:#64748b;font-size:11px;font-weight:700;background:transparent;cursor:pointer;flex-shrink:0"
+                            onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', {{ $prAtt['attended_count'] }}, '{{ addslashes($prAtt['notes'] ?? '') }}')">
+                        <i class="fa fa-pencil"></i>
                     </button>
                 </div>
+                @endif
+                @endforeach
+            </div>
+        </div>
+    </section>
+</div>
 
-                <div class="modal-body">
-                    <label class="customer-disable-label">Reason for disabling</label>
-                    <textarea name="disabled_reason"
-                              class="form-control customer-disable-textarea"
-                              rows="3"
-                              placeholder="Example: Incomplete documents, suspicious activity, duplicate account..."
-                              required></textarea>
+{{-- Past events log table (unlogged only) --}}
+<section class="section-card" style="margin-bottom:0">
+    <div class="section-header">
+        <div>
+            <h2>Event attendance log</h2>
+            <p>Events below still need their attendance recorded.</p>
+        </div>
+        @php $unloggedCount = count(array_filter($pastApproved, fn($r) => !isset($attendanceLookup[(int)($r['id'] ?? 0)]))); @endphp
+        <span style="font-size:13px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:5px 14px;border-radius:999px;white-space:nowrap">
+            {{ $unloggedCount }} pending
+        </span>
+    </div>
+
+    @if(empty($pastApproved))
+        <p class="empty-block">No past approved events to log yet.</p>
+    @else
+
+    {{-- Filter pills --}}
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button onclick="filterAtt('all')"     id="attf-all"     class="att-filter-btn"
+                data-default-border="#e5e7eb" data-default-color="#6b7280">All</button>
+        <button onclick="filterAtt('wedding')" id="attf-wedding" class="att-filter-btn"
+                style="color:#f472b6;border-color:#f472b6;"
+                data-default-border="#f472b6" data-default-color="#f472b6">Wedding</button>
+        <button onclick="filterAtt('baptism')" id="attf-baptism" class="att-filter-btn"
+                style="color:#2dd4bf;border-color:#2dd4bf;"
+                data-default-border="#2dd4bf" data-default-color="#2dd4bf">Baptism</button>
+        <button onclick="filterAtt('funeral')" id="attf-funeral" class="att-filter-btn"
+                style="color:#64748b;border-color:#64748b;"
+                data-default-border="#64748b" data-default-color="#64748b">Funeral</button>
+    </div>
+
+    <div id="attEmptyMsg" style="display:none;padding:24px;text-align:center;color:#94a3b8;font-size:13px">No unlogged events match the selected filter.</div>
+    <div id="attPagination" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 4px 4px;margin-top:8px;border-top:1px solid #f1f5f9"></div>
+
+    <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+                <tr style="border-bottom:2px solid #f1f5f9">
+                    <th style="text-align:left;padding:10px 12px;color:#6b7280;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Event</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6b7280;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Name</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6b7280;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Date</th>
+                    <th style="padding:10px 12px"></th>
+                </tr>
+            </thead>
+            <tbody id="attTableBody">
+                @foreach($pastApproved as $pr)
+                @php
+                    $prId      = (int)($pr['id'] ?? 0);
+                    $prEt      = strtolower(trim($pr['event_type'] ?? ''));
+                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' };
+                    $prDate    = $pr['preferred_date'] ?? $pr['reservation_date'] ?? null;
+                    $prDateFmt = $prDate ? (new DateTimeImmutable((string)$prDate))->format('M j, Y') : '—';
+                    $prAtt     = $attendanceLookup[$prId] ?? null;
+                @endphp
+                @if(!$prAtt)
+                <tr style="border-bottom:1px solid #f8fafc" class="att-row att-unlogged" data-type="{{ $prEt }}">
+                    <td style="padding:10px 12px">
+                        <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ $prColor }}18;color:{{ $prColor }};border:1px solid {{ $prColor }}40">
+                            {{ ucfirst($prEt) }}
+                        </span>
+                    </td>
+                    <td style="padding:10px 12px;font-weight:600;color:#111827">{{ $pr['name'] ?? '—' }}</td>
+                    <td style="padding:10px 12px;color:#6b7280">{{ $prDateFmt }}</td>
+                    <td style="padding:10px 12px">
+                        <button type="button"
+                                style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px solid rgba(99,102,241,.3);color:#4f46e5;font-size:12px;font-weight:700;background:transparent;cursor:pointer"
+                                onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', 0, '')">
+                            <i class="fa fa-plus"></i> Log
+                        </button>
+                    </td>
+                </tr>
+                @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+
+    @endif
+</section>
+
+{{-- Attendance modal --}}
+<div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius:20px;border:0;overflow:hidden">
+            <form method="POST" action="{{ route('admin.attendance.store') }}">
+                @csrf
+                <input type="hidden" name="reservation_id" id="attResId">
+                <input type="hidden" name="event_type"     id="attEventType">
+                <div class="modal-header" style="background:#f8fafc;border-bottom:1px solid #f1f5f9;padding:20px 24px">
+                    <div>
+                        <h5 style="font-weight:800;color:#1e1b4b;margin:0" id="attModalTitle">Log Attendance</h5>
+                        <small style="color:#64748b" id="attModalSub"></small>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
-
-                <div class="modal-footer customer-disable-footer">
-                    <button type="button" class="btn btn-light customer-action-btn" data-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-danger customer-action-btn">
-                        <i class="fa fa-ban"></i> Disable Account
+                <div class="modal-body" style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                    <div>
+                        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">
+                            Number of attendees <span style="color:#ef4444">*</span>
+                        </label>
+                        <input type="number" name="attended_count" id="attCount" min="0" required
+                               style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:16px;font-weight:700;box-sizing:border-box;outline:none"
+                               placeholder="e.g. 120">
+                    </div>
+                    <div>
+                        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Notes <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+                        <textarea name="notes" id="attNotes" rows="2" maxlength="300"
+                                  style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:13px;resize:none;box-sizing:border-box;outline:none"
+                                  placeholder="e.g. Outdoor overflow area was used"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #f1f5f9;padding:16px 24px;gap:10px">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    <button type="submit" style="padding:9px 22px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+                        <i class="fa fa-save"></i> Save attendance
                     </button>
                 </div>
             </form>
@@ -1621,190 +2421,1361 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 </div>
 
-</div> {{-- CLOSE CUSTOMER CARD --}}
+<div class="rpt-two-col" style="margin-top:24px">
 
-                    <div class="modal fade" id="customerModal{{ $c['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                            <div class="modal-content" style="border-radius:24px; border:0; overflow:hidden;">
-                                <div class="modal-header" style="background:#f8fafc; border-bottom:1px solid rgba(148,163,184,0.18);">
-                                    <div>
-                                        <h5 class="modal-title" style="font-weight:700; color:#1e1b4b;">
-                                            {{ $c['name'] ?? 'No name provided' }}
-                                        </h5>
-                                        <small style="color:#64748b;">Customer profile and reservation history</small>
-                                    </div>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span>&times;</span>
-                                    </button>
-                                </div>
+    {{-- ── Donation Trends ── --}}
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Donation trends</h2>
+                <p>Monthly totals for {{ $reportRangeLabel }} &mdash; ₱{{ number_format($donationTotal, 2) }} total</p>
+            </div>
+        </div>
 
-                                <div class="modal-body" style="padding:24px;">
-                                    <div class="reservation-meta" style="margin-bottom:18px;">
-    <span><i class="fa fa-envelope"></i>{{ $c['email'] ?? 'No email' }}</span>
-    <span><i class="fa fa-phone"></i>{{ $c['phone'] ?? 'No phone' }}</span>
-    <span><i class="fa fa-calendar"></i>{{ $c['total_reservations'] ?? 0 }} total reservation(s)</span>
+        {{-- Chart --}}
+        <div style="position:relative;height:200px">
+            <canvas id="rptDonationChart"></canvas>
+        </div>
 
-    @if(!empty($c['last_password_reset_at']))
-        <span><i class="fa fa-key"></i>Reset requested: {{ adminFormatCreatedAt($c['last_password_reset_at']) }}</span>
-    @endif
+        {{-- Recent donations mini-list --}}
+        @if(count($recentDonations) > 0)
+        <div style="margin-top:14px;border-top:1px solid #f1f5f9;padding-top:12px">
+            @foreach($recentDonations as $don)
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px solid #f8fafc">
+                <span style="color:#374151;font-weight:600">₱{{ number_format($don['amount'], 2) }}
+                    <span style="font-weight:400;color:#9ca3af;font-size:11px;margin-left:4px">{{ ucfirst($don['type'] ?? '') }}</span>
+                </span>
+                <span style="color:#94a3b8;font-size:11px">{{ \Carbon\Carbon::parse($don['donation_date'])->format('M j, Y') }}</span>
+            </div>
+            @endforeach
+        </div>
+        @endif
+    </section>
+
+    {{-- ── Schedule Utilization ── --}}
+    <section class="section-card" style="margin-bottom:0">
+        <div class="section-header">
+            <div>
+                <h2>Schedule utilization</h2>
+                <p>Approved reservations vs. available slots &mdash; {{ $reportRangeLabel }}</p>
+            </div>
+            @php
+                $avgUtil = count($utilizationMonthly) > 0
+                    ? round(array_sum(array_column($utilizationMonthly, 'rate')) / count($utilizationMonthly), 1)
+                    : 0;
+            @endphp
+            <span style="flex-shrink:0;font-size:18px;font-weight:800;color:#4f46e5">{{ $avgUtil }}%<span style="font-size:11px;font-weight:500;color:#9ca3af;margin-left:4px">avg</span></span>
+        </div>
+
+        <div style="position:relative;height:200px">
+            <canvas id="rptUtilChart"></canvas>
+        </div>
+
+        {{-- Capacity note --}}
+        <p style="font-size:11px;color:#94a3b8;margin:10px 0 0;text-align:center">
+            Capacity = days × 7 slots/day (5 baptism + 1 wedding + 1 funeral per day)
+        </p>
+
+        {{-- Monthly breakdown --}}
+        <div style="margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+            @foreach($utilizationMonthly as $mn => $ud)
+            <div style="text-align:center;padding:6px 4px;border-radius:8px;background:#f8fafc">
+                <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">{{ $mn }}</div>
+                <div style="font-size:14px;font-weight:800;color:{{ $ud['rate'] >= 50 ? '#4f46e5' : ($ud['rate'] >= 20 ? '#f59e0b' : '#94a3b8') }}">{{ $ud['rate'] }}%</div>
+                <div style="font-size:9px;color:#cbd5e1">{{ $ud['approved'] }}/{{ $ud['capacity'] }}</div>
+            </div>
+            @endforeach
+        </div>
+    </section>
 </div>
 
-@if(($c['status'] ?? 'active') === 'disabled')
-    <div class="admin-note-box">
-        <div class="admin-note-header">
-            <span class="admin-note-icon">
-                <i class="fa fa-ban"></i>
-            </span>
-            <span>Disabled reason</span>
+<div class="rpt-label" style="margin-top:24px"><span>People</span><div class="rpt-label-line"></div></div>
+
+<section class="section-card" style="margin-bottom:0">
+    <div class="section-header" style="align-items:flex-start">
+        <div>
+            <h2>Officiant workload</h2>
+            <p>Total ceremonies per priest — {{ now()->format('Y') }}</p>
         </div>
-        <p>{{ $c['disabled_reason'] ?: 'No reason provided.' }}</p>
+        @if($adminRole === 'admin')
+        <button class="btn btn-sm" style="background:#f1f5f9;color:#4f46e5;border:1px solid #e0e7ff;font-weight:600;white-space:nowrap;flex-shrink:0" onclick="togglePriestManager()">
+            <i class="fa fa-cog"></i> Manage Priests
+        </button>
+        @endif
     </div>
+
+    @if(count($officiantWorkload) === 0)
+        <div style="text-align:center;padding:32px 16px;color:#94a3b8">
+            <i class="fa fa-users" style="font-size:28px;margin-bottom:10px;display:block;color:#c7d2fe"></i>
+            <div style="font-weight:600;margin-bottom:4px;color:#64748b">No priests in the roster yet</div>
+            @if($adminRole === 'admin')
+            <div style="font-size:13px">Click "Manage Priests" above to add priests.</div>
+            @endif
+        </div>
+    @else
+        @php
+            $wlMax    = max(array_column($officiantWorkload, 'count')) ?: 1;
+            $wlPalette = ['#4f46e5','#10b981','#f97316','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#ef4444'];
+        @endphp
+        <div style="display:flex;flex-direction:column">
+            @foreach($officiantWorkload as $wi => $wo)
+            @php
+                $wlColor    = $wlPalette[$wi % count($wlPalette)];
+                $wlWords    = array_values(array_filter(explode(' ', $wo['name'])));
+                $wlInitials = strtoupper(substr($wlWords[0] ?? '?', 0, 1) . substr($wlWords[1] ?? '', 0, 1));
+                $wlPct      = round($wo['count'] / $wlMax * 100);
+            @endphp
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f8fafc">
+                <div style="width:42px;height:42px;border-radius:50%;background:{{ $wlColor }}22;color:{{ $wlColor }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;letter-spacing:.5px">
+                    {{ $wlInitials }}
+                </div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:700;color:#111827;font-size:14px;margin-bottom:5px">{{ $wo['name'] }}</div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap">
+                        @if($wo['baptisms'] > 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(45,212,191,0.12);color:#0d9488">Baptisms: {{ $wo['baptisms'] }}</span>
+                        @endif
+                        @if($wo['weddings'] > 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(244,114,182,0.12);color:#db2777">Weddings: {{ $wo['weddings'] }}</span>
+                        @endif
+                        @if($wo['funerals'] > 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(100,116,139,0.12);color:#475569">Funerals: {{ $wo['funerals'] }}</span>
+                        @endif
+                        @if($wo['count'] === 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;background:#f1f5f9;color:#94a3b8">No ceremonies yet</span>
+                        @endif
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex:0 0 180px">
+                    <div style="flex:1;background:#f1f5f9;border-radius:999px;height:8px;overflow:hidden">
+                        <div style="height:100%;width:{{ $wlPct }}%;background:{{ $wlColor }};border-radius:999px"></div>
+                    </div>
+                    <span style="font-size:15px;font-weight:800;color:#374151;min-width:26px;text-align:right">{{ $wo['count'] }}</span>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    @endif
+
+    @if($adminRole === 'admin')
+    <div id="priestManager" style="display:none;margin-top:20px;border-top:1px solid #f1f5f9;padding-top:20px">
+        <h4 style="font-size:14px;font-weight:700;color:#374151;margin:0 0 12px">Priest Roster</h4>
+        <form method="POST" action="{{ route('admin.priests.store') }}" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            @csrf
+            <select name="title" style="padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;background:#fff">
+                <option value="Fr.">Fr.</option>
+                <option value="Rev.">Rev.</option>
+                <option value="Deacon">Deacon</option>
+                <option value="Msgr.">Msgr.</option>
+            </select>
+            <input type="text" name="name" placeholder="Priest name" required
+                style="flex:1;min-width:150px;padding:7px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px">
+            <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap">
+                <i class="fa fa-plus"></i> Add
+            </button>
+        </form>
+        @if(count($priests) === 0)
+            <p style="color:#94a3b8;font-size:13px;text-align:center;padding:12px 0">No priests in the roster yet.</p>
+        @else
+            <div style="display:flex;flex-direction:column;gap:6px">
+                @foreach($priests as $p)
+                @php $wl = collect($officiantWorkload)->firstWhere('id', $p['id']); @endphp
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #f1f5f9">
+                    <div>
+                        <span style="font-weight:600;color:#374151;font-size:14px">{{ ($p['title'] ?? 'Fr.') . ' ' . ($p['name'] ?? '') }}</span>
+                        <span style="font-size:12px;color:#94a3b8;margin-left:8px">{{ $wl ? $wl['count'] : 0 }} ceremonies</span>
+                    </div>
+                    <form method="POST" action="{{ route('admin.priests.delete', $p['id']) }}" onsubmit="return confirm('Remove this priest from the roster?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:14px;padding:2px 6px">
+                            <i class="fa fa-trash-o"></i>
+                        </button>
+                    </form>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+    @endif
+</section>
+
+{{-- ── Raw Data Table ── --}}
+<div class="rpt-label" style="margin-top:24px"><span>Raw Data</span><div class="rpt-label-line"></div></div>
+
+<section class="section-card" style="margin-bottom:24px">
+    <div class="section-header">
+        <div>
+            <h2>Data table</h2>
+            <p>Monthly sacrament and reservation records — {{ $reportRangeLabel }}</p>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table" style="font-size:14px">
+            <thead>
+                <tr style="border-bottom:2px solid #e5e7eb">
+                    <th style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px">Month</th>
+                    <th style="color:#2dd4bf;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Baptisms</th>
+                    <th style="color:#f472b6;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Weddings</th>
+                    <th style="color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Funerals</th>
+                    <th style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Total</th>
+                    <th style="color:#10b981;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Approved</th>
+                    <th style="color:#f59e0b;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Pending</th>
+                    <th style="color:#ef4444;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Declined</th>
+                </tr>
+            </thead>
+            <tbody id="dataTableBody">
+                @php $rptFoot = ['b'=>0,'w'=>0,'f'=>0,'t'=>0,'a'=>0,'p'=>0,'d'=>0]; @endphp
+                @foreach($reportMonthlyData as $mn => $md)
+                    @php
+                        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'];
+                        $rptFoot['b'] += $md['baptism']; $rptFoot['w'] += $md['wedding']; $rptFoot['f'] += $md['funeral'];
+                        $rptFoot['t'] += $mt; $rptFoot['a'] += $md['approved']; $rptFoot['p'] += $md['pending']; $rptFoot['d'] += $md['declined'];
+                    @endphp
+                    <tr style="border-bottom:1px solid #f1f5f9;{{ $mt === 0 ? 'color:#cbd5e1' : '' }}">
+                        <td style="padding:9px 10px;font-weight:500">{{ $mn }}</td>
+                        <td style="padding:9px 10px;text-align:center">{{ $md['baptism'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center">{{ $md['wedding'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center">{{ $md['funeral'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center;font-weight:700">{{ $mt ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center;color:{{ $md['approved'] > 0 ? '#10b981' : '#cbd5e1' }}">{{ $md['approved'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center;color:{{ $md['pending']  > 0 ? '#f59e0b' : '#cbd5e1' }}">{{ $md['pending']  ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center;color:{{ $md['declined'] > 0 ? '#ef4444' : '#cbd5e1' }}">{{ $md['declined'] ?: '—' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr style="font-weight:700;border-top:2px solid #e5e7eb;background:#f8fafc">
+                    <td style="padding:9px 10px">Total</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['b'] }}</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['w'] }}</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['f'] }}</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['t'] }}</td>
+                    <td style="padding:9px 10px;text-align:center;color:#10b981">{{ $rptFoot['a'] }}</td>
+                    <td style="padding:9px 10px;text-align:center;color:#f59e0b">{{ $rptFoot['p'] }}</td>
+                    <td style="padding:9px 10px;text-align:center;color:#ef4444">{{ $rptFoot['d'] }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div id="dataPagination" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 4px 4px;margin-top:8px;border-top:1px solid #f1f5f9"></div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Chart.defaults.font.family = "'Inter','system-ui',sans-serif";
+    Chart.defaults.color = '#6b7280';
+
+    const months     = @json($rptLabels);
+    const baptismD   = @json($rptBaptism);
+    const weddingD   = @json($rptWedding);
+    const funeralD   = @json($rptFuneral);
+    const approvedD  = @json($rptApproved);
+    const pendingD   = @json($rptPending);
+    const declinedD  = @json($rptDeclined);
+    const dayLabels  = @json($rptDayLabels);
+    const dayBap     = @json($rptDayBap);
+    const dayWed     = @json($rptDayWed);
+    const dayFun     = @json($rptDayFun);
+    const totBap     = {{ $reportTotals['baptism'] }};
+    const totWed     = {{ $reportTotals['wedding'] }};
+    const totFun     = {{ $reportTotals['funeral'] }};
+
+    const yAxis = { beginAtZero:true, ticks:{ precision:0, font:{ size:11 } }, grid:{ color:'#f1f5f9' } };
+    const xAxis = { ticks:{ font:{ size:11 } }, grid:{ display:false } };
+
+    const monthlyEl = document.getElementById('rptMonthlyChart');
+    if (monthlyEl) {
+        new Chart(monthlyEl, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    { label:'Baptisms', data:baptismD,  backgroundColor:'#2dd4bf', borderRadius:4 },
+                    { label:'Weddings', data:weddingD,  backgroundColor:'#f472b6', borderRadius:4 },
+                    { label:'Funerals', data:funeralD,  backgroundColor:'#64748b', borderRadius:4 },
+                ]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } } }, scales:{ x:xAxis, y:yAxis } }
+        });
+    }
+
+    const pieEl = document.getElementById('rptPieChart');
+    if (pieEl && (totBap + totWed + totFun) > 0) {
+        new Chart(pieEl, {
+            type: 'doughnut',
+            data: {
+                labels: ['Baptisms','Weddings','Funerals'],
+                datasets: [{ data:[totBap,totWed,totFun], backgroundColor:['#2dd4bf','#f472b6','#64748b'], borderWidth:0, hoverOffset:4 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{ display:false } } }
+        });
+    }
+
+    const dayEl = document.getElementById('rptDayChart');
+    if (dayEl) {
+        new Chart(dayEl, {
+            type: 'bar',
+            data: {
+                labels: dayLabels,
+                datasets: [
+                    { label:'Baptisms', data:dayBap, backgroundColor:'#2dd4bf', stack:'d' },
+                    { label:'Weddings', data:dayWed, backgroundColor:'#f472b6', stack:'d' },
+                    { label:'Funerals', data:dayFun, backgroundColor:'#64748b', stack:'d' },
+                ]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } } }, scales:{ x:{ ...xAxis, stacked:true }, y:{ ...yAxis, stacked:true } } }
+        });
+    }
+
+    const statusEl = document.getElementById('rptStatusChart');
+    if (statusEl) {
+        new Chart(statusEl, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    { label:'Approved', data:approvedD, backgroundColor:'#10b981', stack:'s' },
+                    { label:'Pending',  data:pendingD,  backgroundColor:'#f59e0b', stack:'s' },
+                    { label:'Declined', data:declinedD, backgroundColor:'#ef4444', stack:'s' },
+                ]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } } }, scales:{ x:{ ...xAxis, stacked:true }, y:{ ...yAxis, stacked:true } } }
+        });
+    }
+
+    // ── Donation trends chart ─────────────────────────────────────────
+    const donEl = document.getElementById('rptDonationChart');
+    if (donEl) {
+        const donData = @json($donationMonthly);
+        const donLabels = Object.keys(donData);
+        new Chart(donEl, {
+            type: 'bar',
+            data: {
+                labels: donLabels,
+                datasets: [
+                    { label:'Building Fund',   data: donLabels.map(m => donData[m].building_fund),  backgroundColor:'#92400e', borderRadius:4, stack:'d' },
+                    { label:'Mass Intention',  data: donLabels.map(m => donData[m].mass_intention), backgroundColor:'#7c3aed', borderRadius:4, stack:'d' },
+                    { label:'Tithes',          data: donLabels.map(m => donData[m].tithes),         backgroundColor:'#ca8a04', borderRadius:4, stack:'d' },
+                    { label:'Other',           data: donLabels.map(m => donData[m].other),          backgroundColor:'#94a3b8', borderRadius:4, stack:'d' },
+                ]
+            },
+            options: {
+                responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } },
+                    tooltip:{ callbacks:{ label: ctx => ' ₱' + ctx.parsed.y.toLocaleString('en-PH', {minimumFractionDigits:2}) } } },
+                scales:{
+                    x:{ ...xAxis, stacked:true },
+                    y:{ ...yAxis, stacked:true, ticks:{ callback: v => '₱' + v.toLocaleString() } }
+                }
+            }
+        });
+    }
+
+    // ── Schedule utilization chart ────────────────────────────────────
+    const utilEl = document.getElementById('rptUtilChart');
+    if (utilEl) {
+        const utilData = @json($utilizationMonthly);
+        const utilLabels = Object.keys(utilData);
+        new Chart(utilEl, {
+            type: 'bar',
+            data: {
+                labels: utilLabels,
+                datasets: [{
+                    label: 'Utilization %',
+                    data: utilLabels.map(m => utilData[m].rate),
+                    backgroundColor: utilLabels.map(m => {
+                        const r = utilData[m].rate;
+                        return r >= 50 ? 'rgba(79,70,229,0.8)' : r >= 20 ? 'rgba(245,158,11,0.8)' : 'rgba(148,163,184,0.6)';
+                    }),
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false } },
+                scales:{
+                    x: { ...xAxis },
+                    y: { ...yAxis, min:0, max:100, ticks:{ callback: v => v + '%' } }
+                }
+            }
+        });
+    }
+
+    // Attendance chart
+    const attEl = document.getElementById('rptAttendanceChart');
+    if (attEl) {
+        const attAvg = @json($attendanceAvg);
+        new Chart(attEl, {
+            type: 'bar',
+            data: {
+                labels: ['Wedding', 'Baptism', 'Funeral'],
+                datasets: [{
+                    label: 'Avg attendees',
+                    data: [attAvg['Wedding'] ?? 0, attAvg['Baptism'] ?? 0, attAvg['Funeral'] ?? 0],
+                    backgroundColor: ['rgba(244,114,182,0.8)', 'rgba(45,212,191,0.8)', 'rgba(100,116,139,0.8)'],
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ...xAxis },
+                    y: { ...yAxis, min: 0, ticks: { stepSize: 10 } }
+                }
+            }
+        });
+    }
+});
+</script>
+
+
+<script>
+let attCurrentType = 'all';
+
+const attColors = {
+    all:     { bg: '#4f46e5',                border: '#4f46e5', color: '#fff' },
+    wedding: { bg: 'rgba(244,114,182,0.12)', border: '#f472b6', color: '#f472b6' },
+    baptism: { bg: 'rgba(45,212,191,0.12)',  border: '#2dd4bf', color: '#2dd4bf' },
+    funeral: { bg: 'rgba(100,116,139,0.12)', border: '#64748b', color: '#64748b' },
+};
+
+// ── Attendance log pagination ──────────────────────────────────────────────
+var attPage = 1;
+var attPerPage = 10;
+
+function renderAttPagination(filteredRows) {
+    var total   = filteredRows.length;
+    var pages   = Math.ceil(total / attPerPage) || 1;
+    if (attPage > pages) attPage = pages;
+    var start   = (attPage - 1) * attPerPage;
+    var end     = Math.min(start + attPerPage, total);
+
+    filteredRows.forEach(function(row, i) {
+        row.style.display = (i >= start && i < end) ? '' : 'none';
+    });
+
+    var pg = document.getElementById('attPagination');
+    if (!pg) return;
+    if (total <= attPerPage) { pg.innerHTML = ''; return; }
+
+    var info = '<span style="font-size:12px;color:#6b7280">Showing ' + (start+1) + '–' + end + ' of ' + total + '</span>';
+    var btns = '<div style="display:flex;gap:4px;align-items:center">';
+    btns += '<button onclick="attGoPage(' + (attPage-1) + ')" ' + (attPage===1?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (attPage===1?'opacity:.4;cursor:default':'') + '">‹ Prev</button>';
+    var from = Math.max(1, attPage-2), to = Math.min(pages, from+4);
+    for (var p = from; p <= to; p++) {
+        var active = p === attPage;
+        btns += '<button onclick="attGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#4f46e5':'#e5e7eb') + ';background:' + (active?'#4f46e5':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
+    }
+    btns += '<button onclick="attGoPage(' + (attPage+1) + ')" ' + (attPage===pages?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (attPage===pages?'opacity:.4;cursor:default':'') + '">Next ›</button>';
+    btns += '</div>';
+    pg.innerHTML = info + btns;
+}
+
+function attGoPage(p) {
+    attPage = p;
+    filterAtt();
+}
+
+function filterAtt(type) {
+    if (type !== undefined) {
+        attCurrentType = type;
+        attPage = 1;
+        document.querySelectorAll('.att-filter-btn').forEach(btn => {
+            btn.style.background  = '#fff';
+            btn.style.borderColor = btn.dataset.defaultBorder;
+            btn.style.color       = btn.dataset.defaultColor;
+            btn.style.fontWeight  = '600';
+        });
+        if (type !== 'all') {
+            const allBtn = document.getElementById('attf-all');
+            if (allBtn) {
+                allBtn.style.background  = '#fff';
+                allBtn.style.borderColor = '#e5e7eb';
+                allBtn.style.color       = '#6b7280';
+                allBtn.style.fontWeight  = '600';
+            }
+        }
+        const active = document.getElementById('attf-' + type);
+        if (active) {
+            const c = attColors[type] || attColors.all;
+            active.style.background  = c.bg;
+            active.style.borderColor = c.border;
+            active.style.color       = c.color;
+            active.style.fontWeight  = '700';
+        }
+    }
+    const unloggedOnly = document.getElementById('attUnloggedOnly')?.checked;
+    const rows = Array.from(document.querySelectorAll('.att-row'));
+    // First hide all
+    rows.forEach(row => row.style.display = 'none');
+    // Filter to matching
+    const filtered = rows.filter(row => {
+        const matchType   = attCurrentType === 'all' || row.dataset.type === attCurrentType;
+        const matchLogged = !unloggedOnly || row.classList.contains('att-unlogged');
+        return matchType && matchLogged;
+    });
+    const emptyMsg = document.getElementById('attEmptyMsg');
+    if (emptyMsg) emptyMsg.style.display = filtered.length === 0 ? 'block' : 'none';
+    renderAttPagination(filtered);
+}
+
+// ── Data table pagination ──────────────────────────────────────────────────
+var dataPage = 1;
+var dataPerPage = 12;
+
+function renderDataPagination() {
+    var tbody = document.getElementById('dataTableBody');
+    if (!tbody) return;
+    var rows  = Array.from(tbody.querySelectorAll('tr'));
+    var total = rows.length;
+    var pages = Math.ceil(total / dataPerPage) || 1;
+    if (dataPage > pages) dataPage = pages;
+    var start = (dataPage - 1) * dataPerPage;
+    var end   = Math.min(start + dataPerPage, total);
+
+    rows.forEach(function(row, i) {
+        row.style.display = (i >= start && i < end) ? '' : 'none';
+    });
+
+    var pg = document.getElementById('dataPagination');
+    if (!pg) return;
+    if (total <= dataPerPage) { pg.innerHTML = ''; return; }
+
+    var info = '<span style="font-size:12px;color:#6b7280">Showing ' + (start+1) + '–' + end + ' of ' + total + ' months</span>';
+    var btns = '<div style="display:flex;gap:4px;align-items:center">';
+    btns += '<button onclick="dataGoPage(' + (dataPage-1) + ')" ' + (dataPage===1?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (dataPage===1?'opacity:.4;cursor:default':'') + '">‹ Prev</button>';
+    var from = Math.max(1, dataPage-2), to = Math.min(pages, from+4);
+    for (var p = from; p <= to; p++) {
+        var active = p === dataPage;
+        btns += '<button onclick="dataGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#4f46e5':'#e5e7eb') + ';background:' + (active?'#4f46e5':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
+    }
+    btns += '<button onclick="dataGoPage(' + (dataPage+1) + ')" ' + (dataPage===pages?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (dataPage===pages?'opacity:.4;cursor:default':'') + '">Next ›</button>';
+    btns += '</div>';
+    pg.innerHTML = info + btns;
+}
+
+function dataGoPage(p) {
+    dataPage = p;
+    renderDataPagination();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    filterAtt('all');
+    renderDataPagination();
+});
+
+function showLoggedCards() {
+    const stats = document.getElementById('logProgressStats');
+    const cards = document.getElementById('loggedCardsView');
+    stats.style.transition = 'opacity .2s ease';
+    stats.style.opacity = '0';
+    setTimeout(function () {
+        stats.style.display = 'none';
+        cards.style.display = 'block';
+        requestAnimationFrame(function () {
+            cards.style.opacity = '1';
+        });
+    }, 200);
+}
+
+function hideLoggedCards() {
+    const stats = document.getElementById('logProgressStats');
+    const cards = document.getElementById('loggedCardsView');
+    cards.style.transition = 'opacity .2s ease';
+    cards.style.opacity = '0';
+    setTimeout(function () {
+        cards.style.display = 'none';
+        stats.style.display = 'block';
+        requestAnimationFrame(function () {
+            stats.style.opacity = '1';
+        });
+    }, 200);
+}
+
+function openAttModal(resId, eventType, name, count, notes) {
+    document.getElementById('attResId').value     = resId;
+    document.getElementById('attEventType').value = eventType;
+    document.getElementById('attCount').value     = count || '';
+    document.getElementById('attNotes').value     = notes || '';
+    document.getElementById('attModalTitle').textContent = (count > 0 ? 'Edit' : 'Log') + ' Attendance';
+    document.getElementById('attModalSub').textContent   = eventType + ' — ' + name;
+    $('#attendanceModal').modal('show');
+}
+</script>
 @endif
 
-<div class="summary-cards" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom:22px;">
-    <div class="summary-card" style="padding:16px;">
-        <h2>Favorite Event</h2>
-        <div class="summary-value" style="font-size:20px;">
-            {{ $c['favorite_event_type'] ?? 'No data' }}
+<script>
+function toggleDenyForm(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    if (el.style.display === 'block') {
+        el.querySelector('textarea').focus();
+    }
+}
+
+function togglePastApproved(btn) {
+    const section = document.getElementById('pastApprovedSection');
+    if (!section) return;
+    const isOpen = section.style.display !== 'none';
+    section.style.display = isOpen ? 'none' : 'block';
+    const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-up');
+    if (icon) icon.className = isOpen ? 'fa fa-chevron-down' : 'fa fa-chevron-up';
+    const label = btn.querySelector('span');
+    if (label) {
+        const count = label.textContent.match(/\d+/)?.[0] ?? '';
+        const word = parseInt(count) > 1 ? 'events' : 'event';
+        label.textContent = isOpen ? count + ' completed ' + word : 'Hide completed ' + word;
+    }
+}
+function togglePriestManager() {
+    const el = document.getElementById('priestManager');
+    if (!el) return;
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('show_priest_manager') === '1') {
+        const el = document.getElementById('priestManager');
+        if (el) el.style.display = 'block';
+    }
+})();
+
+// Announcement: image preview
+function annPreviewImage(input, previewId) {
+    const wrap = document.getElementById(previewId);
+    if (!wrap) return;
+    const img = wrap.querySelector('img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; wrap.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        wrap.style.display = 'none';
+    }
+}
+
+// Announcement admin list: read more toggle
+function annAdminToggle(btn, bodyId) {
+    const body = document.getElementById(bodyId);
+    if (!body) return;
+    const clamped = body.classList.toggle('clamped');
+    btn.innerHTML = clamped
+        ? '<i class="fa fa-chevron-down"></i> Read more'
+        : '<i class="fa fa-chevron-up"></i> Show less';
+}
+
+// Edit modal open/close
+function annOpenEdit(id, title, body, category, visible, imgUrl) {
+    document.getElementById('edit_ann_id').value       = id;
+    document.getElementById('edit_ann_title').value    = title;
+    document.getElementById('edit_ann_body').value     = body;
+    document.getElementById('edit_ann_show').checked   = visible === 1;
+    document.getElementById('edit-title-count').textContent = title.length + ' / 150';
+    document.getElementById('edit-body-count').textContent  = body.length + ' / 500';
+    // category
+    const catSel = document.getElementById('edit_ann_category');
+    catSel.value = category || '';
+    // current image
+    const imgWrap = document.getElementById('edit_ann_current_img');
+    const imgEl   = document.getElementById('edit_ann_current_img_el');
+    if (imgUrl) { imgEl.src = imgUrl; imgWrap.style.display = 'block'; }
+    else { imgWrap.style.display = 'none'; }
+    // reset new image preview
+    const prev = document.getElementById('ann-img-preview-edit');
+    if (prev) prev.style.display = 'none';
+    // show modal
+    const modal = document.getElementById('annEditModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function annCloseEdit() {
+    document.getElementById('annEditModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') annCloseEdit(); });
+</script>
+
+{{-- ==================== CUSTOMERS ==================== --}}
+@if($section === 'customers')
+@php
+    $allCustomers   = $customers ?? [];
+    $activeCount    = count(array_filter($allCustomers, fn($c) => ($c['status'] ?? 'active') === 'active'));
+    $disabledCount  = count($allCustomers) - $activeCount;
+@endphp
+    <section class="section-card">
+        <div class="section-header">
+            <div><h2>Manage Customers</h2><p>Review accounts, reservation activity, and account status.</p></div>
         </div>
-        <div class="summary-caption">Most booked type</div>
-    </div>
 
-    <div class="summary-card" style="padding:16px;">
-        <h2>Approved</h2>
-        <div class="summary-value" style="font-size:24px;">
-            {{ $c['approved_count'] ?? 0 }}
+        {{-- Stats bar --}}
+        <div class="cust-stats-bar">
+            <div class="cust-stat">
+                <span class="cust-stat-num">{{ count($allCustomers) }}</span>
+                <span class="cust-stat-label">Total</span>
+            </div>
+            <div class="cust-stat-divider"></div>
+            <div class="cust-stat">
+                <span class="cust-stat-num active">{{ $activeCount }}</span>
+                <span class="cust-stat-label">Active</span>
+            </div>
+            <div class="cust-stat-divider"></div>
+            <div class="cust-stat">
+                <span class="cust-stat-num disabled">{{ $disabledCount }}</span>
+                <span class="cust-stat-label">Disabled</span>
+            </div>
         </div>
-        <div class="summary-caption">Confirmed</div>
-    </div>
 
-    <div class="summary-card" style="padding:16px;">
-        <h2>Pending</h2>
-        <div class="summary-value" style="font-size:24px;">
-            {{ $c['pending_count'] ?? 0 }}
-        </div>
-        <div class="summary-caption">Awaiting review</div>
-    </div>
+        {{-- Search bar --}}
+        <form method="GET" action="{{ route('admin.index') }}">
+            <input type="hidden" name="section" value="customers">
+            <div class="cust-search-bar">
+                <div class="cust-search-input-wrap">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="customerLiveSearch" class="cust-search-input"
+                           name="customer_search" value="{{ $customerSearch ?? '' }}"
+                           placeholder="Search by name, email or phone…">
+                </div>
+                <div class="cust-filter-pills">
+                    <a href="{{ route('admin.index', ['section'=>'customers','customer_status'=>'all','customer_search'=>$customerSearch ?? '']) }}"
+                       class="cust-filter-pill {{ ($customerStatus ?? 'all') === 'all' ? 'active-pill' : '' }}">All</a>
+                    <a href="{{ route('admin.index', ['section'=>'customers','customer_status'=>'active','customer_search'=>$customerSearch ?? '']) }}"
+                       class="cust-filter-pill {{ ($customerStatus ?? 'all') === 'active' ? 'active-pill' : '' }}">Active</a>
+                    <a href="{{ route('admin.index', ['section'=>'customers','customer_status'=>'disabled','customer_search'=>$customerSearch ?? '']) }}"
+                       class="cust-filter-pill {{ ($customerStatus ?? 'all') === 'disabled' ? 'active-pill' : '' }}">Disabled</a>
+                </div>
+                <button type="submit" class="cust-filter-pill" style="border-color:#4f46e5;color:#4f46e5;">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <span class="cust-result-count">{{ count($allCustomers) }} result{{ count($allCustomers) !== 1 ? 's' : '' }}</span>
+            </div>
+        </form>
 
-    <div class="summary-card" style="padding:16px;">
-        <h2>Declined</h2>
-        <div class="summary-value" style="font-size:24px;">
-            {{ $c['declined_count'] ?? 0 }}
-        </div>
-        <div class="summary-caption">Not approved</div>
-    </div>
-</div>
+        @if(empty($allCustomers))
+            <p class="empty-block">No customers found.</p>
+        @else
+            <div class="cust-grid">
+                @foreach($allCustomers as $c)
+                @php
+                    $cStatus  = ($c['status'] ?? 'active') === 'active' ? 'active' : 'disabled';
+                    $cInitial = strtoupper(substr($c['name'] ?? 'C', 0, 1));
+                    $cRes     = $c['total_reservations'] ?? 0;
+                @endphp
+                <div class="cust-card customer-search-item"
+                     data-customer-search="{{ strtolower(($c['name'] ?? '') . ' ' . ($c['email'] ?? '') . ' ' . ($c['phone'] ?? '')) }}">
 
-                                    <h5 style="font-weight:700; margin-bottom:14px;">Reservation History</h5>
+                    <div class="cust-card-top">
+                        <div class="cust-avatar {{ $cStatus }}">{{ $cInitial }}</div>
+                        <div class="cust-info">
+                            <div class="cust-name">{{ $c['name'] ?? 'No name' }}</div>
+                            <div class="cust-email">{{ $c['email'] ?? 'No email' }}</div>
+                        </div>
+                        <span class="cust-status-badge {{ $cStatus }}">
+                            <i class="fa {{ $cStatus === 'active' ? 'fa-check-circle' : 'fa-ban' }}"></i>
+                            {{ ucfirst($cStatus) }}
+                        </span>
+                    </div>
 
-                                    @if(empty($c['reservations']))
-                                        <p class="empty-block">This customer has no reservations yet.</p>
-                                    @else
-                                        <ul class="overview-list">
-                                            @foreach($c['reservations'] as $r)
-                                                <li>
-                                                    <div class="overview-list-primary">
-                                                        <span class="overview-list-title">
-                                                            Reservation #{{ $r['id'] }} · {{ $r['event_type'] }}
-                                                        </span>
-                                                        {!! adminStatusBadge($r['status']) !!}
-                                                    </div>
-                                                    <div class="overview-list-meta">
-                                                        <span><i class="fa fa-calendar"></i>{{ adminFormatDate($r['reservation_date']) }}</span>
-                                                        <span><i class="fa fa-clock-o"></i>{{ adminFormatTime($r['reservation_time']) }}</span>
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
+                    <div class="cust-meta">
+                        @if(!empty($c['phone']))
+                        <span class="cust-meta-item"><i class="fa fa-phone"></i> {{ $c['phone'] }}</span>
+                        @endif
+                        <span class="cust-res-count"><i class="fa fa-calendar-check-o"></i> {{ $cRes }} reservation{{ $cRes !== 1 ? 's' : '' }}</span>
+                    </div>
+
+                    <div class="cust-footer">
+                        <button type="button" class="cust-btn view" data-toggle="modal" data-target="#customerModal{{ $c['id'] }}">
+                            <i class="fa fa-user"></i> Profile
+                        </button>
+
+                        @if($cStatus === 'active')
+                            <button type="button" class="cust-btn disable" data-toggle="modal" data-target="#disableCustomerModal{{ $c['id'] }}">
+                                <i class="fa fa-ban"></i> Disable
+                            </button>
+                        @else
+                            <form method="POST" action="{{ route('admin.handle') }}">
+                                @csrf
+                                <input type="hidden" name="action" value="toggle_customer_status">
+                                <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
+                                <input type="hidden" name="status" value="active">
+                                <button type="submit" class="cust-btn enable"><i class="fa fa-check"></i> Enable</button>
+                            </form>
+                        @endif
+
+                        <form method="POST" action="{{ route('admin.handle') }}">
+                            @csrf
+                            <input type="hidden" name="action" value="reset_password">
+                            <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
+                            <button type="submit" class="cust-btn reset"><i class="fa fa-key"></i> Reset</button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Disable modal --}}
+                <div class="modal fade" id="disableCustomerModal{{ $c['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content customer-disable-modal">
+                            <form method="POST" action="{{ route('admin.handle') }}">
+                                @csrf
+                                <input type="hidden" name="action" value="toggle_customer_status">
+                                <input type="hidden" name="customer_id" value="{{ $c['id'] }}">
+                                <input type="hidden" name="status" value="disabled">
+                                <div class="modal-header customer-disable-header">
+                                    <div>
+                                        <h5 class="modal-title">Disable Customer</h5>
+                                        <small>{{ $c['name'] ?? 'Customer account' }}</small>
+                                    </div>
+                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                                 </div>
+                                <div class="modal-body">
+                                    <label class="customer-disable-label">Reason for disabling</label>
+                                    <textarea name="disabled_reason" class="form-control customer-disable-textarea" rows="3"
+                                              placeholder="e.g. Incomplete documents, suspicious activity…" required></textarea>
+                                </div>
+                                <div class="modal-footer customer-disable-footer">
+                                    <button type="button" class="btn btn-light customer-action-btn" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger customer-action-btn"><i class="fa fa-ban"></i> Disable Account</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Profile modal --}}
+                <div class="modal fade" id="customerModal{{ $c['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                        <div class="modal-content" style="border-radius:20px;border:0;overflow:hidden;">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    style="position:absolute;top:16px;right:20px;z-index:10;font-size:22px;opacity:0.5;">
+                                <span>&times;</span>
+                            </button>
+
+                            <div class="cust-modal-header">
+                                <div class="cust-modal-avatar-row">
+                                    <div class="cust-modal-avatar {{ $cStatus }}">{{ $cInitial }}</div>
+                                    <div>
+                                        <p class="cust-modal-name">{{ $c['name'] ?? 'No name' }}</p>
+                                        <p class="cust-modal-sub">
+                                            <span class="cust-status-badge {{ $cStatus }}" style="font-size:11px;">
+                                                <i class="fa {{ $cStatus === 'active' ? 'fa-check-circle' : 'fa-ban' }}"></i>
+                                                {{ ucfirst($cStatus) }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cust-modal-meta">
+                                <span class="cust-modal-meta-item"><i class="fa fa-envelope"></i> {{ $c['email'] ?? 'No email' }}</span>
+                                <span class="cust-modal-meta-item"><i class="fa fa-phone"></i> {{ $c['phone'] ?? 'No phone' }}</span>
+                                @if(!empty($c['last_password_reset_at']))
+                                <span class="cust-modal-meta-item"><i class="fa fa-key"></i> Reset: {{ adminFormatCreatedAt($c['last_password_reset_at']) }}</span>
+                                @endif
+                            </div>
+
+                            @if($cStatus === 'disabled' && !empty($c['disabled_reason']))
+                            <div style="margin:0 24px 0;padding:12px 16px;background:rgba(239,68,68,0.07);border-radius:10px;border:1px solid rgba(239,68,68,0.18);font-size:13px;color:#991b1b;">
+                                <i class="fa fa-ban"></i> <strong>Disabled:</strong> {{ $c['disabled_reason'] }}
+                            </div>
+                            @endif
+
+                            <div class="cust-modal-stat-row">
+                                <div class="cust-modal-stat total">
+                                    <div class="cust-modal-stat-num">{{ $cRes }}</div>
+                                    <div class="cust-modal-stat-label">Total</div>
+                                </div>
+                                <div class="cust-modal-stat approved">
+                                    <div class="cust-modal-stat-num">{{ $c['approved_count'] ?? 0 }}</div>
+                                    <div class="cust-modal-stat-label">Approved</div>
+                                </div>
+                                <div class="cust-modal-stat pending">
+                                    <div class="cust-modal-stat-num">{{ $c['pending_count'] ?? 0 }}</div>
+                                    <div class="cust-modal-stat-label">Pending</div>
+                                </div>
+                                <div class="cust-modal-stat declined">
+                                    <div class="cust-modal-stat-num">{{ $c['declined_count'] ?? 0 }}</div>
+                                    <div class="cust-modal-stat-label">Declined</div>
+                                </div>
+                            </div>
+
+                            <div class="cust-modal-history">
+                                <h6>Reservation History</h6>
+                                @if(empty($c['reservations']))
+                                    <p class="empty-block" style="margin:0;">No reservations yet.</p>
+                                @else
+                                    @foreach($c['reservations'] as $r)
+                                    @php $ret = strtolower($r['event_type'] ?? ''); $reColor = match($ret){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' }; @endphp
+                                    <div class="cust-history-row">
+                                        <span class="cust-history-id">#{{ $r['id'] }}</span>
+                                        <span class="cust-history-evtype" style="background:{{ $reColor }}18;color:{{ $reColor }};border:1px solid {{ $reColor }}40;">
+                                            {{ ucfirst($ret ?: 'Unknown') }}
+                                        </span>
+                                        {!! adminStatusBadge($r['status']) !!}
+                                        <span class="cust-history-date">
+                                            <i class="fa fa-calendar-o"></i> {{ adminFormatDate($r['reservation_date']) }}
+                                        </span>
+                                    </div>
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
                     </div>
+                </div>
+
                 @endforeach
             </div>
         @endif
     </section>
 @endif
 
+{{-- ==================== DONATIONS ==================== --}}
+@if($section === 'donations')
+@php
+$purposeLabels = [
+    'building_fund'  => 'Building Fund',
+    'mass_intention' => 'Mass Intention',
+    'tithes'         => 'Tithes',
+    'other'          => 'Other',
+];
+$purposeColors = [
+    'building_fund'  => '#92400e',
+    'mass_intention' => '#7c3aed',
+    'tithes'         => '#ca8a04',
+    'other'          => '#94a3b8',
+];
+@endphp
+
+{{-- Summary cards --}}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">
+    <div class="section-card" style="margin:0;padding:20px 22px">
+        <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Total Collected</div>
+        <div style="font-size:26px;font-weight:800;color:#4f46e5">₱{{ number_format($donationSectionTotal, 2) }}</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:4px">{{ count($donationsList) }} donation{{ count($donationsList) !== 1 ? 's' : '' }}</div>
+    </div>
+    @foreach($donationsByPurpose as $pk => $pv)
+    <div class="section-card" style="margin:0;padding:20px 22px">
+        <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">{{ $purposeLabels[$pk] ?? $pk }}</div>
+        <div style="font-size:22px;font-weight:800;color:{{ $purposeColors[$pk] ?? '#64748b' }}">₱{{ number_format($pv, 2) }}</div>
+    </div>
+    @endforeach
+</div>
+
+{{-- Record Donation button + form --}}
+<section class="section-card" style="margin-bottom:24px">
+    <div class="section-header">
+        <div><h2>Record a Donation</h2><p>Fill in the details for each in-person donation received.</p></div>
+    </div>
+    @if($errors->has('donation'))
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;color:#dc2626;font-size:13px;margin-bottom:16px">
+            {{ $errors->first('donation') }}
+        </div>
+    @endif
+    <form method="POST" action="{{ route('admin.donations.store') }}"
+          style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end">
+        @csrf
+        <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</label>
+            <input type="text" name="donor_name" required maxlength="255" value="{{ old('donor_name') }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
+                   placeholder="Full name">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Amount (₱)</label>
+            <input type="number" name="amount" step="0.01" min="0.01" required value="{{ old('amount') }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
+                   placeholder="0.00">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</label>
+            <select name="purpose" id="purposeSelect" onchange="toggleCustomPurpose(this.value)"
+                    style="padding:9px 38px 9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none;width:100%;box-sizing:border-box">
+                <option value="building_fund"  {{ old('purpose')==='building_fund'  ? 'selected':'' }}>Building Fund</option>
+                <option value="mass_intention" {{ old('purpose')==='mass_intention' ? 'selected':'' }}>Mass Intention</option>
+                <option value="tithes"         {{ old('purpose')==='tithes'         ? 'selected':'' }}>Tithes</option>
+                <option value="other"          {{ old('purpose')==='other'          ? 'selected':'' }}>Other</option>
+            </select>
+            <input type="text" name="custom_purpose" id="customPurposeInput"
+                   value="{{ old('custom_purpose') }}"
+                   placeholder="Specify purpose..."
+                   style="display:{{ old('purpose')==='other' ? 'block' : 'none' }};margin-top:6px;padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.35);font-size:14px;width:100%;box-sizing:border-box;outline:none">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date Received</label>
+            <input type="date" name="donation_date" required value="{{ old('donation_date', date('Y-m-d')) }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;width:100%;box-sizing:border-box">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes (optional)</label>
+            <input type="text" name="notes" maxlength="500" value="{{ old('notes') }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;width:100%;box-sizing:border-box"
+                   placeholder="e.g. In memory of Juan dela Cruz">
+        </div>
+        <div>
+            <button type="submit"
+                    style="width:100%;padding:10px 0;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+                Save &amp; Generate Receipt
+            </button>
+        </div>
+    </form>
+</section>
+
+{{-- Filter bar --}}
+<section class="section-card" style="margin-bottom:24px">
+    <form method="GET" action="{{ route('admin.index') }}" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+        <input type="hidden" name="section" value="donations">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Search Donor</label>
+            <input type="text" name="donation_search" value="{{ $donationSearch }}"
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px"
+                   placeholder="Name...">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</label>
+            <select name="donation_purpose" style="padding:8px 38px 8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none">
+                <option value="all" {{ $donationPurpose==='all' ? 'selected':'' }}>All purposes</option>
+                <option value="building_fund"  {{ $donationPurpose==='building_fund'  ? 'selected':'' }}>Building Fund</option>
+                <option value="mass_intention" {{ $donationPurpose==='mass_intention' ? 'selected':'' }}>Mass Intention</option>
+                <option value="tithes"         {{ $donationPurpose==='tithes'         ? 'selected':'' }}>Tithes</option>
+                <option value="other"          {{ $donationPurpose==='other'          ? 'selected':'' }}>Other</option>
+            </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">From</label>
+            <input type="date" name="donation_from" value="{{ $donationFrom }}"
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">To</label>
+            <input type="date" name="donation_to" value="{{ $donationTo }}"
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px">
+        </div>
+        <button type="submit" style="padding:9px 20px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:13px;font-weight:700;cursor:pointer">Filter</button>
+        @if($donationSearch || $donationPurpose !== 'all' || $donationFrom || $donationTo)
+        <a href="{{ route('admin.index', ['section'=>'donations']) }}"
+           style="padding:9px 16px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#94a3b8;font-size:13px;font-weight:600;text-decoration:none">Clear</a>
+        @endif
+    </form>
+</section>
+
+{{-- Donations Table --}}
+<section class="section-card" style="margin-bottom:24px">
+    <div class="section-header">
+        <div><h2>Donation Records</h2><p>{{ count($donationsList) }} record{{ count($donationsList) !== 1 ? 's' : '' }} found</p></div>
+        <button onclick="window.print()" style="padding:8px 18px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:13px;font-weight:700;cursor:pointer">
+            <i class="fa fa-print"></i> Print List
+        </button>
+    </div>
+
+    @if(count($donationsList) === 0)
+        <div style="text-align:center;padding:40px;color:#94a3b8;font-size:14px">
+            <i class="fa fa-money" style="font-size:32px;display:block;margin-bottom:12px;opacity:.4"></i>
+            No donation records found.
+        </div>
+    @else
+    <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+                <tr style="background:#f8fafc">
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Receipt #</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</th>
+                    <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.06em">Amount</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes</th>
+                    <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($donationsList as $don)
+                @php $donPurpose = $don['purpose'] ?? 'other'; @endphp
+                <tr style="border-top:1px solid #f1f5f9">
+                    <td style="padding:10px 14px;font-family:monospace;font-size:12px;color:#64748b;white-space:nowrap">{{ $don['receipt_number'] ?? '—' }}</td>
+                    <td style="padding:10px 14px;font-weight:600;color:#1f2937">{{ $don['donor_name'] ?? '—' }}</td>
+                    <td style="padding:10px 14px;text-align:right;font-weight:700;color:#4f46e5;white-space:nowrap">₱{{ number_format((float)($don['amount'] ?? 0), 2) }}</td>
+                    <td style="padding:10px 14px">
+                        <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;
+                              background:{{ ($purposeColors[$donPurpose] ?? '#94a3b8') }}20;
+                              color:{{ $purposeColors[$donPurpose] ?? '#64748b' }}">
+                            {{ $donPurpose === 'other' && !empty($don['custom_purpose']) ? $don['custom_purpose'] : ($purposeLabels[$donPurpose] ?? ucfirst($donPurpose)) }}
+                        </span>
+                    </td>
+                    <td style="padding:10px 14px;color:#64748b;white-space:nowrap">{{ \Carbon\Carbon::parse($don['donation_date'])->format('M j, Y') }}</td>
+                    <td style="padding:10px 14px;color:#94a3b8;font-size:13px;max-width:200px">{{ $don['notes'] ?? '—' }}</td>
+                    <td style="padding:10px 14px;text-align:center;white-space:nowrap">
+                        <button onclick="printReceipt({{ json_encode($don) }})"
+                                style="padding:5px 12px;border-radius:8px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:12px;font-weight:600;cursor:pointer;margin-right:6px">
+                            <i class="fa fa-print"></i> Receipt
+                        </button>
+                        <form method="POST" action="{{ route('admin.donations.delete', $don['id']) }}" style="display:inline"
+                              onsubmit="return confirm('Delete this donation record?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="padding:5px 10px;border-radius:8px;border:1.5px solid rgba(239,68,68,0.3);background:#fff;color:#ef4444;font-size:12px;cursor:pointer">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr style="border-top:2px solid #e2e8f0;background:#f8fafc">
+                    <td colspan="2" style="padding:10px 14px;font-weight:700;color:#374151">Total</td>
+                    <td style="padding:10px 14px;text-align:right;font-weight:800;color:#4f46e5;font-size:16px">₱{{ number_format($donationSectionTotal, 2) }}</td>
+                    <td colspan="4"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    @endif
+</section>
+
+{{-- Receipt Print Modal --}}
+<div id="receiptModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:20px;padding:0;max-width:420px;width:94%;box-shadow:0 24px 60px rgba(0,0,0,0.25);overflow:hidden">
+        <div id="receiptContent" style="padding:36px 32px;font-family:'Georgia',serif">
+            <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:16px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:#6b7280;text-transform:uppercase;margin-bottom:4px">Official Receipt</div>
+                <div style="font-size:18px;font-weight:800;color:#1f2937">St. John the Baptist Parish</div>
+                <div style="font-size:12px;color:#94a3b8;margin-top:2px">Donation Acknowledgment</div>
+            </div>
+            <table style="width:100%;font-size:13px;border-collapse:collapse">
+                <tr><td style="padding:5px 0;color:#6b7280;width:40%">Receipt No.</td><td style="padding:5px 0;font-weight:700;color:#1f2937" id="rct-num"></td></tr>
+                <tr><td style="padding:5px 0;color:#6b7280">Date</td><td style="padding:5px 0;color:#374151" id="rct-date"></td></tr>
+                <tr><td style="padding:5px 0;color:#6b7280">Donor</td><td style="padding:5px 0;font-weight:700;color:#1f2937" id="rct-donor"></td></tr>
+                <tr><td style="padding:5px 0;color:#6b7280">Purpose</td><td style="padding:5px 0;color:#374151" id="rct-purpose"></td></tr>
+                <tr><td style="padding:5px 0;color:#6b7280">Notes</td><td style="padding:5px 0;color:#94a3b8;font-style:italic;font-size:12px" id="rct-notes"></td></tr>
+                <tr style="border-top:2px solid #4f46e5;margin-top:8px">
+                    <td style="padding:12px 0 5px;font-weight:700;color:#4f46e5;font-size:15px">Amount</td>
+                    <td style="padding:12px 0 5px;font-weight:800;color:#4f46e5;font-size:20px" id="rct-amount"></td>
+                </tr>
+            </table>
+            <div style="margin-top:24px;padding-top:16px;border-top:1px dashed #e2e8f0;display:flex;justify-content:space-between">
+                <div style="font-size:11px;color:#94a3b8;text-align:center">
+                    <div style="border-top:1px solid #374151;width:120px;margin-bottom:4px;margin-top:28px"></div>
+                    Received by
+                </div>
+                <div style="font-size:11px;color:#94a3b8;text-align:center">
+                    <div style="border-top:1px solid #374151;width:120px;margin-bottom:4px;margin-top:28px"></div>
+                    Donor's Signature
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:16px;font-size:10px;color:#cbd5e1">This receipt serves as official acknowledgment of your donation. Thank you for your generosity.</div>
+        </div>
+        <div style="padding:16px 32px 24px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid #f1f5f9">
+            <button onclick="document.getElementById('receiptModal').style.display='none'"
+                    style="padding:9px 20px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;font-weight:600;cursor:pointer">
+                Close
+            </button>
+            <button onclick="printReceiptNow()"
+                    style="padding:9px 22px;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+                <i class="fa fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const purposeLabels = {
+    building_fund:  'Building Fund',
+    mass_intention: 'Mass Intention',
+    tithes:         'Tithes',
+    other:          'Other',
+};
+function toggleCustomPurpose(val) {
+    const el = document.getElementById('customPurposeInput');
+    el.style.display = val === 'other' ? 'block' : 'none';
+    el.required = val === 'other';
+}
+function printReceipt(don) {
+    document.getElementById('rct-num').textContent    = don.receipt_number || '—';
+    document.getElementById('rct-date').textContent   = don.donation_date  || '—';
+    document.getElementById('rct-donor').textContent  = don.donor_name     || '—';
+    document.getElementById('rct-purpose').textContent= (don.purpose === 'other' && don.custom_purpose) ? don.custom_purpose : (purposeLabels[don.purpose] || don.purpose || '—');
+    document.getElementById('rct-notes').textContent  = don.notes           || '—';
+    document.getElementById('rct-amount').textContent = '₱' + parseFloat(don.amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2});
+    const modal = document.getElementById('receiptModal');
+    modal.style.display = 'flex';
+}
+function printReceiptNow() {
+    const content = document.getElementById('receiptContent').innerHTML;
+    const win = window.open('', '_blank', 'width=500,height=700');
+    win.document.write(`<!DOCTYPE html><html><head><title>Donation Receipt</title>
+        <style>body{font-family:Georgia,serif;padding:40px;max-width:420px;margin:0 auto}table{width:100%;border-collapse:collapse}td{padding:5px 0;font-size:13px}@media print{button{display:none}}</style>
+        </head><body>${content}<script>window.onload=()=>window.print()<\/script></body></html>`);
+    win.document.close();
+}
+</script>
+@endif
+
         {{-- ==================== ANNOUNCEMENTS ==================== --}}
         @if($section === 'announcements')
             <section class="section-card">
                 <div class="section-header">
-                    <div><h2>Create announcements</h2><p>Share news with parishioners and control visibility with one click.</p></div>
+                    <div><h2>Announcements Board</h2><p>Publish updates for parishioners and control what appears on the home page.</p></div>
                 </div>
+
+                {{-- Stats bar --}}
+                <div class="ann-stats-bar">
+                    <div class="ann-stat">
+                        <span class="ann-stat-num">{{ $announcementCount }}</span>
+                        <span class="ann-stat-label">Total</span>
+                    </div>
+                    <div class="ann-stat-divider"></div>
+                    <div class="ann-stat">
+                        <span class="ann-stat-num live">{{ $visibleAnnouncementCount }}</span>
+                        <span class="ann-stat-label">Live on home</span>
+                    </div>
+                    <div class="ann-stat-divider"></div>
+                    <div class="ann-stat">
+                        <span class="ann-stat-num hidden">{{ $announcementCount - $visibleAnnouncementCount }}</span>
+                        <span class="ann-stat-label">Hidden</span>
+                    </div>
+                </div>
+
                 <div class="announcement-grid">
+                    {{-- Compose form --}}
                     <div class="announcement-form">
-                        <h3 class="h5 mb-3">Compose a message</h3>
-                        <form method="POST" action="{{ route('admin.handle') }}" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="action" value="create_announcement">
-                            <input type="hidden" name="redirect_section" value="announcements">
-                            <div class="form-group">
-                                <label for="announcement_title">Title</label>
-                                <input type="text" class="form-control" id="announcement_title" name="announcement_title" maxlength="150" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="announcement_body">Message</label>
-                                <textarea class="form-control" id="announcement_body" name="announcement_body" rows="4" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="announcement_image">Image (optional)</label>
-                                <input type="file" class="form-control" id="announcement_image" name="announcement_image" accept="image/jpeg,image/png,image/gif,image/webp">
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="announcement_show" name="announcement_show" value="1">
-                                <label class="form-check-label" for="announcement_show">Show this on the home page</label>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Publish announcement</button>
-                        </form>
+                        <div class="ann-form-header">
+                            <h3><i class="fa fa-pencil"></i> Compose announcement</h3>
+                            <p>Fill in the details below and publish to the home page.</p>
+                        </div>
+                        <div class="ann-form-body">
+                            <form method="POST" action="{{ route('admin.handle') }}" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="action" value="create_announcement">
+                                <input type="hidden" name="redirect_section" value="announcements">
+                                <div class="form-group">
+                                    <label for="announcement_title">
+                                        Title
+                                        <span id="ann-title-count">0 / 150</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="announcement_title" name="announcement_title"
+                                           maxlength="150" required placeholder="e.g. Parish Fiesta 2025"
+                                           oninput="document.getElementById('ann-title-count').textContent=this.value.length+' / 150'">
+                                </div>
+                                <div class="form-group">
+                                    <label for="announcement_body">
+                                        Message
+                                        <span id="ann-body-count">0 / 500</span>
+                                    </label>
+                                    <textarea class="form-control" id="announcement_body" name="announcement_body"
+                                              rows="5" maxlength="500" required placeholder="Write your message here…"
+                                              oninput="document.getElementById('ann-body-count').textContent=this.value.length+' / 500'"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="announcement_category">Category <span>optional</span></label>
+                                    <select class="form-control" id="announcement_category" name="announcement_category">
+                                        <option value="">— No category —</option>
+                                        <option value="Mass Schedule">Mass Schedule</option>
+                                        <option value="Events">Events</option>
+                                        <option value="Notice">Notice</option>
+                                        <option value="Reminder">Reminder</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="announcement_image">Image <span>optional</span></label>
+                                    <input type="file" class="form-control" id="announcement_image" name="announcement_image"
+                                           accept="image/jpeg,image/png,image/gif,image/webp"
+                                           onchange="annPreviewImage(this,'ann-img-preview-compose')">
+                                    <div class="ann-img-preview" id="ann-img-preview-compose">
+                                        <img src="" alt="Preview">
+                                    </div>
+                                </div>
+                                <label class="ann-visibility-toggle" for="announcement_show">
+                                    <input type="checkbox" id="announcement_show" name="announcement_show" value="1">
+                                    <div>
+                                        <span class="ann-visibility-toggle-label">Show on home page</span>
+                                        <span class="ann-visibility-toggle-sub">Visitors will see this announcement immediately</span>
+                                    </div>
+                                </label>
+                                <button type="submit" class="ann-publish-btn">
+                                    <i class="fa fa-paper-plane"></i> Publish announcement
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
+                    {{-- Announcement list --}}
                     <div class="announcement-list">
                         @if($announcementCount === 0)
                             <p class="empty-block">No announcements have been posted yet.</p>
                         @else
                             @foreach($announcements as $a)
-                                @php $isVisible = (int)($a->show_on_home ?? 0) === 1; @endphp
+                                @php
+                                    $isVisible  = (int)($a->show_on_home ?? 0) === 1;
+                                    $annBody    = $a->body ?? '';
+                                    $annNeedsRM = strlen($annBody) > 200;
+                                    $annCat     = $a->category ?? null;
+                                    $annImgUrl  = !empty($a->image_path)
+                                        ? rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/' . $a->image_path
+                                        : null;
+                                @endphp
                                 <div class="announcement-item">
-                                    <div class="announcement-item-header">
-                                        <h3>{{ $a->title }}</h3>
-                                        <span class="announcement-date"><i class="fa fa-calendar"></i> {{ adminFormatCreatedAt($a->created_at ?? '') }}</span>
-                                    </div>
-                                    @if(!empty($a->image_path))
-                                        <div class="announcement-image">
-                                            <img src="{{ rtrim(config('services.supabase.url'), '/') }}/storage/v1/object/public/{{ $a->image_path }}"
-     alt="Announcement image"
-     style="width:100%; height:200px; object-fit:cover; border-radius:12px;">
+                                    <div class="ann-accent {{ $isVisible ? 'live' : 'hidden' }}"></div>
+                                    <div class="ann-content">
+                                        <div class="ann-header-row">
+                                            <div class="ann-title-block" style="flex:1;min-width:0;">
+                                                @if($annCat)
+                                                    <span class="ann-category-tag"><i class="fa fa-tag"></i> {{ $annCat }}</span>
+                                                @endif
+                                                <p class="ann-title">{{ $a->title }}</p>
+                                                <span class="ann-date">
+                                                    <i class="fa fa-calendar-o"></i>
+                                                    {{ adminFormatCreatedAt($a->created_at ?? '') }}
+                                                </span>
+                                            </div>
+                                            <div style="display:flex;align-items:flex-start;gap:10px;flex-shrink:0;">
+                                                <span class="ann-badge {{ $isVisible ? 'live' : 'hidden' }}">
+                                                    {{ $isVisible ? 'Live' : 'Hidden' }}
+                                                </span>
+                                                @if($annImgUrl)
+                                                    <img class="ann-image-thumb" src="{{ $annImgUrl }}" alt="Thumbnail">
+                                                @endif
+                                            </div>
                                         </div>
-                                    @endif
-                                    <div class="announcement-body">{{ $a->body }}</div>
-                                    <div class="announcement-controls">
-                                        <span class="visibility-badge {{ $isVisible ? 'visible' : 'hidden' }}">
-                                            <i class="fa {{ $isVisible ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                                            {{ $isVisible ? 'Visible on home page' : 'Hidden from home page' }}
-                                        </span>
-                                        <div class="announcement-actions">
-                                            <form method="POST" action="{{ route('admin.handle') }}">
-                                                @csrf
-                                                <input type="hidden" name="action" value="toggle_announcement">
-                                                <input type="hidden" name="announcement_id" value="{{ $a->id }}">
-                                                <input type="hidden" name="show_on_home" value="{{ $isVisible ? '0' : '1' }}">
-                                                <input type="hidden" name="redirect_section" value="announcements">
-                                                <button type="submit" class="btn btn-{{ $isVisible ? 'secondary' : 'success' }} btn-sm">
-                                                    {{ $isVisible ? 'Hide from home' : 'Show on home' }}
+
+                                        <div class="ann-body {{ $annNeedsRM ? 'clamped' : '' }}" id="ann-body-{{ $a->id }}">{{ $annBody }}</div>
+                                        @if($annNeedsRM)
+                                            <button class="ann-read-more-btn" onclick="annAdminToggle(this,'ann-body-{{ $a->id }}')">
+                                                <i class="fa fa-chevron-down"></i> Read more
+                                            </button>
+                                        @endif
+
+                                        <div class="ann-footer">
+                                            <span style="font-size:12px;color:#94a3b8;">
+                                                {{ $isVisible ? 'Visible to parishioners' : 'Not shown on home page' }}
+                                            </span>
+                                            <div class="ann-actions">
+                                                {{-- Edit --}}
+                                                <button type="button" class="ann-edit-btn"
+                                                    onclick="annOpenEdit({{ $a->id }},'{{ addslashes($a->title) }}',{{ json_encode($annBody) }},'{{ addslashes($annCat ?? '') }}',{{ $isVisible ? 1 : 0 }},'{{ $annImgUrl ?? '' }}')">
+                                                    <i class="fa fa-pencil"></i> Edit
                                                 </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('admin.handle') }}" onsubmit="return confirm('Delete this announcement? This action cannot be undone.');">
-                                                @csrf
-                                                <input type="hidden" name="action" value="delete_announcement">
-                                                <input type="hidden" name="announcement_id" value="{{ $a->id }}">
-                                                <input type="hidden" name="redirect_section" value="announcements">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm delete-btn">
-    <i class="fa fa-trash"></i>
-    <span>Delete</span>
-</button>
-                                            </form>
+                                                {{-- Toggle visibility --}}
+                                                <form method="POST" action="{{ route('admin.handle') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="action" value="toggle_announcement">
+                                                    <input type="hidden" name="announcement_id" value="{{ $a->id }}">
+                                                    <input type="hidden" name="show_on_home" value="{{ $isVisible ? '0' : '1' }}">
+                                                    <input type="hidden" name="redirect_section" value="announcements">
+                                                    <button type="submit" class="ann-toggle-btn {{ $isVisible ? 'make-hidden' : 'make-live' }}">
+                                                        <i class="fa {{ $isVisible ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                                        {{ $isVisible ? 'Hide' : 'Make live' }}
+                                                    </button>
+                                                </form>
+                                                {{-- Delete --}}
+                                                <form method="POST" action="{{ route('admin.handle') }}"
+                                                      onsubmit="return confirm('Delete this announcement? This cannot be undone.');">
+                                                    @csrf
+                                                    <input type="hidden" name="action" value="delete_announcement">
+                                                    <input type="hidden" name="announcement_id" value="{{ $a->id }}">
+                                                    <input type="hidden" name="redirect_section" value="announcements">
+                                                    <button type="submit" class="ann-delete-btn">
+                                                        <i class="fa fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1812,6 +3783,86 @@ document.addEventListener('DOMContentLoaded', function () {
                         @endif
                     </div>
                 </div>
+
+                {{-- Edit Announcement Modal --}}
+                <div id="annEditModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+                    <div style="background:#fff;border-radius:20px;width:100%;max-width:560px;margin:20px;box-shadow:0 32px 80px rgba(15,23,42,.22);overflow:hidden;">
+                        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="color:#fff;font-weight:700;font-size:15px;"><i class="fa fa-pencil"></i> Edit Announcement</div>
+                                <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;">Changes will update immediately on the home page if set to Live.</div>
+                            </div>
+                            <button onclick="annCloseEdit()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">&times;</button>
+                        </div>
+                        <form method="POST" action="{{ route('admin.handle') }}" enctype="multipart/form-data" style="padding:24px;display:flex;flex-direction:column;gap:14px;max-height:75vh;overflow-y:auto;">
+                            @csrf
+                            <input type="hidden" name="action" value="edit_announcement">
+                            <input type="hidden" name="redirect_section" value="announcements">
+                            <input type="hidden" name="announcement_id" id="edit_ann_id">
+
+                            <div>
+                                <label style="font-size:13px;font-weight:600;color:#374151;display:flex;justify-content:space-between;margin-bottom:5px;">
+                                    Title <span id="edit-title-count" style="font-weight:400;color:#9ca3af;font-size:12px;">0 / 150</span>
+                                </label>
+                                <input type="text" name="announcement_title" id="edit_ann_title" maxlength="150" required
+                                    style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;"
+                                    oninput="document.getElementById('edit-title-count').textContent=this.value.length+' / 150'">
+                            </div>
+
+                            <div>
+                                <label style="font-size:13px;font-weight:600;color:#374151;display:flex;justify-content:space-between;margin-bottom:5px;">
+                                    Message <span id="edit-body-count" style="font-weight:400;color:#9ca3af;font-size:12px;">0 / 500</span>
+                                </label>
+                                <textarea name="announcement_body" id="edit_ann_body" maxlength="500" rows="5" required
+                                    style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;resize:vertical;"
+                                    oninput="document.getElementById('edit-body-count').textContent=this.value.length+' / 500'"></textarea>
+                            </div>
+
+                            <div>
+                                <label style="font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;display:block;">Category <span style="font-weight:400;color:#9ca3af;font-size:12px;">optional</span></label>
+                                <select name="announcement_category" id="edit_ann_category"
+                                    style="width:100%;padding:9px 36px 9px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%236b7280\' stroke-width=\'1.5\' fill=\'none\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+                                    <option value="">— No category —</option>
+                                    <option value="Mass Schedule">Mass Schedule</option>
+                                    <option value="Events">Events</option>
+                                    <option value="Notice">Notice</option>
+                                    <option value="Reminder">Reminder</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;display:block;">Replace image <span style="font-weight:400;color:#9ca3af;font-size:12px;">optional — leave blank to keep current</span></label>
+                                <div id="edit_ann_current_img" style="margin-bottom:8px;display:none;">
+                                    <img id="edit_ann_current_img_el" src="" alt="Current" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;">
+                                </div>
+                                <input type="file" name="announcement_image" accept="image/jpeg,image/png,image/gif,image/webp"
+                                    style="width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;"
+                                    onchange="annPreviewImage(this,'ann-img-preview-edit')">
+                                <div class="ann-img-preview" id="ann-img-preview-edit"><img src="" alt="Preview"></div>
+                            </div>
+
+                            <label style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;cursor:pointer;">
+                                <input type="checkbox" name="announcement_show" id="edit_ann_show" value="1" style="width:16px;height:16px;accent-color:#4f46e5;">
+                                <div>
+                                    <span style="font-size:13px;font-weight:600;color:#374151;display:block;">Show on home page</span>
+                                    <span style="font-size:11px;color:#6b7280;">Visitors will see this announcement immediately</span>
+                                </div>
+                            </label>
+
+                            <div style="display:flex;gap:10px;padding-top:4px;">
+                                <button type="button" onclick="annCloseEdit()"
+                                    style="flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:10px;font-weight:600;font-size:14px;background:#fff;cursor:pointer;color:#374151;">
+                                    Cancel
+                                </button>
+                                <button type="submit"
+                                    style="flex:2;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;cursor:pointer;">
+                                    <i class="fa fa-save"></i> Save changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </section>
         @endif
 
@@ -1889,9 +3940,32 @@ document.addEventListener('DOMContentLoaded', function () {
             .replaceAll("'", '&#039;');
     }
 
+    const eventTypeColors = {
+        wedding: '#f472b6',
+        baptism: '#2dd4bf',
+        funeral: '#64748b',
+    };
+
+    function getEventColor(eventType) {
+        return eventTypeColors[(eventType || '').toLowerCase()] || '#94a3b8';
+    }
+
+    function daysUntilLabel(dateKey) {
+        const parts = dateKey.split('-');
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        d.setHours(0, 0, 0, 0);
+        const diff = Math.round((d - today) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Tomorrow';
+        if (diff === -1) return 'Yesterday';
+        if (diff > 1) return 'In ' + diff + ' days';
+        return Math.abs(diff) + ' days ago';
+    }
+
     function renderDetails(dateKey) {
         const reservations = reservationsByDate[dateKey] || [];
         const done = isDoneDate(dateKey);
+        const daysLabel = daysUntilLabel(dateKey);
 
         if (!reservations.length) {
             detailsPanel.innerHTML = `
@@ -1915,20 +3989,28 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         reservations.forEach(function (r) {
+            const color = getEventColor(r.eventType);
+            const etLabel = r.eventType ? (r.eventType.charAt(0).toUpperCase() + r.eventType.slice(1).toLowerCase()) : 'Unknown';
             html += `
                 <div class="admin-detail-card">
                     <div class="admin-detail-top">
                         <h4>Reservation #${escapeHtml(r.id)} · ${escapeHtml(r.name)}</h4>
                         <div class="admin-detail-actions">
-    <span class="admin-detail-badge ${done ? 'done' : 'upcoming'}">${done ? 'Done' : 'Upcoming'}</span>
-    <a class="admin-detail-view-btn" href="/reservation_view/${escapeHtml(r.id)}">
-        <i class="fa fa-eye"></i> View details
-    </a>
-</div>
+                            <span class="admin-detail-badge ${done ? 'done' : 'upcoming'}">${done ? 'Done' : 'Upcoming'}</span>
+                            <a class="admin-detail-view-btn" href="/reservation_view/${escapeHtml(r.id)}">
+                                <i class="fa fa-eye"></i> View details
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-tags">
+                        <span class="admin-ev-type-badge" style="background:${color}18;color:${color};border:1px solid ${color}40;">
+                            ${escapeHtml(etLabel)}
+                        </span>
+                        <span class="admin-days-badge ${done ? 'is-done' : ''}">${escapeHtml(daysLabel)}</span>
                     </div>
 
                     <div class="admin-detail-meta">
-                        <span><i class="fa fa-bookmark"></i> ${escapeHtml(r.eventType)}</span>
                         <span><i class="fa fa-clock-o"></i> ${escapeHtml(r.time || 'No time provided')}</span>
                         <span><i class="fa fa-envelope"></i> ${escapeHtml(r.email || 'No email provided')}</span>
                         <span><i class="fa fa-phone"></i> ${escapeHtml(r.phone || 'No phone provided')}</span>
@@ -2021,7 +4103,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 div.classList.add('is_selected');
             }
 
-            div.innerHTML = `<span class="day_number">${day}</span>`;
+            // Build day content: number + colored dots per event type
+            let dotsHtml = '';
+            if (reservations.length) {
+                const seen = {};
+                reservations.forEach(function (r) {
+                    const et = (r.eventType || '').toLowerCase();
+                    if (!seen[et]) {
+                        seen[et] = true;
+                        const c = getEventColor(r.eventType);
+                        dotsHtml += `<span class="cal-ev-dot" style="background:${c};"></span>`;
+                    }
+                });
+                dotsHtml = `<span class="cal-dots">${dotsHtml}</span>`;
+            }
+
+            div.innerHTML = `<span class="day_number">${day}</span>${dotsHtml}`;
             div.classList.add('is_clickable');
             div.addEventListener('click', function () {
                 state.selectedDate = dateKey;
@@ -2089,80 +4186,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         animate();
     });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    function createMiniChart(id, labels, data, color) {
-        const canvas = document.getElementById(id);
-        if (!canvas || typeof Chart === 'undefined') return;
-
-        new Chart(canvas, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    borderColor: color,
-backgroundColor: function (context) {
-    const chart = context.chart;
-    const area = chart.chartArea;
-    if (!area) return color + '18';
-
-    const gradient = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
-    gradient.addColorStop(0, color + '35');
-    gradient.addColorStop(0.65, color + '12');
-    gradient.addColorStop(1, color + '00');
-    return gradient;
-},
-fill: true,
-tension: 0.48,
-pointRadius: 0,
-pointHoverRadius: 4,
-borderWidth: 2.6,
-borderCapStyle: 'round',
-borderJoinStyle: 'round'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 700
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: true }
-                },
-                scales: {
-                    x: { display: false },
-                    y: { display: false, beginAtZero: true }
-                }
-            }
-        });
-    }
-
-    createMiniChart(
-        'miniWeddingChart',
-        @json($weddingChart['labels'] ?? []),
-        @json($weddingChart['totals'] ?? []),
-        '#ef4444'
-    );
-
-    createMiniChart(
-        'miniBaptismChart',
-        @json($baptismChart['labels'] ?? []),
-        @json($baptismChart['totals'] ?? []),
-        '#22c55e'
-    );
-
-    createMiniChart(
-        'miniFuneralChart',
-        @json($funeralChart['labels'] ?? []),
-        @json($funeralChart['totals'] ?? []),
-        '#64748b'
-    );
 });
 </script>
 

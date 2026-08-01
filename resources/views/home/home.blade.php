@@ -141,7 +141,7 @@
 <!-- welcome_area_end -->
 
 <!-- events_preview_start -->
-<div class="features_room pt-120 pb-120">
+<div class="ann_section_wrap">
     <div class="container">
         <div class="row">
             <div class="col-xl-12">
@@ -155,81 +155,140 @@
             </div>
         </div>
 
-        <div class="row announcements_grid pb-5">
-            <div class="col-xl-8 col-lg-9 mx-auto pb-5">
+        @if(!empty($announcements) && count($announcements) > 0)
+            @php $annList = array_values($announcements); @endphp
 
-                @if(!empty($announcements) && count($announcements) > 0)
+            {{-- Featured hero card (first announcement) --}}
+            @php
+                $first = $annList[0];
+                $firstImg = null;
+                if (!empty($first['image_path'])) {
+                    $p = ltrim($first['image_path'], '/');
+                    $firstImg = str_starts_with($p, 'http') ? $p
+                        : rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/' . (str_starts_with($p, 'announcements/') ? $p : 'announcements/' . $p);
+                }
+                $firstDate = !empty($first['created_at']) ? \Carbon\Carbon::parse($first['created_at'])->format('F j, Y') : '';
+            @endphp
 
-                    @foreach($announcements as $announcement)
+            <div class="ann_hero_card mb-5">
+                @if($firstImg)
+                    <div class="ann_hero_media">
+                        <img src="{{ $firstImg }}" alt="{{ $first['title'] ?? '' }}">
+                        <div class="ann_hero_overlay"></div>
+                    </div>
+                @else
+                    <div class="ann_hero_no_image"></div>
+                @endif
+                <div class="ann_hero_body {{ $firstImg ? 'ann_hero_body--over' : '' }}">
+                    <span class="ann_tag"><i class="fa fa-bullhorn"></i> Announcement</span>
+                    <h2 class="ann_hero_title">{{ $first['title'] ?? 'Announcement' }}</h2>
+                    @if($firstDate)<span class="ann_hero_date"><i class="fa fa-calendar-o"></i> {{ $firstDate }}</span>@endif
+                    <p class="ann_hero_excerpt ann_expandable" data-full="{{ e($first['body'] ?? '') }}">{{ \Illuminate\Support\Str::limit($first['body'] ?? '', 220) }}</p>
+                    @if(strlen($first['body'] ?? '') > 220)
+                        <button class="ann_read_more" onclick="annToggle(this)">Read more <i class="fa fa-chevron-down"></i></button>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Remaining cards in 2-column grid --}}
+            @if(count($annList) > 1)
+                <div class="ann_grid">
+                    @foreach(array_slice($annList, 1) as $announcement)
                         @php
                             $imageUrl = null;
-
                             if (!empty($announcement['image_path'])) {
-                                $path = ltrim($announcement['image_path'], '/');
-
-                                if (str_starts_with($path, 'http')) {
-                                    $imageUrl = $path;
-                                } elseif (str_starts_with($path, 'announcements/')) {
-                                    $imageUrl = rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/' . $path;
-                                } else {
-                                    $imageUrl = rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/announcements/' . $path;
-                                }
+                                $p = ltrim($announcement['image_path'], '/');
+                                $imageUrl = str_starts_with($p, 'http') ? $p
+                                    : rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/' . (str_starts_with($p, 'announcements/') ? $p : 'announcements/' . $p);
                             }
+                            $annDate = !empty($announcement['created_at']) ? \Carbon\Carbon::parse($announcement['created_at'])->format('F j, Y') : '';
+                            $bodyFull = $announcement['body'] ?? '';
+                            $bodyShort = \Illuminate\Support\Str::limit($bodyFull, 160);
                         @endphp
 
-                        <div class="announcement_card announcement_card_premium mb-4">
-    @if($imageUrl)
-        <div class="announcement_media">
-            <img src="{{ $imageUrl }}" alt="{{ $announcement['title'] ?? 'Announcement image' }}">
-            <span class="announcement_badge">Parish Update</span>
-        </div>
-    @endif
-
-    <div class="announcement_body">
-        <div class="announcement_meta">
-            <span><i class="fa fa-bullhorn"></i> Announcement</span>
-        </div>
-
-        <h3>{{ $announcement['title'] ?? 'Announcement' }}</h3>
-
-        <p class="announcement_excerpt">
-            {{ $announcement['body'] ?? '' }}
-        </p>
-    </div>
-</div>
+                        @if($imageUrl)
+                            {{-- Card with image --}}
+                            <div class="ann_card">
+                                <div class="ann_card_media">
+                                    <img src="{{ $imageUrl }}" alt="{{ $announcement['title'] ?? '' }}">
+                                    <span class="ann_card_badge">Parish Update</span>
+                                </div>
+                                <div class="ann_card_body">
+                                    <span class="ann_tag"><i class="fa fa-bullhorn"></i> Announcement</span>
+                                    <h3 class="ann_card_title">{{ $announcement['title'] ?? 'Announcement' }}</h3>
+                                    @if($annDate)<span class="ann_card_date"><i class="fa fa-calendar-o"></i> {{ $annDate }}</span>@endif
+                                    <p class="ann_card_excerpt ann_expandable" data-full="{{ e($bodyFull) }}">{{ $bodyShort }}</p>
+                                    @if(strlen($bodyFull) > 160)
+                                        <button class="ann_read_more" onclick="annToggle(this)">Read more <i class="fa fa-chevron-down"></i></button>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            {{-- Text-only horizontal accent card --}}
+                            <div class="ann_card ann_card--text">
+                                <div class="ann_card_accent"></div>
+                                <div class="ann_card_text_icon"><i class="fa fa-bullhorn"></i></div>
+                                <div class="ann_card_body">
+                                    <span class="ann_tag"><i class="fa fa-bullhorn"></i> Announcement</span>
+                                    <h3 class="ann_card_title">{{ $announcement['title'] ?? 'Announcement' }}</h3>
+                                    @if($annDate)<span class="ann_card_date"><i class="fa fa-calendar-o"></i> {{ $annDate }}</span>@endif
+                                    <p class="ann_card_excerpt ann_expandable" data-full="{{ e($bodyFull) }}">{{ $bodyShort }}</p>
+                                    @if(strlen($bodyFull) > 160)
+                                        <button class="ann_read_more" onclick="annToggle(this)">Read more <i class="fa fa-chevron-down"></i></button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     @endforeach
+                </div>
+            @endif
 
-                @else
+        @else
 
-                    <div class="announcement_empty">
-                        <div class="announcement_empty_icon">
-                            <i class="fa fa-bullhorn"></i>
-                        </div>
-
-                        <h4>Announcements are coming soon</h4>
-
-                        <p>
-                            Our team is preparing new updates about upcoming Masses and parish events.
-                            Please check back shortly or view the worship schedule for the latest information.
-                        </p>
-
-                        <div class="announcement_empty_actions">
-                            <a class="boxed-btn3" href="{{ url('/schedule') }}">
-                                <i class="fa fa-clock-o"></i> View worship schedule
-                            </a>
-
-                            <a class="boxed-btn3 dark" href="{{ url('/contact') }}">
-                                <i class="fa fa-envelope-open"></i> Contact the parish office
-                            </a>
-                        </div>
+            <div class="col-xl-8 col-lg-9 mx-auto pb-5">
+                <div class="announcement_empty">
+                    <div class="announcement_empty_icon">
+                        <i class="fa fa-bullhorn"></i>
                     </div>
-
-                @endif
-
+                    <h4>Announcements are coming soon</h4>
+                    <p>
+                        Our team is preparing new updates about upcoming Masses and parish events.
+                        Please check back shortly or view the worship schedule for the latest information.
+                    </p>
+                    <div class="announcement_empty_actions">
+                        <a class="boxed-btn3" href="{{ url('/schedule') }}">
+                            <i class="fa fa-clock-o"></i> View worship schedule
+                        </a>
+                        <a class="boxed-btn3 dark" href="{{ url('/contact') }}">
+                            <i class="fa fa-envelope-open"></i> Contact the parish office
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+
+        @endif
+
     </div>
 </div>
+
+<script>
+function annToggle(btn) {
+    var p = btn.previousElementSibling;
+    var full = p.getAttribute('data-full');
+    var isExpanded = btn.classList.contains('expanded');
+    if (isExpanded) {
+        p.textContent = full.length > (p.closest('.ann_hero_body') ? 220 : 160)
+            ? full.substring(0, p.closest('.ann_hero_body') ? 220 : 160) + '…'
+            : full;
+        btn.innerHTML = 'Read more <i class="fa fa-chevron-down"></i>';
+        btn.classList.remove('expanded');
+    } else {
+        p.textContent = full;
+        btn.innerHTML = 'Show less <i class="fa fa-chevron-up"></i>';
+        btn.classList.add('expanded');
+    }
+}
+</script>
 
 <section class="pillars_area section_padding pb-5">
     <div class="container">

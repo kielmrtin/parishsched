@@ -76,17 +76,14 @@ class ForgotPasswordController extends Controller
 
             $resetUrl = route('password.reset', ['token' => $token]);
 
-            Mail::raw(
-                "Hi " . ($customer['name'] ?? 'there') . ",\n\n" .
-                "Click this link to reset your password:\n\n" .
-                $resetUrl . "\n\n" .
-                "This link will expire in one hour.\n\n" .
-                "St. John the Baptist Parish",
-                function ($message) use ($email) {
-                    $message->to($email)
-                        ->subject('Reset your St. John the Baptist Parish password');
-                }
-            );
+            Mail::send('emails.password-reset', [
+                'name'      => $customer['name'] ?? 'there',
+                'reset_url' => $resetUrl,
+                'by_admin'  => false,
+            ], function ($message) use ($email) {
+                $message->to($email)
+                    ->subject('Reset your St. John the Baptist Parish password');
+            });
         }
 
         return back()->with('success', "If an account matches that email address, we've sent a password reset link.");

@@ -4,7 +4,10 @@
       "Bash(php -l /home/snoopi/church-web/app/Http/Controllers/Auth/ForgotPasswordController.php)",
       "Bash(php /home/snoopi/church-web/artisan cache:clear)",
       "Bash(php -l /home/snoopi/church-web/app/Http/Controllers/ReservationController.php)",
-      "Bash(php /home/snoopi/church-web/artisan view:clear)"
+      "Bash(php /home/snoopi/church-web/artisan view:clear)",
+      "Bash(php -l /home/snoopi/church-web/app/Http/Controllers/AdminController.php)",
+      "Bash(php artisan *)",
+      "Bash(php -l app/Http/Controllers/AdminController.php)"
     ]
   }
 }

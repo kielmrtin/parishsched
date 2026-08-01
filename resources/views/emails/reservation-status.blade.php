@@ -40,6 +40,20 @@ elseif ($statusText === 'declined') {
     $subtitle = 'After reviewing your request, we are unable to confirm the reservation as submitted.';
     $label = 'Declined';
 }
+elseif ($statusText === 'cancelled') {
+    $heroGradient = 'linear-gradient(135deg,#475569 0%,#64748b 50%,#94a3b8 100%)';
+    $badgeColor = 'rgba(148,163,184,.25)';
+    $title = 'Your reservation has been cancelled';
+    $subtitle = 'Your cancellation request has been approved. Your reservation is now cancelled.';
+    $label = 'Cancelled';
+}
+elseif ($statusText === 'cancellation_denied') {
+    $heroGradient = 'linear-gradient(135deg,#b45309 0%,#d97706 50%,#fbbf24 100%)';
+    $badgeColor = 'rgba(251,191,36,.25)';
+    $title = 'Your cancellation request was not approved';
+    $subtitle = 'The parish office has reviewed your request and your reservation will remain as scheduled.';
+    $label = 'Cancellation Denied';
+}
 else {
     $heroGradient = 'linear-gradient(135deg,#eab308 0%,#facc15 50%,#fde047 100%)';
     $badgeColor = 'rgba(250,204,21,.25)';
@@ -94,15 +108,19 @@ else {
 
                         @php
 if ($statusText === 'approved') {
-    $statusBg = '#0f2f1c'; // green dark
+    $statusBg = '#0f2f1c';
     $statusAccent = '#22c55e';
-}
-elseif ($statusText === 'declined') {
-    $statusBg = '#2f0f0f'; // red dark
+} elseif ($statusText === 'declined') {
+    $statusBg = '#2f0f0f';
     $statusAccent = '#ef4444';
-}
-else {
-    $statusBg = '#2f2a0f'; // yellow dark
+} elseif ($statusText === 'cancelled') {
+    $statusBg = '#1e2530';
+    $statusAccent = '#94a3b8';
+} elseif ($statusText === 'cancellation_denied') {
+    $statusBg = '#2f1f0a';
+    $statusAccent = '#fbbf24';
+} else {
+    $statusBg = '#2f2a0f';
     $statusAccent = '#facc15';
 }
 @endphp
@@ -127,14 +145,20 @@ else {
                                     </td>
                                 </tr>
 
-                                @foreach([
+                                @php
+$summaryRows = [
     'Current Status' => $label,
-    'Name' => $name ?? '',
-    'Event Type' => $event_type ?? '',
+    'Name'           => $name ?? '',
+    'Event Type'     => $event_type ?? '',
     'Preferred Date' => $reservation_date ?? '',
     'Preferred Time' => $reservation_time ?? '',
-    'Admin Note' => $admin_note ?? 'No additional note provided.',
-] as $labelName => $value)
+];
+if ($statusText === 'approved' && !empty($priest_name)) {
+    $summaryRows['Assigned Priest'] = $priest_name;
+}
+$summaryRows['Admin Note'] = $admin_note ?? 'No additional note provided.';
+@endphp
+                                @foreach($summaryRows as $labelName => $value)
 <tr>
     <td class="summary-label" style="padding:17px 24px; width:38%; border-top:1px solid #2f333a; color:#94a3b8; font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:800;">
         {{ $labelName }}

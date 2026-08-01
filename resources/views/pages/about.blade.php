@@ -109,6 +109,11 @@
             gap: 16px;
             margin-top: 24px;
         }
+        .hero-actions .boxed-btn3:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.28);
+            border-color: rgba(255,255,255,0.6);
+        }
 
         .stat-row {
             row-gap: 1.5rem;

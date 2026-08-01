@@ -30,6 +30,14 @@ Route::get('/reservation', [ReservationController::class, 'index'])
     ->middleware(['customer.auth', 'customer.status'])
     ->name('reservation.index');
 
+Route::get('/my-reservations', [ReservationController::class, 'myReservations'])
+    ->middleware(['customer.auth'])
+    ->name('reservation.my');
+
+Route::post('/reservation/{id}/cancel-request', [ReservationController::class, 'cancelRequest'])
+    ->middleware(['customer.auth'])
+    ->name('reservation.cancel');
+
 Route::post('/reservation', [ReservationController::class, 'store'])
     ->middleware(['customer.auth', 'customer.status'])
     ->name('reservation.store');
@@ -61,6 +69,12 @@ Route::post('/api/mobile-contact', [ContactController::class, 'mobileSend']);
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 Route::post('/admin', [AdminController::class, 'handle'])->name('admin.handle');
 Route::get('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+Route::post('/admin/donations', [AdminController::class, 'storeDonation'])->name('admin.donations.store');
+Route::delete('/admin/donations/{id}', [AdminController::class, 'deleteDonation'])->name('admin.donations.delete');
+Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');
+Route::post('/admin/priests', [AdminController::class, 'storePriest'])->name('admin.priests.store');
+Route::delete('/admin/priests/{id}', [AdminController::class, 'deletePriest'])->name('admin.priests.delete');
+Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assignOfficiant'])->name('admin.reservations.officiant');
 
 Route::post('/send-register-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendRegisterOtp'])
     ->name('register.sendOtp');

@@ -35,4 +35,13 @@ return [
         'notification_email' => env('ADMIN_NOTIFICATION_EMAIL'),
     ],
 
+    'secretary' => [
+        'username' => env('SECRETARY_USERNAME', 'secretary'),
+        'password' => env('SECRETARY_PASSWORD', '12345678'),
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+    ],
+
 ];

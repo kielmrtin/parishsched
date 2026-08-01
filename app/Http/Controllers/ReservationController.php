@@ -73,6 +73,25 @@ class ReservationController extends Controller
         'reservation_time.required' => 'Please select a preferred time.',
     ]);
 
+    // DUPLICATE ENTRY CHECK: same customer email + same event type + same date
+    $dupResponse = Http::withHeaders([
+        'apikey'        => config('services.supabase.key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.key'),
+    ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
+        'select'           => 'id,status',
+        'email'            => 'eq.' . $validated['email'],
+        'event_type'       => 'eq.' . $validated['event_type'],
+        'reservation_date' => 'eq.' . $validated['reservation_date'],
+        'status'           => 'in.(approved,pending,booked)',
+    ]);
+
+    if ($dupResponse->successful() && !empty($dupResponse->json())) {
+        $dupStatus = ucfirst($dupResponse->json()[0]['status'] ?? 'pending');
+        return back()->withInput()->withErrors([
+            'reservation' => "You already have a {$dupStatus} {$validated['event_type']} reservation on this date. Please contact the parish office if you need to make changes.",
+        ]);
+    }
+
     $files = [];
 
     foreach ([
@@ -116,41 +135,50 @@ $files[] = [
         }
     }
 
-        // CHECK IF SAME DATE + SAME EVENT TYPE + SAME TIME IS ALREADY TAKEN
-    $existingReservationsResponse = Http::withHeaders([
-        'apikey' => config('services.supabase.key'),
-        'Authorization' => 'Bearer ' . config('services.supabase.key'),
-    ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
-        'select' => 'id,event_type,reservation_date,reservation_time,status',
-        'reservation_date' => 'eq.' . $validated['reservation_date'],
-        'event_type' => 'eq.' . $validated['event_type'],
-        'status' => 'in.(approved,pending,booked)',
-    ]);
-
-    $existingReservations = $existingReservationsResponse->json() ?? [];
-
-    // BAPTISM LIMIT: ONLY 5 BOOKINGS PER DATE
-    if (strtolower($validated['event_type']) === 'baptism') {
-        if (count($existingReservations) >= 5) {
-            return back()->withInput()->withErrors([
-                'reservation' => 'Baptism booking limit reached for this date. Please choose another date.',
-            ]);
-        }
-    }
-
-    // SAME TIME IS NOT ALLOWED IF ALREADY APPROVED/PENDING
-    $timeAlreadyTaken = collect($existingReservations)->contains(function ($reservation) use ($validated) {
-        $existingTime = trim(str_replace('–', '-', $reservation['reservation_time'] ?? ''));
-        $selectedTime = trim(str_replace('–', '-', $validated['reservation_time']));
-
-        return strtolower($existingTime) === strtolower($selectedTime);
-    });
-
-    if ($timeAlreadyTaken) {
-        return back()->withInput()->withErrors([
-            'reservation' => 'This time slot is already taken or pending. Please choose another available time.',
+        // CONFLICT CHECK: fetch all reservations on the same date, any event type
+        $allSameDateResponse = Http::withHeaders([
+            'apikey'        => config('services.supabase.key'),
+            'Authorization' => 'Bearer ' . config('services.supabase.key'),
+        ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
+            'select'           => 'id,event_type,reservation_date,reservation_time,status',
+            'reservation_date' => 'eq.' . $validated['reservation_date'],
+            'status'           => 'in.(approved,pending,booked)',
         ]);
-    }
+
+        $allSameDate  = collect($allSameDateResponse->json() ?? []);
+        $isBaptism    = strtolower($validated['event_type']) === 'baptism';
+        $selectedTime = strtolower(trim(str_replace('–', '-', $validated['reservation_time'])));
+
+        // All reservations at the exact same time slot (any type)
+        $sameTimeSlot = $allSameDate->filter(function ($r) use ($selectedTime) {
+            $existing = strtolower(trim(str_replace('–', '-', $r['reservation_time'] ?? '')));
+            return $existing === $selectedTime;
+        });
+
+        if ($isBaptism) {
+            // Baptisms are group ceremonies — allow up to 5 per date at the same slot
+            $baptismsAtTime = $sameTimeSlot->filter(fn($r) => strtolower($r['event_type'] ?? '') === 'baptism');
+            if ($baptismsAtTime->count() >= 5) {
+                return back()->withInput()->withErrors([
+                    'reservation' => 'Baptism slots for this time are full (max 5). Please choose another date.',
+                ]);
+            }
+            // Block if another event type (Wedding/Funeral) is already using the same slot
+            $otherAtTime = $sameTimeSlot->filter(fn($r) => strtolower($r['event_type'] ?? '') !== 'baptism');
+            if ($otherAtTime->isNotEmpty()) {
+                return back()->withInput()->withErrors([
+                    'reservation' => 'This time slot is already reserved for another event. Please choose a different time.',
+                ]);
+            }
+        } else {
+            // Wedding/Funeral: the church holds one ceremony at a time — block any overlap
+            if ($sameTimeSlot->isNotEmpty()) {
+                $conflictType = ucfirst($sameTimeSlot->first()['event_type'] ?? 'event');
+                return back()->withInput()->withErrors([
+                    'reservation' => "This time slot already has a {$conflictType} reservation. Please choose another available time.",
+                ]);
+            }
+        }
 
   $customerId = null;
 
@@ -252,6 +280,100 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
         ],
     ]);
  }
+
+public function cancelRequest(Request $request, string $id)
+{
+    $customerId = session('customer_id');
+    $reason     = trim($request->input('cancel_reason', ''));
+
+    // Fetch the reservation and verify it belongs to this customer
+    $res = Http::withHeaders([
+        'apikey'        => config('services.supabase.service_role_key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
+    ])->get(rtrim(config('services.supabase.url'), '/') . '/rest/v1/reservations', [
+        'select' => 'id,customer_id,status,cancellation_requested,event_type,reservation_date,reservation_time,name,email',
+        'id'     => 'eq.' . $id,
+        'limit'  => 1,
+    ]);
+
+    $reservation = $res->successful() ? ($res->json()[0] ?? null) : null;
+
+    if (!$reservation || (string)($reservation['customer_id'] ?? '') !== (string)$customerId) {
+        return redirect()->route('reservation.my')->with('error', 'Reservation not found.');
+    }
+
+    $status = strtolower($reservation['status'] ?? '');
+
+    if (!in_array($status, ['pending', 'approved'])) {
+        return redirect()->route('reservation.my')->with('error', 'This reservation cannot be cancelled.');
+    }
+
+    if (!empty($reservation['cancellation_requested'])) {
+        return redirect()->route('reservation.my')->with('error', 'A cancellation request is already pending.');
+    }
+
+    // Flag the reservation — use service role key to bypass RLS
+    $patch = Http::withHeaders([
+        'apikey'        => config('services.supabase.service_role_key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
+        'Content-Type'  => 'application/json',
+        'Prefer'        => 'return=minimal',
+    ])->patch(rtrim(config('services.supabase.url'), '/') . '/rest/v1/reservations?id=eq.' . $id, [
+        'cancellation_requested' => true,
+        'cancel_reason'          => $reason ?: null,
+        'updated_at'             => now()->toISOString(),
+    ]);
+
+    if ($patch->failed()) {
+        return redirect()->route('reservation.my')->with('error',
+            'Could not submit your request: ' . $patch->body()
+        );
+    }
+
+    // Notify admin
+    try {
+        $adminEmail = config('services.admin.notification_email');
+        if ($adminEmail) {
+            $eventType = $reservation['event_type'] ?? 'reservation';
+            $eventDate = $reservation['reservation_date'] ?? '—';
+            Mail::send('emails.cancellation-request', [
+                'customerName' => $reservation['name'] ?? 'A customer',
+                'eventType'    => $eventType,
+                'eventDate'    => $eventDate,
+                'reason'       => $reason,
+            ], function ($message) use ($adminEmail, $eventType, $eventDate) {
+                $message->to($adminEmail)
+                    ->subject('Cancellation Request: ' . ucfirst($eventType) . ' on ' . $eventDate);
+            });
+        }
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::error('Cancellation admin email failed: ' . $e->getMessage());
+    }
+
+    return redirect()->route('reservation.my')->with('success', 'Your cancellation request has been submitted. The parish office will respond shortly.');
+}
+
+public function myReservations()
+{
+    $customerId = session('customer_id');
+
+    $response = Http::withHeaders([
+        'apikey'        => config('services.supabase.key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.key'),
+    ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
+        'select'      => 'id,event_type,reservation_date,reservation_time,status,admin_note,created_at,name',
+        'customer_id' => 'eq.' . $customerId,
+        'order'       => 'created_at.desc',
+    ]);
+
+    $reservations = $response->successful() ? ($response->json() ?? []) : [];
+
+    return view('reservation.my-reservations', [
+        'reservations'   => $reservations,
+        'customerName'   => session('customer_name', 'Member'),
+        'customerEmail'  => session('customer_email', ''),
+    ]);
+}
 
 public function show(string $id)
 {

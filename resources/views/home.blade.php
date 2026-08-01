@@ -141,7 +141,7 @@
 <!-- welcome_area_end -->
 
 <!-- events_preview_start -->
-<div class="features_room pt-120 pb-120">
+<div class="ann_section_wrap">
     <div class="container">
         <div class="row">
             <div class="col-xl-12">
@@ -155,81 +155,144 @@
             </div>
         </div>
 
-        <div class="row announcements_grid pb-5">
-            <div class="col-xl-8 col-lg-9 mx-auto pb-5">
+        @php
+            $annList = array_values($announcements ?? []);
+        @endphp
 
-                @if(!empty($announcements) && count($announcements) > 0)
+        @if(count($annList) > 0)
 
-                    @foreach($announcements as $announcement)
+            {{-- Hero card (first announcement) --}}
+            @php
+                $first    = $annList[0];
+                $firstImg = null;
+                if (!empty($first['image_path'])) {
+                    $p = ltrim($first['image_path'], '/');
+                    $firstImg = str_starts_with($p, 'http') ? $p
+                        : rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/'
+                          . (str_starts_with($p, 'announcements/') ? $p : 'announcements/' . $p);
+                }
+                $firstDate = !empty($first['created_at'])
+                    ? \Carbon\Carbon::parse($first['created_at'])->format('F j, Y') : '';
+                $firstCat  = $first['category'] ?? null;
+                $firstBody = $first['body'] ?? '';
+            @endphp
+
+            <div class="ann_hero_card mb-5">
+                <div class="ann_hero_media">
+                    @if($firstImg)
+                        <img src="{{ $firstImg }}" alt="{{ $first['title'] ?? '' }}">
+                    @else
+                        <div class="ann_hero_placeholder"></div>
+                    @endif
+                    <div class="ann_hero_overlay"></div>
+                </div>
+                <div class="ann_hero_body">
+                    <div class="ann_hero_meta">
+                        @if($firstCat)
+                            <span class="ann_cat_tag">{{ $firstCat }}</span>
+                        @endif
+                        <span class="ann_hero_label"><i class="fa fa-bullhorn"></i> Announcement</span>
+                        @if($firstDate)
+                            <span class="ann_hero_date"><i class="fa fa-calendar-o"></i> {{ $firstDate }}</span>
+                        @endif
+                    </div>
+                    <h2 class="ann_hero_title">{{ $first['title'] ?? 'Announcement' }}</h2>
+                    <p class="ann_hero_excerpt" id="ann-hero-excerpt" data-full="{{ e($firstBody) }}">{{ \Illuminate\Support\Str::limit($firstBody, 200) }}</p>
+                    @if(strlen($firstBody) > 200)
+                        <button class="ann_read_more" onclick="annHeroToggle(this)">Read more <i class="fa fa-chevron-down"></i></button>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Grid (remaining announcements) --}}
+            @if(count($annList) > 1)
+                <div class="ann_grid">
+                    @foreach(array_slice($annList, 1) as $ann)
                         @php
-                            $imageUrl = null;
-
-                            if (!empty($announcement['image_path'])) {
-                                $path = ltrim($announcement['image_path'], '/');
-
-                                if (str_starts_with($path, 'http')) {
-                                    $imageUrl = $path;
-                                } elseif (str_starts_with($path, 'announcements/')) {
-                                    $imageUrl = rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/' . $path;
-                                } else {
-                                    $imageUrl = rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/announcements/' . $path;
-                                }
+                            $aImg = null;
+                            if (!empty($ann['image_path'])) {
+                                $p = ltrim($ann['image_path'], '/');
+                                $aImg = str_starts_with($p, 'http') ? $p
+                                    : rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/public/'
+                                      . (str_starts_with($p, 'announcements/') ? $p : 'announcements/' . $p);
                             }
+                            $aDate    = !empty($ann['created_at']) ? \Carbon\Carbon::parse($ann['created_at'])->format('F j, Y') : '';
+                            $aCat     = $ann['category'] ?? null;
+                            $aBody    = $ann['body'] ?? '';
+                            $aShort   = \Illuminate\Support\Str::limit($aBody, 160);
+                            $aNeedsRM = strlen($aBody) > 160;
+                            $aId      = $ann['id'] ?? uniqid();
                         @endphp
 
-                        <div class="announcement_card announcement_card_premium mb-4">
-    @if($imageUrl)
-        <div class="announcement_media">
-            <img src="{{ $imageUrl }}" alt="{{ $announcement['title'] ?? 'Announcement image' }}">
-            <span class="announcement_badge">Parish Update</span>
-        </div>
-    @endif
-
-    <div class="announcement_body">
-        <div class="announcement_meta">
-            <span><i class="fa fa-bullhorn"></i> Announcement</span>
-        </div>
-
-        <h3>{{ $announcement['title'] ?? 'Announcement' }}</h3>
-
-        <p class="announcement_excerpt">
-            {{ $announcement['body'] ?? '' }}
-        </p>
-    </div>
-</div>
+                        @if($aImg)
+                        <div class="ann_card">
+                            <div class="ann_card_media">
+                                <img src="{{ $aImg }}" alt="{{ $ann['title'] ?? '' }}">
+                                <div class="ann_card_img_overlay"></div>
+                                @if($aCat)<span class="ann_card_cat">{{ $aCat }}</span>@endif
+                            </div>
+                            <div class="ann_card_body">
+                                <span class="ann_card_label"><i class="fa fa-bullhorn"></i> Announcement</span>
+                                <h3 class="ann_card_title">{{ $ann['title'] ?? 'Announcement' }}</h3>
+                                @if($aDate)<span class="ann_card_date"><i class="fa fa-calendar-o"></i> {{ $aDate }}</span>@endif
+                                <p class="ann_card_excerpt" id="ann-card-{{ $aId }}" data-full="{{ e($aBody) }}">{{ $aShort }}</p>
+                                @if($aNeedsRM)
+                                    <button class="ann_read_more" onclick="annCardToggle(this,'ann-card-{{ $aId }}')">Read more <i class="fa fa-chevron-down"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        @else
+                        <div class="ann_card ann_card_text">
+                            <div class="ann_card_stripe"></div>
+                            <div class="ann_card_body">
+                                <span class="ann_card_label"><i class="fa fa-bullhorn"></i> Announcement</span>
+                                @if($aCat)<span class="ann_cat_tag" style="margin-left:8px;">{{ $aCat }}</span>@endif
+                                <h3 class="ann_card_title">{{ $ann['title'] ?? 'Announcement' }}</h3>
+                                @if($aDate)<span class="ann_card_date"><i class="fa fa-calendar-o"></i> {{ $aDate }}</span>@endif
+                                <p class="ann_card_excerpt" id="ann-card-{{ $aId }}" data-full="{{ e($aBody) }}">{{ $aShort }}</p>
+                                @if($aNeedsRM)
+                                    <button class="ann_read_more" onclick="annCardToggle(this,'ann-card-{{ $aId }}')">Read more <i class="fa fa-chevron-down"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
                     @endforeach
+                </div>
+            @endif
 
-                @else
-
-                    <div class="announcement_empty">
-                        <div class="announcement_empty_icon">
-                            <i class="fa fa-bullhorn"></i>
-                        </div>
-
-                        <h4>Announcements are coming soon</h4>
-
-                        <p>
-                            Our team is preparing new updates about upcoming Masses and parish events.
-                            Please check back shortly or view the worship schedule for the latest information.
-                        </p>
-
-                        <div class="announcement_empty_actions">
-                            <a class="boxed-btn3" href="{{ url('/schedule') }}">
-                                <i class="fa fa-clock-o"></i> View worship schedule
-                            </a>
-
-                            <a class="boxed-btn3 dark" href="{{ url('/contact') }}">
-                                <i class="fa fa-envelope-open"></i> Contact the parish office
-                            </a>
-                        </div>
+        @else
+            <div class="col-xl-8 col-lg-9 mx-auto pb-5">
+                <div class="announcement_empty">
+                    <div class="announcement_empty_icon"><i class="fa fa-bullhorn"></i></div>
+                    <h4>Announcements are coming soon</h4>
+                    <p>Our team is preparing new updates about upcoming Masses and parish events. Please check back shortly.</p>
+                    <div class="announcement_empty_actions">
+                        <a class="boxed-btn3" href="{{ url('/schedule') }}"><i class="fa fa-clock-o"></i> View worship schedule</a>
+                        <a class="boxed-btn3 dark" href="{{ url('/contact') }}"><i class="fa fa-envelope-open"></i> Contact the parish office</a>
                     </div>
-
-                @endif
-
+                </div>
             </div>
-        </div>
+        @endif
+
     </div>
 </div>
+
+<script>
+function annHeroToggle(btn) {
+    var p = document.getElementById('ann-hero-excerpt');
+    var full = p.getAttribute('data-full');
+    var expanded = btn.classList.toggle('expanded');
+    p.textContent = expanded ? full : full.substring(0, 200) + (full.length > 200 ? '…' : '');
+    btn.innerHTML = expanded ? 'Show less <i class="fa fa-chevron-up"></i>' : 'Read more <i class="fa fa-chevron-down"></i>';
+}
+function annCardToggle(btn, id) {
+    var p = document.getElementById(id);
+    var full = p.getAttribute('data-full');
+    var expanded = btn.classList.toggle('expanded');
+    p.textContent = expanded ? full : full.substring(0, 160) + (full.length > 160 ? '…' : '');
+    btn.innerHTML = expanded ? 'Show less <i class="fa fa-chevron-up"></i>' : 'Read more <i class="fa fa-chevron-down"></i>';
+}
+</script>
 
 <section class="pillars_area section_padding pb-5">
     <div class="container">

@@ -10,7 +10,6 @@
     <meta name="description" content="Reach out to St. John the Baptist Parish for reservations, sacramental requests, and pastoral care support in Tiaong, Quezon.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSS here -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/magnific-popup.css') }}">
@@ -22,50 +21,110 @@
     <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/schedule.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
 
     <style>
-        
-        .logo-img img {
+        /* ---- GLOBAL OVERFLOW LOCK ---- */
+        /*
+         * body overflow-x:hidden propagates to the viewport (html must stay at default/visible).
+         * Do NOT set overflow-x on html — that makes html its own scroll container,
+         * leaving the viewport scrollable.
+         */
+        body {
+            overflow-x: hidden !important;
+            overscroll-behavior-x: none;
+        }
+
+        /* Clip elements that might bleed horizontally.
+           Use max-width: 100% (not 100vw) — 100vw includes the scrollbar width (~17px)
+           which causes a subtle horizontal overflow when a vertical scrollbar is visible. */
+        .slicknav_menu,
+        .slicknav_nav,
+        #scrollUp,
+        .footer_top,
+        .copy-right_text,
+        header {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Map embed — prevent iframe from using a fixed or oversized default width */
+        .mapouter,
+        .gmap_canvas,
+        iframe {
+            max-width: 100%;
+        }
+
+        /* Break long unbreakable strings like email addresses */
+        .contact-details-panel p,
+        .contact-details-panel a {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        /* ---- WHITE HEADER (replaces schedule.css dependency) ---- */
+        body .header-area {
+            position: relative !important;
+            background: #ffffff !important;
+            padding-top: 0 !important;
+        }
+
+        body .main-header-area {
+            background: #ffffff !important;
+        }
+
+        body .main-header-area .row {
+            min-height: 88px;
+            align-items: center !important;
+        }
+
+        body .main-header-area .main-menu {
+            padding: 0 !important;
+        }
+
+        body .main-menu ul li a {
+            color: #1F1F1F !important;
+        }
+
+        body .main-menu ul li a::before {
+            background: #1F1F1F !important;
+        }
+
+        body .socail_links ul li a {
+            color: #1F1F1F !important;
+        }
+
+        body .signed-text,
+        body .signed-text strong,
+        body .logout-text-link {
+            color: #1F1F1F !important;
+        }
+
+        body .book_room {
+            height: 100%;
+            align-items: center !important;
+        }
+
+        body .user-info {
+            margin-right: 25px;
+        }
+
+        body .logo-img img {
             border-radius: 50px;
-            height: 60px;
+            height: 60px !important;
             width: 60px;
             object-fit: cover;
         }
 
-        /* CONTACT PAGE UI - SAME AS YOUR OLD PAGE */
+        /* ---- CONTACT PAGE ---- */
         .contact-section {
             position: relative;
-            background: linear-gradient(135deg, rgba(19, 52, 119, 0.05), rgba(0, 123, 255, 0.08));
-            padding: 50px 0 100px;
-        }
-
-        .contact-section::before {
-            content: "";
-            position: absolute;
-            top: -120px;
-            right: -80px;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0));
-            z-index: 0;
-        }
-
-        .contact-section::after {
-            content: "";
-            position: absolute;
-            bottom: -120px;
-            left: -80px;
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle at center, rgba(46, 105, 255, 0.15), rgba(46, 105, 255, 0));
-            z-index: 0;
+            background: #eef2fb;
+            padding: 60px 0 60px;
         }
 
         .contact-section .container {
-            position: relative;
-            z-index: 2;
+            padding-left: 24px;
+            padding-right: 24px;
         }
 
         .contact-intro {
@@ -76,8 +135,8 @@
         .contact-intro .section-subtitle {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+            gap: .5rem;
+            font-size: .9rem;
             text-transform: uppercase;
             letter-spacing: 3px;
             color: #2e69ff;
@@ -93,13 +152,23 @@
         .contact-wrapper {
             background: #ffffff;
             border-radius: 24px;
-            box-shadow: 0 32px 80px rgba(10, 31, 68, 0.12);
+            /* Blur kept at 24px — large blurs (80px+) extend beyond the container
+               and Chrome counts the shadow area as horizontal overflow */
+            box-shadow: 0 12px 48px rgba(10,31,68,.14);
             overflow: hidden;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
         }
 
         .contact-form-panel,
         .contact-details-panel {
+            flex: 1 1 340px;
+            min-width: 0;        /* prevents flex children from overflowing */
+            max-width: 100%;
+            width: 50%;
             padding: 3rem;
+            box-sizing: border-box;
         }
 
         .contact-details-panel {
@@ -119,11 +188,10 @@
         }
 
         .contact-details-panel .contact-card {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.2);
             border-radius: 16px;
             padding: 1.5rem;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 16px 32px rgba(5, 22, 54, 0.2);
             margin-bottom: 1.5rem;
         }
 
@@ -138,7 +206,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.22);
+            background: rgba(255,255,255,.22);
             color: #ffffff;
             font-size: 1.4rem;
             margin-bottom: 1rem;
@@ -151,68 +219,37 @@
 
         .contact_form .form-control {
             border-radius: 14px;
-            border: 1px solid rgba(19, 52, 119, 0.18);
-            padding: 0.85rem 1.1rem;
+            border: 1px solid rgba(19,52,119,.18);
+            padding: .85rem 1.1rem;
             font-size: 1rem;
             box-shadow: none;
-            transition: all 0.2s ease;
+            transition: border-color .2s ease;
         }
 
         .contact_form .form-control:focus {
             border-color: #2e69ff;
-            box-shadow: 0 0 0 0.2rem rgba(46, 105, 255, 0.12);
+            box-shadow: 0 0 0 .2rem rgba(46,105,255,.12);
         }
 
-        .contact-highlight-grid {
-            margin-top: 3.5rem;
-        }
-
-        .highlight-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 24px 60px rgba(10, 31, 68, 0.08);
-            height: 100%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .highlight-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 32px 80px rgba(10, 31, 68, 0.16);
-        }
-
-        .highlight-card h4 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #133477;
-        }
-
-        .highlight-card p {
-            color: #4f5d75;
-            margin-bottom: 0;
-        }
-
-        .highlight-card a {
-            font-weight: 600;
-            color: #2e69ff;
-        }
-
-        .highlight-icon {
-            width: 46px;
-            height: 46px;
+        /* Map container */
+        .mapouter,
+        .gmap_canvas {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
             border-radius: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(46, 105, 255, 0.12);
-            color: #2e69ff;
-            font-size: 1.3rem;
-            margin-bottom: 1.2rem;
         }
 
-        @media (max-width: 991.98px) {
+        .gmap_canvas iframe {
+            display: block;
+            width: 100%;
+            border-radius: 14px;
+        }
+
+        @media (max-width: 991px) {
             .contact-form-panel,
             .contact-details-panel {
+                width: 100%;
                 padding: 2.2rem;
             }
 
@@ -221,24 +258,22 @@
             }
         }
 
-        @media (max-width: 767.98px) {
+        @media (max-width: 767px) {
             .contact-intro h2 {
                 font-size: 2.1rem;
             }
 
             .contact-form-panel,
             .contact-details-panel {
+                width: 100%;
                 padding: 2rem 1.6rem;
-            }
-
-            .highlight-card {
-                padding: 1.8rem;
             }
         }
     </style>
 </head>
 
-<body class="schedule-page">
+<body>
+<div style="overflow-x:hidden;width:100%;position:relative;">
 
 @include('partials.header')
 
@@ -257,10 +292,9 @@
         </div>
 
         <div class="contact-wrapper">
-            <div class="row g-0">
 
                 <!-- FORM SIDE -->
-                <div class="col-lg-6 contact-form-panel">
+                <div class="contact-form-panel">
                     <h3 class="mb-4">Send us a message</h3>
                     <p class="mb-4">
                         Let us know how we can support you. Messages go directly to our parish staff who respond within one business day.
@@ -304,7 +338,7 @@
                 </div>
 
                 <!-- DETAILS SIDE -->
-                <div class="col-lg-6 contact-details-panel">
+                <div class="contact-details-panel">
                     <h3 class="mb-4">Visit the parish office</h3>
                     <p class="mb-4">
                         Find us along Maharlika Highway near the Tiaong town plaza. Tricycles and jeepneys pass the church regularly, and parking is available beside the parish hall.
@@ -314,7 +348,7 @@
                         <div class="contact-icon-circle" aria-hidden="true">
                             <i class="fa fa-map-marker"></i>
                         </div>
-                        <h5 class="mb-2" style="color: white;">Our Address</h5>
+                        <h5 class="mb-2" style="color:white;">Our Address</h5>
                         <p class="mb-0">
                             Maharlika Highway, Barangay Poblacion II,<br>
                             Tiaong, Quezon, Philippines
@@ -325,12 +359,10 @@
                         <div class="contact-icon-circle" aria-hidden="true">
                             <i class="fa fa-phone"></i>
                         </div>
-                        <h5 class="mb-2" style="color: white;">Call or Message</h5>
+                        <h5 class="mb-2" style="color:white;">Call or Message</h5>
                         <p class="mb-0">
                             <a href="tel:+63425459244">(042) 545-9244</a><br>
-                            <a href="mailto:stjohnbaptisttiaongparish@gmail.com">
-                                stjohnbaptisttiaongparish@gmail.com
-                            </a>
+                            <a href="mailto:stjohnbaptisttiaongparish@gmail.com">stjohnbaptisttiaongparish@gmail.com</a>
                         </p>
                     </div>
 
@@ -338,7 +370,7 @@
                         <div class="contact-icon-circle" aria-hidden="true">
                             <i class="fa fa-clock-o"></i>
                         </div>
-                        <h5 class="mb-2" style="color: white;">Office Hours</h5>
+                        <h5 class="mb-2" style="color:white;">Office Hours</h5>
                         <p class="mb-0">
                             Tuesday – Sunday<br>
                             8:00 AM – 5:00 PM (or by appointment)
@@ -356,6 +388,7 @@
                                     scrolling="no"
                                     marginheight="0"
                                     marginwidth="0"
+                                    style="border:0;width:100%;display:block;"
                                     title="Map to St. John the Baptist Parish">
                                 </iframe>
                             </div>
@@ -363,15 +396,14 @@
                     </div>
                 </div>
 
-            </div>
         </div>
     </div>
 </section>
 
-{{-- FOOTER --}}
 @include('partials.footer')
 
-<!-- JS here -->
+</div>{{-- end overflow wrapper --}}
+
 <script src="{{ asset('js/vendor/modernizr-3.5.0.min.js') }}"></script>
 <script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
 <script src="{{ asset('js/popper.min.js') }}"></script>
@@ -393,25 +425,38 @@
 <script src="{{ asset('js/main.js') }}"></script>
 
 <script>
+/* After all plugins load, re-enforce body overflow-x:hidden.
+   body (NOT html) must carry this so it propagates to the viewport. */
+window.addEventListener('load', function () {
+    document.body.style.setProperty('overflow-x', 'hidden', 'important');
+
+    /* Nuclear backup: if the page somehow ends up scrolled right, snap it back */
+    window.addEventListener('scroll', function () {
+        if (window.scrollX !== 0) {
+            window.scrollTo(0, window.scrollY);
+        }
+    }, { passive: true });
+});
+</script>
+
+<script>
 (function ($) {
     'use strict';
 
     $(document).ready(function () {
-        const form = $('#contact-form');
-        const success = $('#contact-success');
-        const error = $('#contact-error');
+        var form = $('#contact-form');
+        var success = $('#contact-success');
+        var error = $('#contact-error');
 
-        if (!form.length) {
-            return;
-        }
+        if (!form.length) return;
 
-        const submitButton = form.find('button[type="submit"]');
-        const originalButtonHtml = submitButton.html();
+        var submitButton = form.find('button[type="submit"]');
+        var originalButtonHtml = submitButton.html();
 
         form.on('submit', function (event) {
             event.preventDefault();
 
-            const formElement = this;
+            var formElement = this;
 
             if (!formElement.checkValidity()) {
                 formElement.reportValidity();
@@ -427,35 +472,24 @@
 
             $.ajax({
                 url: form.attr('action'),
-                type: form.attr('method') || 'POST',
+                type: 'POST',
                 data: form.serialize(),
                 dataType: 'json',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .done(function (response) {
                 if (response && response.success) {
                     formElement.reset();
-
-                    success
-                        .text(response.message || 'Thank you for reaching out! Our parish staff will respond as soon as possible.')
-                        .removeClass('d-none')
-                        .focus();
+                    success.text(response.message || 'Thank you! Our parish staff will respond as soon as possible.').removeClass('d-none').focus();
                 } else {
-                    error
-                        .text(response.message || 'An unexpected error occurred. Please try again later.')
-                        .removeClass('d-none')
-                        .focus();
+                    error.text(response.message || 'An unexpected error occurred. Please try again.').removeClass('d-none').focus();
                 }
             })
             .fail(function (jqXHR) {
-                let message = 'We could not send your message. Please try again later.';
-
+                var message = 'We could not send your message. Please try again later.';
                 if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                     message = jqXHR.responseJSON.message;
                 }
-
                 error.text(message).removeClass('d-none').focus();
             })
             .always(function () {
