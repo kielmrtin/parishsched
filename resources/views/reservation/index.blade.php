@@ -170,364 +170,363 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/schedule.css') }}">
     <link rel="stylesheet" href="{{ asset('css/reservation-overrides.css') }}">
 </head>
 
-<body class="reservation-page">
+<body class="reservation-page schedule-page">
     @include('partials.header')
 
-    <div class="bradcam_area breadcam_bg">
-        <h3>Make a Reservation</h3>
-    </div>
+    <div class="res-wrapper">
 
-    <section class="reservation_intro pt-120 pb-60">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10 text-center">
-                    <div class="section_title mb-40">
-                        <span>Plan your celebration or service</span>
-                        <h3>Reserve a sacrament, liturgy, or pastoral service</h3>
-                        <p>Please complete the form below with as much detail as possible. A member of our pastoral staff will follow up within two business days to confirm availability and discuss next steps.</p>
-                    </div>
-                </div>
+        {{-- Page bar --}}
+        <div class="res-page-bar">
+            <div>
+                <div class="res-crumb">Home &rsaquo; Reservation</div>
+                <h1 class="res-page-title">Parish Calendar &amp; Reservations</h1>
+            </div>
+            <div class="res-page-hint">
+                <span class="res-hint-dot"></span>
+                Click any open date on the calendar to begin
             </div>
         </div>
-    </section>
 
-    <section class="reservation_form_area pb-120">
-        <div class="container-fluid reservation_form_container">
-            @if(!$customerIsLoggedIn)
-                <div class="row justify-content-center">
-                    <div class="col-12 col-lg-9 col-xl-7">
-                        <div class="alert alert-info text-center" role="alert">
-                            Please <a href="{{ route('login') }}" class="alert-link">log in</a> or
-                            <a href="{{ route('register') }}" class="alert-link">create an account</a> to submit a reservation request online.
-                        </div>
-                    </div>
-                </div>
-            @endif
-            <div class="row">
-                <div class="col-12">
-                    <div class="reservation_calendar mb-5">
-                        <h4 class="mb-4">Availability Preview</h4>
-                        <p class="mb-4">Dates with a badge already have at least one reservation on the parish calendar. You can still choose them if an additional slot fits your celebration—just open the day to review the details before submitting your request.</p>
-                        <div class="calendar_legend mb-3"><span><span class="legend booked"></span> Reservation on file</span></div>
-                        <div class="availability_calendar" id="availability-calendar"></div>
-                    </div>
+        {{-- Two-column layout --}}
+        <div class="res-layout">
+
+            {{-- LEFT: Calendar --}}
+            <div class="res-cal-panel">
+                <div id="availability-calendar" class="res-calendar-host availability_calendar"></div>
+                <div class="res-cal-legend">
+                    <div class="res-legend-item"><span class="res-legend-pulse" style="background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,0.5);animation:legend-pulse-green 2s ease-out infinite;"></span> Today</div>
+                    <div class="res-legend-item"><span class="res-legend-pulse" style="background:#f59e0b;box-shadow:0 0 0 0 rgba(245,158,11,0.5);animation:legend-pulse-yellow 2s ease-out infinite;"></span> Pending</div>
+                    <div class="res-legend-item"><span class="res-legend-pulse" style="background:#ef4444;box-shadow:0 0 0 0 rgba(239,68,68,0.5);animation:legend-pulse-red 2s ease-out infinite;"></span> Has reservation</div>
+                    <div class="res-legend-item"><span class="res-legend-dot" style="background:#cbd5e1;"></span> Past / unavailable</div>
                 </div>
             </div>
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-9 col-xl-7">
-                    <div class="reservation_form_cta text-center p-5">
-                        <h4 class="mb-3">Ready to request a sacrament?</h4>
-                        <p class="mb-4">We now collect reservation details and required documents directly inside the reservation window. Choose a date on the calendar or use the button below to begin your request.</p>
-                        @if($customerIsLoggedIn)
-                            <button type="button" class="boxed-btn3" data-toggle="modal" data-target="#reservationDayModal">Start a Reservation</button>
-                        @else
-                            <a class="boxed-btn3" href="{{ route('login') }}">Log in to start</a>
+
+            {{-- RIGHT: Form panel --}}
+            <div class="res-form-panel" id="reservationDayModal">
+
+                @if(!$customerIsLoggedIn)
+                    <div class="res-login-prompt">
+                        <div class="res-empty-icon">🔒</div>
+                        <h3 class="res-empty-h">Sign in to reserve</h3>
+                        <p class="res-empty-p">
+                            Please <a href="{{ route('login') }}">log in</a> or
+                            <a href="{{ route('register') }}">create an account</a>
+                            to submit a reservation request online.
+                        </p>
+                    </div>
+                @else
+                    {{-- Empty state --}}
+                    <div class="res-empty-state" id="res-empty-state" {{ $shouldDisplayReservationForm ? 'style=display:none' : '' }}>
+                        <div class="res-empty-icon">📅</div>
+                        <h3 class="res-empty-h">Select a date</h3>
+                        <p class="res-empty-p">Click any open date on the calendar to begin your reservation request.</p>
+                        @if(session('customer_id'))
+                            <a class="res-my-link" href="{{ route('reservation.my') }}">
+                                <i class="fa fa-calendar-check-o"></i> View my reservations
+                            </a>
                         @endif
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <section class="reservation_faq pb-120" style="padding-bottom: 20px;">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="section_title text-center mb-40">
-                        <span>Be prepared</span>
-                        <h3>What happens after I submit a request?</h3>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4"><div class="single_about_info text-center"><h4>We review your request</h4><p>Our staff checks the parish calendar and confirms priest availability.</p></div></div>
-                        <div class="col-md-4"><div class="single_about_info text-center"><h4>We connect with you</h4><p>Expect a call or email within two business days to discuss preparation steps.</p></div></div>
-                        <div class="col-md-4"><div class="single_about_info text-center"><h4>We finalize the details</h4><p>Together we complete the required forms, schedule rehearsals, and plan the liturgy.</p></div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                    {{-- Form content --}}
+                    <div class="res-form-content" id="res-form-content" {{ $shouldDisplayReservationForm ? '' : 'style=display:none' }}>
 
-    @include('partials.footer')
-
-    <div class="modal fade reservation_day_modal" id="reservationDayModal" tabindex="-1" role="dialog" aria-labelledby="reservationDayModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content reservation-modal">
-                <div class="modal-header reservation-modal__header">
-                    <div class="reservation-modal__title-group">
-                        <span class="reservation-modal__eyebrow">Sacrament reservations</span>
-                        <h5 class="modal-title" id="reservationDayModalLabel" style="color:white;">Start a Reservation</h5>
-                        <p class="reservation-modal__subtitle" style="color:white;">Choose an available celebration date, share the details, and upload the required documents—all in one elegant flow.</p>
-                    </div>
-                    <button type="button" class="close reservation-modal__close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body reservation-modal__body">
-                    <div class="reservation-modal__body-inner">
-                        <div class="reservation-modal__progress">
-                            <div class="reservation-modal__progress-item"><span class="reservation-modal__progress-number">1</span><span class="reservation-modal__progress-text">Choose an available date</span></div>
-                            <div class="reservation-modal__progress-item"><span class="reservation-modal__progress-number">2</span><span class="reservation-modal__progress-text">Share your celebration details</span></div>
-                            <div class="reservation-modal__progress-item"><span class="reservation-modal__progress-number">3</span><span class="reservation-modal__progress-text">Attach the required documents</span></div>
+                        {{-- Date strip --}}
+                        <div class="res-date-strip">
+                            <div>
+                                <div class="modal-title res-date-main" id="res-date-display">
+                                    {{ $prefilledReservationDate ? \Carbon\Carbon::parse($prefilledReservationDate)->format('F j, Y') : '—' }}
+                                </div>
+                                <div class="res-date-sub" id="res-date-sub">
+                                    {{ $prefilledReservationDate ? \Carbon\Carbon::parse($prefilledReservationDate)->format('l') . ' · Open for requests' : '—' }}
+                                </div>
+                            </div>
                         </div>
 
+                        {{-- Availability notice (populated by JS) --}}
+                        <div class="res-availability-notice" data-reservation-availability></div>
+
+                        {{-- Server messages --}}
                         <div data-reservation-messages>
-                            <noscript>
-                                @if(session('success'))
-                                    <div class="alert alert-success" role="alert">{{ session('success') }}</div>
-                                @endif
-                                @if($errors->any())
-                                    <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
-                                @endif
-                            </noscript>
+                            @if(session('success'))
+                                <div class="alert alert-success mx-4 mt-3" role="alert">{{ session('success') }}</div>
+                            @endif
+                            @if($errors->any())
+                                <div class="alert alert-danger mx-4 mt-3" role="alert">{{ $errors->first() }}</div>
+                            @endif
                         </div>
 
-                        <div class="reservation_modal_content reservation-modal__form">
-                            @if(!$customerIsLoggedIn)
-                                <div class="reservation_modal_sidebar mb-4">
-                                    <h6 class="text-uppercase text-muted">Availability preview</h6>
-                                    <div data-reservation-availability>
-                                        <p class="mb-2">Create a free account or log in to request a sacrament online.</p>
-                                        <p class="small text-muted mb-0">Once signed in you can choose an available date and submit your reservation details.</p>
+                        <div class="res-form-body">
+
+                            <form id="reservation-form"
+                                class="reservation_form"
+                                method="POST"
+                                action="{{ route('reservation.store') }}"
+                                enctype="multipart/form-data"
+                                data-server-handled="true"
+                                data-reservation-form>
+                                @csrf
+
+                                <input type="hidden" name="name"             id="laravel-name-field"       value="{{ old('name',             session('customer_name')) }}">
+                                <input type="hidden" name="email"            id="laravel-email-field"      value="{{ old('email',            session('customer_email')) }}">
+                                <input type="hidden" name="phone"            id="laravel-phone-field"      value="{{ old('phone',            session('customer_phone')) }}">
+                                <input type="hidden" name="event_type"       id="laravel-event-type-field" value="{{ old('event_type',       $formData['reservation-type']) }}">
+                                <input type="hidden" name="reservation_date" id="laravel-date-field"       value="{{ old('reservation_date', $formData['reservation-date']) }}">
+                                <input type="hidden" name="reservation_time" id="laravel-time-field"       value="{{ old('reservation_time', $formData['reservation-time']) }}">
+                                <input type="hidden" name="notes"            id="laravel-notes-field"      value="{{ old('notes',            $formData['reservation-notes']) }}">
+                                <input type="hidden" name="customer_id"      value="{{ session('customer_id') }}">
+                                <input type="hidden" id="reservation-date"   name="reservation-date"       value="{{ $formData['reservation-date'] }}">
+
+                                {{-- SACRAMENT TYPE --}}
+                                <div class="res-section">
+                                    <div class="res-section-lbl">Sacrament</div>
+                                    <div class="res-type-list">
+                                        <label class="res-type-item" data-type="baptism" for="reservation-type-baptism">
+                                            <span class="res-ti-icon">🕊</span>
+                                            <span class="res-ti-text">
+                                                <span class="res-ti-label">Baptism</span>
+                                                <span class="res-ti-sub">Welcoming a new soul</span>
+                                            </span>
+                                            <span class="res-ti-check">✓</span>
+                                            <input type="radio" id="reservation-type-baptism" name="reservation-type" class="res-type-radio" value="Baptism" required @checked($formData['reservation-type'] === 'Baptism')>
+                                        </label>
+                                        <label class="res-type-item" data-type="wedding" for="reservation-type-wedding">
+                                            <span class="res-ti-icon">💍</span>
+                                            <span class="res-ti-text">
+                                                <span class="res-ti-label">Wedding</span>
+                                                <span class="res-ti-sub">Celebrating your union</span>
+                                            </span>
+                                            <span class="res-ti-check">✓</span>
+                                            <input type="radio" id="reservation-type-wedding" name="reservation-type" class="res-type-radio" value="Wedding" @checked($formData['reservation-type'] === 'Wedding')>
+                                        </label>
+                                        <label class="res-type-item" data-type="funeral" for="reservation-type-funeral">
+                                            <span class="res-ti-icon">🕯</span>
+                                            <span class="res-ti-text">
+                                                <span class="res-ti-label">Funeral Mass</span>
+                                                <span class="res-ti-sub">Honoring a life lived</span>
+                                            </span>
+                                            <span class="res-ti-check">✓</span>
+                                            <input type="radio" id="reservation-type-funeral" name="reservation-type" class="res-type-radio" value="Funeral" @checked($formData['reservation-type'] === 'Funeral')>
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="text-center">
-                                    <a class="boxed-btn3 mb-3" href="{{ route('login') }}">Log in to reserve</a>
-                                    <p class="mb-0">Need an account? <a href="{{ route('register') }}">Create one in minutes</a>.</p>
-                                </div>
-                            @else
-                                <div class="reservation_modal_sidebar mb-4">
-                                    <h6 class="text-uppercase text-muted">Availability preview</h6>
-                                    <div data-reservation-availability>
-                                        <p class="mb-2">Select a date on the calendar to see existing approved reservations and prefill the request form.</p>
-                                        <p class="small text-muted mb-0">Dates without a <span class="badge badge-danger">Booked</span> tag remain open for requests.</p>
-                                    </div>
-                                </div>
 
-                                <button type="button" class="boxed-btn3 w-100 mb-4 {{ $shouldDisplayReservationForm ? 'd-none' : '' }}" data-reservation-start>
-                                    Make a Reservation
-                                </button>
-
-                                <form id="reservation-form"
-                                  class="reservation_form {{ $shouldDisplayReservationForm ? '' : 'd-none' }}"
-                                    method="POST" 
-                                        action="{{ route('reservation.store') }}"
-                                          enctype="multipart/form-data"
-                                              data-server-handled="true"
-                                                data-reservation-form>
-                                    @csrf
-
-                                    <input type="hidden" name="name" id="laravel-name-field" value="{{ old('name', session('customer_name')) }}">
-                                    <input type="hidden" name="email" id="laravel-email-field" value="{{ old('email', session('customer_email')) }}">
-                                    <input type="hidden" name="phone" id="laravel-phone-field" value="{{ old('phone', session('customer_phone')) }}">
-                                    <input type="hidden" name="event_type" id="laravel-event-type-field" value="{{ old('event_type', $formData['reservation-type']) }}">
-                                    <input type="hidden" name="reservation_date" id="laravel-date-field" value="{{ old('reservation_date', $formData['reservation-date']) }}">
-                                    <input type="hidden" name="reservation_time" id="laravel-time-field" value="{{ old('reservation_time', $formData['reservation-time']) }}">
-                                    <input type="hidden" name="notes" id="laravel-notes-field" value="{{ old('notes', $formData['reservation-notes']) }}">
-                                    <input type="hidden" name="customer_id" value="{{ session('customer_id') }}">
-
-                                    <div class="form-group">
-                                        <label class="d-block" for="reservation-name-first">Name of person reserving *</label>
-                                        <div class="form-row">
-                                            <div class="col-sm-6 mb-3"><input type="text" id="reservation-name-first" name="reservation-name-first" class="form-control" placeholder="First name" required autocomplete="given-name" value="{{ $formData['reservation-name-first'] }}"></div>
-                                            <div class="col-sm-6 mb-3"><input type="text" id="reservation-name-middle" name="reservation-name-middle" class="form-control" placeholder="Middle name (optional)" autocomplete="additional-name" value="{{ $formData['reservation-name-middle'] }}"></div>
-                                            <div class="col-sm-6 mb-3"><input type="text" id="reservation-name-last" name="reservation-name-last" class="form-control" placeholder="Last name" required autocomplete="family-name" value="{{ $formData['reservation-name-last'] }}"></div>
-                                            <div class="col-sm-6 mb-3"><input type="text" id="reservation-name-suffix" name="reservation-name-suffix" class="form-control" placeholder="Suffix (optional)" autocomplete="honorific-suffix" value="{{ $formData['reservation-name-suffix'] }}"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="d-block">Gender</label>
-                                        <div class="custom-control custom-radio custom-control-inline mb-2">
+                                {{-- GENDER --}}
+                                <div class="res-section">
+                                    <div class="res-section-lbl">Gender</div>
+                                    <div class="d-flex" style="gap:16px;">
+                                        <div class="custom-control custom-radio">
                                             <input type="radio" id="reservation-gender-male" name="reservation-gender" class="custom-control-input" value="male" @checked($formData['reservation-gender'] === 'male')>
                                             <label class="custom-control-label" for="reservation-gender-male">Male</label>
                                         </div>
-                                        <div class="custom-control custom-radio custom-control-inline mb-2">
+                                        <div class="custom-control custom-radio">
                                             <input type="radio" id="reservation-gender-female" name="reservation-gender" class="custom-control-input" value="female" @checked($formData['reservation-gender'] === 'female')>
                                             <label class="custom-control-label" for="reservation-gender-female">Female</label>
                                         </div>
-                                        <small class="form-text text-muted">Select the gender.</small>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="reservation-email">Email *</label>
-                                        <input type="email" id="reservation-email" name="reservation-email" class="form-control" placeholder="name@example.com" required value="{{ $formData['reservation-email'] }}">
+                                {{-- TIME --}}
+                                <div class="res-section">
+                                    <div class="res-section-lbl">Available times</div>
+                                    {{-- Native select hidden; JS still uses it for state --}}
+                                    <select id="reservation-time" name="reservation-time" class="res-time-select form-control"
+                                            data-initial-value="{{ $formData['reservation-time'] }}"
+                                            style="display:none" tabindex="-1" aria-hidden="true">
+                                        <option value="">Select a time</option>
+                                    </select>
+                                    {{-- Custom styled dropdown --}}
+                                    <div class="res-csl" id="reservation-time-custom">
+                                        <button type="button" class="res-csl-btn" id="reservation-time-btn">
+                                            <span class="res-csl-label" id="reservation-time-label">Select a time</span>
+                                            <i class="fa fa-chevron-down res-csl-arrow"></i>
+                                        </button>
+                                        <ul class="res-csl-list" id="reservation-time-list"></ul>
                                     </div>
+                                    <small class="form-text text-muted mt-1" data-reservation-time-help>Choose a ceremony type and date first.</small>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="reservation-phone">Contact number *</label>
-                                        <input type="tel" id="reservation-phone" name="reservation-phone" class="form-control" placeholder="(042) 545-9244" required value="{{ $formData['reservation-phone'] }}">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="d-block">Event type *</label>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="reservation-type-baptism" name="reservation-type" class="custom-control-input" value="Baptism" required @checked($formData['reservation-type'] === 'Baptism')>
-                                            <label class="custom-control-label" for="reservation-type-baptism">Baptism</label>
+                                {{-- YOUR INFORMATION --}}
+                                <div class="res-section">
+                                    <div class="res-section-lbl">Your information</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="reservation-name-first">First name *</label>
+                                            <input type="text" id="reservation-name-first" name="reservation-name-first" class="form-control" placeholder="First name" required autocomplete="given-name" value="{{ $formData['reservation-name-first'] }}">
                                         </div>
-                                        <div class="custom-control custom-radio mt-2">
-                                            <input type="radio" id="reservation-type-wedding" name="reservation-type" class="custom-control-input" value="Wedding" @checked($formData['reservation-type'] === 'Wedding')>
-                                            <label class="custom-control-label" for="reservation-type-wedding">Wedding</label>
+                                        <div class="res-fg">
+                                            <label for="reservation-name-last">Last name *</label>
+                                            <input type="text" id="reservation-name-last" name="reservation-name-last" class="form-control" placeholder="Last name" required autocomplete="family-name" value="{{ $formData['reservation-name-last'] }}">
                                         </div>
-                                        <div class="custom-control custom-radio mt-2">
-                                            <input type="radio" id="reservation-type-funeral" name="reservation-type" class="custom-control-input" value="Funeral" @checked($formData['reservation-type'] === 'Funeral')>
-                                            <label class="custom-control-label" for="reservation-type-funeral">Funeral <small class="d-block text-muted">Coordinate with the parish office a day before burial</small></label>
+                                        <div class="res-fg">
+                                            <label for="reservation-name-middle">Middle name</label>
+                                            <input type="text" id="reservation-name-middle" name="reservation-name-middle" class="form-control" placeholder="Middle name (optional)" autocomplete="additional-name" value="{{ $formData['reservation-name-middle'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="reservation-name-suffix">Suffix</label>
+                                            <input type="text" id="reservation-name-suffix" name="reservation-name-suffix" class="form-control" placeholder="Jr., III, etc." autocomplete="honorific-suffix" value="{{ $formData['reservation-name-suffix'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="reservation-email">Email *</label>
+                                            <input type="email" id="reservation-email" name="reservation-email" class="form-control" placeholder="name@example.com" required value="{{ $formData['reservation-email'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="reservation-phone">Contact number *</label>
+                                            <input type="tel" id="reservation-phone" name="reservation-phone" class="form-control" placeholder="(042) 545-9244" required value="{{ $formData['reservation-phone'] }}">
                                         </div>
                                     </div>
+                                </div>
 
-                                    <input type="hidden" id="reservation-date" name="reservation-date" value="{{ $formData['reservation-date'] }}">
-
-                                    <div class="form-group">
-                                        <label for="reservation-time">Preferred time *</label>
-                                        <select id="reservation-time" name="reservation-time" class="form-control" required style="height: 50px;" data-initial-value="{{ $formData['reservation-time'] }}">
-                                            <option value="">Select a time</option>
-                                        </select>
-                                        <small class="form-text text-muted" data-reservation-time-help>Choose an event type and calendar date to see available times.</small>
+                                {{-- WEDDING DETAILS --}}
+                                <div id="wedding-details" class="reservation_attachment_box res-section">
+                                    <h6 class="mb-3">Wedding information</h6>
+                                    <div id="wedding-gender-notice" class="alert alert-info mb-3 {{ $showWeddingCoupleFields ? 'd-none' : '' }}" role="status">
+                                        Please select a gender above to continue.
                                     </div>
-
-                                    <div id="wedding-details" class="reservation_attachment_box mb-4">
-                                        <h6 class="mb-3">Wedding information</h6>
-                                        <div id="wedding-gender-notice" class="alert alert-info mb-4 {{ $showWeddingCoupleFields ? 'd-none' : '' }}" role="status">
-                                            Please select a gender to continue.
-                                        </div>
-                                        <div id="wedding-couple-fields" class="wedding-couple-fields mb-4 {{ $showWeddingCoupleFields ? '' : 'd-none' }}">
-                                            @foreach($weddingCoupleOrder as $weddingPerson)
-                                                @if($weddingPerson === 'bride')
-                                                    <div class="form-group" data-wedding-person="bride">
-                                                        <label class="d-block" for="wedding-bride-name-first">Bride's name *</label>
-                                                        <div class="form-row">
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-bride-name-first" name="wedding-bride-name-first" placeholder="First name" autocomplete="section-wedding given-name" value="{{ $formData['wedding-bride-name-first'] }}" data-wedding-required="true"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-bride-name-middle" name="wedding-bride-name-middle" placeholder="Middle name (optional)" autocomplete="section-wedding additional-name" value="{{ $formData['wedding-bride-name-middle'] }}"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-bride-name-last" name="wedding-bride-name-last" placeholder="Last name" autocomplete="section-wedding family-name" value="{{ $formData['wedding-bride-name-last'] }}" data-wedding-required="true"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-bride-name-suffix" name="wedding-bride-name-suffix" placeholder="Suffix (optional)" autocomplete="section-wedding honorific-suffix" value="{{ $formData['wedding-bride-name-suffix'] }}"></div>
-                                                        </div>
+                                    <div id="wedding-couple-fields" class="wedding-couple-fields mb-3 {{ $showWeddingCoupleFields ? '' : 'd-none' }}">
+                                        @foreach($weddingCoupleOrder as $weddingPerson)
+                                            @if($weddingPerson === 'bride')
+                                                <div class="form-group" data-wedding-person="bride">
+                                                    <label class="d-block" for="wedding-bride-name-first">Bride's name *</label>
+                                                    <div class="form-row">
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-first" name="wedding-bride-name-first" placeholder="First" value="{{ $formData['wedding-bride-name-first'] }}" data-wedding-required="true"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-middle" name="wedding-bride-name-middle" placeholder="Middle" value="{{ $formData['wedding-bride-name-middle'] }}"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-last" name="wedding-bride-name-last" placeholder="Last" value="{{ $formData['wedding-bride-name-last'] }}" data-wedding-required="true"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-suffix" name="wedding-bride-name-suffix" placeholder="Suffix" value="{{ $formData['wedding-bride-name-suffix'] }}"></div>
                                                     </div>
-                                                @else
-                                                    <div class="form-group" data-wedding-person="groom">
-                                                        <label class="d-block" for="wedding-groom-name-first">Groom's name *</label>
-                                                        <div class="form-row">
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-groom-name-first" name="wedding-groom-name-first" placeholder="First name" autocomplete="section-wedding-groom given-name" value="{{ $formData['wedding-groom-name-first'] }}" data-wedding-required="true"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-groom-name-middle" name="wedding-groom-name-middle" placeholder="Middle name (optional)" autocomplete="section-wedding-groom additional-name" value="{{ $formData['wedding-groom-name-middle'] }}"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-groom-name-last" name="wedding-groom-name-last" placeholder="Last name" autocomplete="section-wedding-groom family-name" value="{{ $formData['wedding-groom-name-last'] }}" data-wedding-required="true"></div>
-                                                            <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="wedding-groom-name-suffix" name="wedding-groom-name-suffix" placeholder="Suffix (optional)" autocomplete="section-wedding-groom honorific-suffix" value="{{ $formData['wedding-groom-name-suffix'] }}"></div>
-                                                        </div>
+                                                </div>
+                                            @else
+                                                <div class="form-group" data-wedding-person="groom">
+                                                    <label class="d-block" for="wedding-groom-name-first">Groom's name *</label>
+                                                    <div class="form-row">
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-first" name="wedding-groom-name-first" placeholder="First" value="{{ $formData['wedding-groom-name-first'] }}" data-wedding-required="true"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-middle" name="wedding-groom-name-middle" placeholder="Middle" value="{{ $formData['wedding-groom-name-middle'] }}"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-last" name="wedding-groom-name-last" placeholder="Last" value="{{ $formData['wedding-groom-name-last'] }}" data-wedding-required="true"></div>
+                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-suffix" name="wedding-groom-name-suffix" placeholder="Suffix" value="{{ $formData['wedding-groom-name-suffix'] }}"></div>
                                                     </div>
-                                                @endif
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="wedding-seminar-date">Seminar date *</label>
+                                        <input type="text" class="form-control" id="wedding-seminar-date" name="wedding-seminar-date" placeholder="Select seminar date" value="{{ $formData['wedding-seminar-date'] }}" data-wedding-required="true">
+                                        <small class="form-text text-muted">Between one and five days before your wedding.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="wedding-sacrament-details">Kumpisa / Kumpil / Binyag details</label>
+                                        <textarea class="form-control" id="wedding-sacrament-details" name="wedding-sacrament-details" rows="2" placeholder="Parishes or dates for confession, confirmation, and baptism">{{ $formData['wedding-sacrament-details'] }}</textarea>
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <h6 class="mb-2">Mga kailangan bago ikasal *</h6>
+                                        <p class="small text-muted">Confirm you have prepared the following requirements.</p>
+                                        @foreach($weddingRequirementChecklist as $requirementKey => $requirementLabel)
+                                            @php $inputId = 'wedding-requirement-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $requirementKey); @endphp
+                                            <div class="custom-control custom-checkbox mb-1">
+                                                <input type="checkbox" class="custom-control-input" id="{{ $inputId }}" name="wedding-requirements[]" value="{{ $requirementKey }}" @checked(in_array($requirementKey, $selectedWeddingRequirements, true)) data-wedding-required="true" data-wedding-checkbox="true">
+                                                <label class="custom-control-label" for="{{ $inputId }}">{{ $requirementLabel }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- FUNERAL DETAILS --}}
+                                <div id="funeral-details" class="reservation_attachment_box res-section">
+                                    <h6 class="mb-3">Funeral information</h6>
+                                    <div class="alert alert-warning small" role="alert">Arrange the funeral schedule at the parish office at least one day before burial.</div>
+                                    <div class="form-group">
+                                        <label class="d-block" for="funeral-deceased-name-first">Name of the deceased *</label>
+                                        <div class="form-row">
+                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-first" name="funeral-deceased-name-first" placeholder="First" value="{{ $formData['funeral-deceased-name-first'] }}" data-funeral-required="true"></div>
+                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-middle" name="funeral-deceased-name-middle" placeholder="Middle" value="{{ $formData['funeral-deceased-name-middle'] }}"></div>
+                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-last" name="funeral-deceased-name-last" placeholder="Last" value="{{ $formData['funeral-deceased-name-last'] }}" data-funeral-required="true"></div>
+                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-suffix" name="funeral-deceased-name-suffix" placeholder="Suffix" value="{{ $formData['funeral-deceased-name-suffix'] }}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="funeral-marital-status">Marital status of the deceased *</label>
+                                        <select class="form-control" id="funeral-marital-status" style="height:44px;" name="funeral-marital-status" data-funeral-required="true" data-funeral-marital-select="true">
+                                            <option value="">Select status</option>
+                                            @foreach($funeralMaritalStatusOptions as $statusValue => $statusLabel)
+                                                <option value="{{ $statusValue }}" @selected($formData['funeral-marital-status'] === $statusValue)>{{ $statusLabel }}</option>
                                             @endforeach
-                                        </div>
+                                        </select>
+                                    </div>
+                                </div>
 
-                                        <div class="form-group">
-                                            <label for="wedding-seminar-date">Seminar date *</label>
-                                            <input type="text" class="form-control" id="wedding-seminar-date" name="wedding-seminar-date" placeholder="Select seminar date" value="{{ $formData['wedding-seminar-date'] }}" data-wedding-required="true" style="font-size: 15px;">
-                                            <small class="form-text text-muted">Choose a seminar date that is between one and five days before your wedding day.</small>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="wedding-sacrament-details">Kumpisa / Kumpil / Binyag details</label>
-                                            <textarea class="form-control" id="wedding-sacrament-details" name="wedding-sacrament-details" rows="3" placeholder="Parishes or dates for confession, confirmation, and baptism">{{ $formData['wedding-sacrament-details'] }}</textarea>
-                                        </div>
-
-                                        <div class="form-group mb-0">
-                                            <h6 class="mb-2">Mga kailangan bago ikasal *</h6>
-                                            <p class="small text-muted">Please confirm that you have prepared the following requirements.</p>
-                                            @foreach($weddingRequirementChecklist as $requirementKey => $requirementLabel)
-                                                @php $inputId = 'wedding-requirement-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $requirementKey); @endphp
-                                                <div class="custom-control custom-checkbox mb-1">
-                                                    <input type="checkbox" class="custom-control-input" id="{{ $inputId }}" name="wedding-requirements[]" value="{{ $requirementKey }}" @checked(in_array($requirementKey, $selectedWeddingRequirements, true)) data-wedding-required="true" data-wedding-checkbox="true">
-                                                    <label class="custom-control-label" for="{{ $inputId }}">{{ $requirementLabel }}</label>
+                                {{-- ATTACHMENTS --}}
+                                @foreach($attachmentRequirementSets as $eventType => $attachmentSet)
+                                    @php
+                                        $documents = $attachmentSet['documents'] ?? [];
+                                        $sectionId = $attachmentSet['id'] ?? 'attachments-' . strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $eventType));
+                                        $shouldShowSection = $shouldDisplayReservationForm && $formData['reservation-type'] === $eventType;
+                                    @endphp
+                                    @if(!empty($documents))
+                                        <div class="reservation_attachment_box res-section" id="{{ $sectionId }}" data-attachment-section="{{ $eventType }}" style="{{ $shouldShowSection ? '' : 'display:none;' }}">
+                                            <h6 class="mb-2">{{ $attachmentSet['title'] ?? 'Required documents' }}</h6>
+                                            @if(!empty($attachmentSet['description']))
+                                                <p class="small text-muted">{{ $attachmentSet['description'] }}</p>
+                                            @endif
+                                            @foreach($documents as $fieldName => $documentConfig)
+                                                @php
+                                                    $inputId = (string) $fieldName;
+                                                    $label = $documentConfig['label'] ?? $inputId;
+                                                    $accept = $documentConfig['accept'] ?? '.pdf,.jpg,.jpeg,.png';
+                                                    $conditional = $documentConfig['conditional'] ?? null;
+                                                    $conditionalField = is_array($conditional) ? ($conditional['field'] ?? '') : '';
+                                                    $conditionalValue = is_array($conditional) ? ($conditional['value'] ?? '') : '';
+                                                @endphp
+                                                <div class="form-group"
+                                                     data-attachment-field="{{ $fieldName }}"
+                                                     @if($conditionalField !== '')
+                                                         data-attachment-conditional-field="{{ $conditionalField }}"
+                                                         data-attachment-conditional-value="{{ $conditionalValue }}"
+                                                     @endif>
+                                                    <label for="{{ $inputId }}">{{ $label }} *</label>
+                                                    <input type="file" class="form-control-file" id="{{ $inputId }}" name="{{ $fieldName }}" accept="{{ $accept }}">
                                                 </div>
                                             @endforeach
+                                            @if(!empty($attachmentSet['notes']))
+                                                <ul class="small pl-3 mb-0">
+                                                    @foreach($attachmentSet['notes'] as $note)<li>{{ $note }}</li>@endforeach
+                                                </ul>
+                                            @endif
                                         </div>
-                                    </div>
+                                    @endif
+                                @endforeach
 
-                                    <div id="funeral-details" class="reservation_attachment_box mb-4">
-                                        <h6 class="mb-3">Funeral information</h6>
-                                        <div class="alert alert-warning small" role="alert">Arrange or reserve the funeral schedule at the parish office at least one day before the burial to avoid delays or declined requests.</div>
-                                        <div class="form-group">
-                                            <label class="d-block" for="funeral-deceased-name-first">Name of the deceased *</label>
-                                            <div class="form-row">
-                                                <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="funeral-deceased-name-first" name="funeral-deceased-name-first" placeholder="First name" autocomplete="section-funeral given-name" value="{{ $formData['funeral-deceased-name-first'] }}" data-funeral-required="true"></div>
-                                                <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="funeral-deceased-name-middle" name="funeral-deceased-name-middle" placeholder="Middle name (optional)" autocomplete="section-funeral additional-name" value="{{ $formData['funeral-deceased-name-middle'] }}"></div>
-                                                <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="funeral-deceased-name-last" name="funeral-deceased-name-last" placeholder="Last name" autocomplete="section-funeral family-name" value="{{ $formData['funeral-deceased-name-last'] }}" data-funeral-required="true"></div>
-                                                <div class="col-sm-6 col-lg-3 mb-3"><input type="text" class="form-control" id="funeral-deceased-name-suffix" name="funeral-deceased-name-suffix" placeholder="Suffix (optional)" autocomplete="section-funeral honorific-suffix" value="{{ $formData['funeral-deceased-name-suffix'] }}"></div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="funeral-marital-status">Marital status of the deceased *</label>
-                                            <select class="form-control" id="funeral-marital-status" style="height: 50px;" name="funeral-marital-status" data-funeral-required="true" data-funeral-marital-select="true">
-                                                <option value="">Select status</option>
-                                                @foreach($funeralMaritalStatusOptions as $statusValue => $statusLabel)
-                                                    <option value="{{ $statusValue }}" @selected($formData['funeral-marital-status'] === $statusValue)>{{ $statusLabel }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
+                                {{-- NOTES --}}
+                                <div class="res-section res-section--notes" data-reservation-form-toggle-target {{ $shouldDisplayReservationForm ? '' : 'hidden' }}>
+                                    <div class="res-section-lbl">Additional notes</div>
+                                    <textarea id="reservation-notes" name="reservation-notes" class="form-control" rows="3" placeholder="Tell us about your celebration" style="border-radius:8px;font-size:.84rem;border:1.5px solid #e2e8f0;">{{ $formData['reservation-notes'] }}</textarea>
+                                </div>
 
-                                    @foreach($attachmentRequirementSets as $eventType => $attachmentSet)
-                                        @php
-                                            $documents = $attachmentSet['documents'] ?? [];
-                                            $sectionId = $attachmentSet['id'] ?? 'attachments-' . strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $eventType));
-                                            $shouldShowSection = $shouldDisplayReservationForm && $formData['reservation-type'] === $eventType;
-                                        @endphp
-                                        @if(!empty($documents))
-                                            <div class="reservation_attachment_box mb-4" id="{{ $sectionId }}" data-attachment-section="{{ $eventType }}" style="{{ $shouldShowSection ? '' : 'display: none;' }}">
-                                                <h6 class="mb-3 pt-3">{{ $attachmentSet['title'] ?? 'Required documents' }}</h6>
-                                                @if(!empty($attachmentSet['description']))
-                                                    <p class="small text-muted">{{ $attachmentSet['description'] }}</p>
-                                                @endif
-                                                @foreach($documents as $fieldName => $documentConfig)
-                                                    @php
-                                                        $inputId = (string) $fieldName;
-                                                        $label = $documentConfig['label'] ?? $inputId;
-                                                        $accept = $documentConfig['accept'] ?? '.pdf,.jpg,.jpeg,.png';
-                                                        $conditional = $documentConfig['conditional'] ?? null;
-                                                        $conditionalField = is_array($conditional) ? ($conditional['field'] ?? '') : '';
-                                                        $conditionalValue = is_array($conditional) ? ($conditional['value'] ?? '') : '';
-                                                    @endphp
-                                                    <div class="form-group"
-                                                         data-attachment-field="{{ $fieldName }}"
-                                                         @if($conditionalField !== '')
-                                                             data-attachment-conditional-field="{{ $conditionalField }}"
-                                                             data-attachment-conditional-value="{{ $conditionalValue }}"
-                                                         @endif>
-                                                        <label for="{{ $inputId }}">{{ $label }} *</label>
-                                                        <input type="file" class="form-control-file" id="{{ $inputId }}" name="{{ $fieldName }}" accept="{{ $accept }}">
-                                                    </div>
-                                                @endforeach
-                                                @if(!empty($attachmentSet['notes']))
-                                                    <ul class="small pl-3 text-left mb-0">
-                                                        @foreach($attachmentSet['notes'] as $note)
-                                                            <li>{{ $note }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    @endforeach
+                                {{-- UNAVAILABLE NOTICE --}}
+                                <div class="alert alert-warning small d-none" role="alert" data-reservation-time-warning></div>
 
-                                    <div class="form-group" data-reservation-form-toggle-target {{ $shouldDisplayReservationForm ? '' : 'hidden' }}>
-                                        <label for="reservation-notes">Additional notes or requests</label>
-                                        <textarea id="reservation-notes" name="reservation-notes" class="form-control" rows="4" placeholder="Tell us about your celebration">{{ $formData['reservation-notes'] }}</textarea>
-                                    </div>
+                                {{-- SUBMIT --}}
+                                <button type="submit"
+                                    class="res-submit"
+                                    data-reservation-form-toggle-target
+                                    {{ $shouldDisplayReservationForm ? '' : 'hidden' }}
+                                    data-reservation-submit>
+                                    <span>Submit Reservation Request</span>
+                                    <span class="spinner-border spinner-border-sm ml-2 align-middle d-none" role="status" aria-hidden="true" data-loading-spinner></span>
+                                </button>
 
-                                    <div class="alert alert-warning small mt-3 d-none" role="alert" data-reservation-form-toggle-target {{ $shouldDisplayReservationForm ? '' : 'hidden' }} data-reservation-time-warning></div>
+                            </form>
+                        </div>{{-- /res-form-body --}}
+                    </div>{{-- /res-form-content --}}
+                @endif
 
-                                    <button type="submit"
-                         class="boxed-btn3 w-100"
-                                  data-reservation-form-toggle-target
-                         {{ $shouldDisplayReservationForm ? '' : 'hidden' }}
-                                data-reservation-submit>
-                                        <span>Submit Reservation Request</span>
-                                        <span class="spinner-border spinner-border-sm ml-2 align-middle d-none" role="status" aria-hidden="true" data-loading-spinner></span>
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </div>{{-- /res-form-panel --}}
+        </div>{{-- /res-layout --}}
+    </div>{{-- /res-wrapper --}}
+
+    {{-- footer hidden on reservation page --}}
 
     <script>
         window.approvedReservations = @json($approvedReservationsJson);
@@ -557,31 +556,114 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <script src="{{ asset('js/plugins.js') }}"></script>
     <script src="{{ asset('js/gijgo.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if(session('reservation_notifications'))
+    @php $rnotif = session('reservation_notifications')[0] ?? []; @endphp
+    <div class="ps-overlay" id="ps-res-overlay">
+      <div class="ps-modal">
+        <div class="ps-hdr" id="ps-res-hdr">
+          <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span class="ps-parish">St. John the Baptist Parish</span>
+          <span class="ps-dot"></span>
+          <span class="ps-loc">Tiaong, Quezon</span>
+        </div>
+        <div class="ps-body" id="ps-res-body">
+          <div class="ps-glow"></div>
+          <div class="ps-icon">
+            <div class="ps-ring"></div>
+            <div class="ps-inner">
+              <svg viewBox="0 0 42 42"><polyline class="ps-chk" points="9,22 17,30 33,12"/></svg>
+            </div>
+          </div>
+          <h2 class="ps-title">Reservation Submitted</h2>
+          <p class="ps-sub">Your request has been received. The parish office will review and confirm your reservation shortly.</p>
+          <div class="ps-badge"><span class="ps-badge-dot"></span>Pending parish confirmation</div>
+          <div class="ps-divider"></div>
+          <div class="ps-btns">
+            <button class="ps-btn-out" onclick="document.getElementById('ps-res-overlay').remove()">View Calendar</button>
+            <button class="ps-btn-prim" onclick="document.getElementById('ps-res-overlay').remove()">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const gColors = ['#dc2626','#fca5a5','rgba(255,255,255,.18)','rgba(220,38,38,.35)'];
+      const hColors = ['rgba(255,255,255,.25)','rgba(220,38,38,.4)','#fca5a5'];
+      function spawnDots(el, cols, count, cls) {
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          const s = Math.random()*6+4;
+          p.className = cls;
+          p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+          el.appendChild(p);
+        }
+      }
+      const hdr = document.getElementById('ps-res-hdr');
+      const bdy = document.getElementById('ps-res-body');
+      if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
+      if (bdy) spawnDots(bdy, gColors, 22, 'ps-particle');
+      const overlay = document.getElementById('ps-res-overlay');
+      if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+    });
+    </script>
+    @endif
 
-    @if(session('reservation_notifications') || session('auth_notification'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                let notifications = [];
-
-                @if(session('reservation_notifications'))
-                    notifications = notifications.concat(@json(session('reservation_notifications')));
-                @endif
-
-                @if(session('auth_notification'))
-                    notifications.push(@json(session('auth_notification')));
-                @endif
-
-                notifications.forEach(function (notification) {
-                    Swal.fire({
-                        icon: notification.icon || 'info',
-                        title: notification.title || '',
-                        text: notification.text || '',
-                        confirmButtonColor: '#009DFF'
-                    });
-                });
-            });
-        </script>
+    @if(session('auth_notification'))
+    @php $notif = session('auth_notification'); $isLogin = str_contains($notif['title'] ?? '', 'Login'); @endphp
+    {{-- Inline custom auth modal (same as app.blade) --}}
+    <div class="ps-overlay" id="ps-overlay">
+      <div class="ps-modal">
+        <div class="ps-hdr" id="ps-hdr-res">
+          <svg style="width:18px;height:18px;flex-shrink:0" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span class="ps-parish">St. John the Baptist Parish</span>
+          <span class="ps-dot"></span>
+          <span class="ps-loc">Tiaong, Quezon</span>
+        </div>
+        <div class="ps-body" id="ps-body-res">
+          <div class="ps-glow"></div>
+          <div class="ps-icon">
+            <div class="ps-ring"></div>
+            <div class="ps-inner">
+              <svg viewBox="0 0 42 42"><polyline class="ps-chk" points="9,22 17,30 33,12"/></svg>
+            </div>
+          </div>
+          <h2 class="ps-title">{{ $notif['title'] }}</h2>
+          <p class="ps-sub">{{ $notif['text'] }}</p>
+          @if($isLogin && session('customer_name'))
+          <div class="ps-chip"><span class="ps-chip-dot"></span>{{ session('customer_name') }}</div>
+          <div class="ps-btns">
+            <button class="ps-btn-out" onclick="document.getElementById('ps-overlay').remove()">Close</button>
+            <button class="ps-btn-prim" onclick="document.getElementById('ps-overlay').remove()">Continue</button>
+          </div>
+          @else
+          <div class="ps-btns" style="justify-content:center">
+            <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay').remove()">OK</button>
+          </div>
+          @endif
+        </div>
+      </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const colors = ['#009DFF','#60C4FF','rgba(255,255,255,.2)','rgba(34,197,94,.4)'];
+      const hColors = ['rgba(255,255,255,.25)','#60C4FF','#009DFF'];
+      function spawnDots(el, cols, count) {
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          const s = Math.random()*6+4;
+          p.className = 'ps-particle';
+          p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+          el.appendChild(p);
+        }
+      }
+      const hdr = document.getElementById('ps-hdr-res');
+      const bdy = document.getElementById('ps-body-res');
+      if (hdr) spawnDots(hdr, hColors, 10);
+      if (bdy) spawnDots(bdy, colors, 20);
+      const overlay = document.getElementById('ps-overlay');
+      if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+    });
+    </script>
     @endif
 
     <script src="{{ asset('js/reservations.js') }}"></script>
@@ -607,6 +689,62 @@ foreach ($approvedReservationsJson as $dayGroup) {
                 document.getElementById('laravel-notes-field').value = document.getElementById('reservation-notes')?.value || '';
             });
         });
+    </script>
+
+    <script>
+    (function () {
+        var sel    = document.getElementById('reservation-time');
+        var wrap   = document.getElementById('reservation-time-custom');
+        var btn    = document.getElementById('reservation-time-btn');
+        var label  = document.getElementById('reservation-time-label');
+        var list   = document.getElementById('reservation-time-list');
+        if (!sel || !wrap || !btn || !list) return;
+
+        function sync() {
+            var opts = sel.options;
+            var val  = sel.value;
+
+            /* update the button label */
+            var chosen = sel.options[sel.selectedIndex];
+            label.textContent = chosen ? chosen.textContent : 'Select a time';
+
+            /* rebuild list */
+            list.innerHTML = '';
+            for (var i = 0; i < opts.length; i++) {
+                var opt = opts[i];
+                var li  = document.createElement('li');
+                li.textContent    = opt.textContent;
+                li.dataset.value  = opt.value;
+                if (opt.value === val && opt.value !== '') li.classList.add('is-selected');
+                if (opt.value === '' || opt.disabled)      li.classList.add('is-placeholder');
+                (function (v, disabled) {
+                    li.addEventListener('click', function () {
+                        if (disabled || v === '') return;
+                        sel.value = v;
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                        close();
+                    });
+                })(opt.value, !!opt.disabled);
+                list.appendChild(li);
+            }
+
+            btn.disabled = !!sel.disabled;
+            if (sel.disabled) close();
+        }
+
+        function open()   { wrap.classList.add('is-open');    btn.classList.add('is-open'); }
+        function close()  { wrap.classList.remove('is-open'); btn.classList.remove('is-open'); }
+        function toggle() { wrap.classList.contains('is-open') ? close() : open(); }
+
+        btn.addEventListener('click', function (e) { e.stopPropagation(); if (!btn.disabled) toggle(); });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+        sel.addEventListener('change', sync);
+
+        /* watch for options being added/removed by reservations.js */
+        new MutationObserver(sync).observe(sel, { childList: true, subtree: true, attributes: true });
+
+        sync();
+    })();
     </script>
 </body>
 </html>

@@ -15,10 +15,11 @@
         .admin-layout { display: flex; min-height: 100vh; align-items: flex-start; }
         .admin-sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
-            color: #e2e8f0; padding: 32px 20px 28px;
+            background: linear-gradient(180deg, #7f1d1d 0%, #991b1b 45%, #b91c1c 100%);
+            color: #e2e8f0;
+            padding: 32px 20px 28px;
             display: flex; flex-direction: column;
-            box-shadow: 4px 0 32px rgba(30,27,75,0.18);
+            box-shadow: 4px 0 32px rgba(127,29,29,0.35);
             border-top-right-radius: 32px; border-bottom-right-radius: 32px;
             position: sticky;
             top: 0;
@@ -28,13 +29,14 @@
         }
         .sidebar-brand { margin-bottom: 0; }
         .sidebar-brand-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            background: rgba(255,255,255,0.15);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff; margin-bottom: 12px;
+            width: 54px; height: 54px; border-radius: 50%;
+            overflow: hidden; margin-bottom: 14px; flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,.25);
+            background: #dc2626;
         }
+        .sidebar-brand-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .sidebar-brand-name { font-size: 16px; font-weight: 800; line-height: 1.3; color: #fff; }
-        .sidebar-brand-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); margin-top: 2px; }
+        .sidebar-brand-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.45); margin-top: 2px; }
         .sidebar-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0; }
         .sidebar-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: auto; }
         .sidebar-group-label {
@@ -45,7 +47,8 @@
         .sidebar-nav a {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 12px; border-radius: 12px;
-            text-decoration: none; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75);
+            text-decoration: none; font-size: 14px; font-weight: 600;
+            color: rgba(255,255,255,0.75);
             transition: background 0.18s, color 0.18s, border-color 0.18s;
             border-left: 3px solid transparent;
             position: relative;
@@ -60,7 +63,7 @@
         }
         .sidebar-nav a .icon { width: 20px; display: inline-flex; justify-content: center; flex-shrink: 0; }
         .sidebar-nav a .nav-badge {
-            margin-left: auto; background: #f59e0b; color: #fff;
+            margin-left: auto; background: #dc2626; color: #fff !important;
             font-size: 10px; font-weight: 800; padding: 2px 7px;
             border-radius: 999px; line-height: 1.4;
         }
@@ -83,31 +86,31 @@
         .logout-button:hover, .logout-button:focus { background: rgba(255,255,255,0.28); color: #fff; }
         .admin-main { flex: 1; padding: 40px 48px; }
         .main-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
-        .main-header h1 { margin: 0; font-size: 32px; font-weight: 700; color: #1e1b4b; }
+        .main-header h1 { margin: 0; font-size: 32px; font-weight: 700; color: #7f1d1d; }
         .header-summary { margin: 0; font-size: 14px; color: #6b7280; }
-        .header-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #4338ca; font-weight: 600; }
+        .header-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #dc2626; font-weight: 600; }
         .flash-messages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
         .flash { border-radius: 14px; padding: 14px 18px; font-weight: 600; }
         .flash-success { background: rgba(34,197,94,0.16); color: #166534; }
         .flash-error { background: rgba(239,68,68,0.18); color: #991b1b; }
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .summary-card { background: #fff; border-radius: 20px; padding: 20px 22px; box-shadow: 0 24px 48px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); position: relative; overflow: hidden; }
+        .summary-card { background: #fff; border-radius: 20px; padding: 20px 22px; box-shadow: 0 4px 20px rgba(15,23,42,0.07); border: none; position: relative; overflow: hidden; }
         .summary-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:20px 20px 0 0; }
-        .summary-card.card-total::before  { background: linear-gradient(90deg,#6366f1,#818cf8); }
+        .summary-card.card-total::before  { background: linear-gradient(90deg,#ef4444,#f87171); }
         .summary-card.card-pending::before { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
         .summary-card.card-approved::before { background: linear-gradient(90deg,#10b981,#34d399); }
         .summary-card.card-declined::before { background: linear-gradient(90deg,#ef4444,#f87171); }
         .summary-card h2 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin: 0 0 10px; display:flex; align-items:center; gap:7px; }
         .summary-card h2 i { font-size:14px; }
-        .summary-card.card-total h2 i   { color:#6366f1; }
+        .summary-card.card-total h2 i   { color:#ef4444; }
         .summary-card.card-pending h2 i  { color:#f59e0b; }
         .summary-card.card-approved h2 i { color:#10b981; }
         .summary-card.card-declined h2 i { color:#ef4444; }
         .summary-value { font-size: 34px; font-weight: 800; color: #1f2937; line-height:1; }
         .summary-caption { font-size: 13px; color: #9ca3af; margin-top: 8px; }
         .quick-actions { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:28px; }
-        .quick-action-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:12px; border:1.5px solid rgba(99,102,241,0.2); background:#fff; color:#4f46e5; font-size:13px; font-weight:600; text-decoration:none; box-shadow:0 2px 8px rgba(99,102,241,0.07); transition:all .18s; cursor:pointer; }
-        .quick-action-btn:hover { background:#4f46e5; color:#fff; border-color:#4f46e5; transform:translateY(-1px); }
+        .quick-action-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:12px; border:1.5px solid rgba(220,38,38,0.2); background:#fff; color:#dc2626; font-size:13px; font-weight:600; text-decoration:none; box-shadow:0 2px 8px rgba(220,38,38,0.07); transition:all .18s; cursor:pointer; }
+        .quick-action-btn:hover { background:#dc2626; color:#fff; border-color:#dc2626; transform:translateY(-1px); }
         .quick-action-btn i { font-size:13px; }
         .event-progress { margin-top:8px; height:4px; border-radius:999px; background:#f1f5f9; overflow:hidden; }
         .event-progress-bar { height:100%; border-radius:999px; transition:width .6s ease; }
@@ -126,14 +129,14 @@
         .overview-list-name { font-size: 13px; color: #64748b; }
         .overview-list-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #475569; align-items: center; }
         .overview-list-meta .badge { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
-        .overview-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-weight: 600; color: #4338ca; text-decoration: none; }
+        .overview-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-weight: 600; color: #dc2626; text-decoration: none; }
         .overview-link i { transition: transform 0.2s ease; }
         .overview-link:hover i, .overview-link:focus i { transform: translateX(4px); }
         .section-card { background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 26px 60px rgba(15,23,42,0.08); margin-bottom: 32px; }
         .section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
         .section-header h2 { margin: 0; font-size: 24px; color: #1f2937; }
         .section-header p { margin: 0; color: #6b7280; font-size: 14px; }
-        .reservation-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding: 16px; border: 1px solid rgba(99,102,241,0.15); border-radius: 18px; background: rgba(248,250,252,0.6); }
+        .reservation-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding: 16px; border: 1px solid rgba(220,38,38,0.15); border-radius: 18px; background: rgba(248,250,252,0.6); }
         .reservation-filter-form { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
         .reservation-filter-form .form-group { margin: 0; }
         .reservation-filter-form label { font-size: 13px; font-weight: 600; color: #4b5563; margin-bottom: 6px; }
@@ -149,9 +152,9 @@
         .schedule-meta { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #475569; }
         .schedule-meta strong { color: #111827; font-size: 16px; }
         .schedule-event-counts { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; padding: 0; list-style: none; }
-        .schedule-event-counts li { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: rgba(79,70,229,0.08); color: #312e81; font-weight: 600; font-size: 13px; }
+        .schedule-event-counts li { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: rgba(220,38,38,0.08); color: #991b1b; font-weight: 600; font-size: 13px; }
         .schedule-list { display: flex; flex-direction: column; gap: 16px; }
-        .schedule-item { background: #fff; border-radius: 18px; padding: 20px; box-shadow: 0 14px 32px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); }
+        .schedule-item { background: #fff; border-radius: 18px; padding: 20px; box-shadow: 0 14px 32px rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.12); }
         .schedule-item-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 15px; color: #1f2937; font-weight: 600; }
         .schedule-item-body { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #4b5563; }
         .schedule-item-body span { display: flex; align-items: center; gap: 8px; }
@@ -159,35 +162,35 @@
         .reservation-date-field { display: flex; flex-direction: column; }
         .reservation-date-field.is-hidden { display: none; }
         .status-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
-        .status-column { position: relative; border-radius: 20px; padding: 24px; background: linear-gradient(145deg,#fff 0%,#eef2ff 100%); box-shadow: 0 18px 40px rgba(99,102,241,0.12); overflow: hidden; }
+        .status-column { position: relative; border-radius: 20px; padding: 24px; background: linear-gradient(145deg,#fff 0%,#fff1f2 100%); box-shadow: 0 18px 40px rgba(220,38,38,0.12); overflow: hidden; }
         .status-column::before { content: ''; position: absolute; inset: 0; border-radius: inherit; opacity: 0.08; pointer-events: none; }
-        .status-column h3 { font-size: 20px; margin: 0 0 6px; color: #1e1b4b; }
+        .status-column h3 { font-size: 20px; margin: 0 0 6px; color: #7f1d1d; }
         .status-column p { margin: 0 0 16px; font-size: 14px; color: #6b7280; }
         .status-column .empty-state { font-style: italic; color: #94a3b8; }
         .status-column-pending::before { background: linear-gradient(135deg,#f97316,#fb923c); }
         .status-column-approved::before { background: linear-gradient(135deg,#10b981,#34d399); }
         .status-column-declined::before { background: linear-gradient(135deg,#ef4444,#dc2626); }
-        .reservation-card { background: #fff; border-radius: 18px; padding: 20px; margin-bottom: 18px; box-shadow: 0 14px 32px rgba(79,70,229,0.1); border: 1px solid rgba(99,102,241,0.12); }
+        .reservation-card { background: #fff; border-radius: 18px; padding: 20px; margin-bottom: 18px; box-shadow: 0 14px 32px rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.12); }
         .reservation-card:last-child { margin-bottom: 0; }
         .reservation-card h4 { margin: 0 0 8px; font-size: 18px; color: #1f2937; }
         .reservation-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-bottom: 12px; font-size: 13px; color: #4b5563; }
         .reservation-meta span { display: flex; align-items: center; gap: 6px; }
         .muted-text { color: #94a3b8; font-style: italic; }
-        .reservation-meta a { color: #312e81; font-weight: 600; text-decoration: none; }
+        .reservation-meta a { color: #991b1b; font-weight: 600; text-decoration: none; }
         .reservation-meta a:hover, .reservation-meta a:focus { text-decoration: underline; }
         .reservation-notes { font-size: 14px; line-height: 1.6; color: #374151; margin-bottom: 14px; white-space: pre-wrap; }
         .reservation-attachments { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-        .reservation-attachments a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(99,102,241,0.12); color: #312e81; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s ease, color 0.2s ease; }
-        .reservation-attachments a:hover, .reservation-attachments a:focus { background: rgba(99,102,241,0.2); color: #1e1b4b; }
+        .reservation-attachments a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(220,38,38,0.12); color: #991b1b; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s ease, color 0.2s ease; }
+        .reservation-attachments a:hover, .reservation-attachments a:focus { background: rgba(220,38,38,0.2); color: #7f1d1d; }
         .status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .status-actions form { margin: 0; }
         .status-actions .btn { border-radius: 999px; padding: 6px 16px; font-weight: 600; }
-        .view-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(99,102,241,0.4); color: #312e81; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
-        .view-link:hover, .view-link:focus { background: rgba(99,102,241,0.1); color: #1e1b4b; }
+        .view-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(220,38,38,0.4); color: #991b1b; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
+        .view-link:hover, .view-link:focus { background: rgba(220,38,38,0.1); color: #7f1d1d; }
         /* ── ANNOUNCEMENTS ── */
         .ann-stats-bar { display:flex; gap:0; background:#f8fafc; border:1px solid #e5e7eb; border-radius:14px; padding:14px 24px; margin-bottom:22px; }
         .ann-stat { display:flex; flex-direction:column; align-items:center; flex:1; gap:2px; }
-        .ann-stat-num { font-size:24px; font-weight:800; color:#312e81; line-height:1; }
+        .ann-stat-num { font-size:24px; font-weight:800; color:#991b1b; line-height:1; }
         .ann-stat-num.live { color:#059669; }
         .ann-stat-num.hidden { color:#94a3b8; }
         .ann-stat-label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; }
@@ -195,7 +198,7 @@
 
         .announcement-grid { display:grid; grid-template-columns:minmax(260px,380px) 1fr; gap:28px; align-items:start; }
         .announcement-form { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 4px 24px rgba(15,23,42,0.07); border:1px solid rgba(148,163,184,0.18); position:sticky; top:24px; }
-        .ann-form-header { background:linear-gradient(135deg,#4f46e5,#7c3aed); padding:18px 22px; }
+        .ann-form-header { background:linear-gradient(135deg,#dc2626,#b91c1c); padding:18px 22px; }
         .ann-form-header h3 { margin:0; color:#fff; font-size:15px; font-weight:700; }
         .ann-form-header p { margin:4px 0 0; color:rgba(255,255,255,0.75); font-size:12px; }
         .ann-form-body { padding:22px; }
@@ -203,14 +206,14 @@
         .ann-form-body .form-group label { font-weight:600; color:#374151; font-size:13px; margin-bottom:5px; display:flex; justify-content:space-between; }
         .ann-form-body .form-group label span { font-weight:400; color:#9ca3af; font-size:12px; }
         .ann-form-body .form-control { border-radius:10px; border:1.5px solid #e5e7eb; font-size:14px; padding:9px 12px; }
-        .ann-form-body .form-control:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+        .ann-form-body .form-control:focus { border-color:#ef4444; box-shadow:0 0 0 3px rgba(220,38,38,0.1); }
         .ann-form-body textarea.form-control { resize:vertical; min-height:110px; }
         .ann-form-body select.form-control { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
         .ann-visibility-toggle { display:flex; align-items:center; gap:10px; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:10px; padding:10px 14px; margin-bottom:16px; cursor:pointer; }
-        .ann-visibility-toggle input[type=checkbox] { width:16px; height:16px; accent-color:#4f46e5; cursor:pointer; }
+        .ann-visibility-toggle input[type=checkbox] { width:16px; height:16px; accent-color:#dc2626; cursor:pointer; }
         .ann-visibility-toggle-label { font-size:13px; font-weight:600; color:#374151; margin:0; cursor:pointer; }
         .ann-visibility-toggle-sub { font-size:11px; color:#6b7280; display:block; font-weight:400; }
-        .ann-publish-btn { width:100%; padding:11px; border-radius:10px; font-weight:700; font-size:14px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .ann-publish-btn { width:100%; padding:11px; border-radius:10px; font-weight:700; font-size:14px; background:linear-gradient(135deg,#dc2626,#b91c1c); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
         .ann-publish-btn:hover { opacity:0.9; }
 
         .announcement-list { display:flex; flex-direction:column; gap:16px; }
@@ -232,7 +235,7 @@
         .ann-image-thumb { width:64px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0; border:1px solid #e5e7eb; }
         .ann-body { font-size:13px; color:#4b5563; line-height:1.6; margin-bottom:6px; white-space:pre-line; }
         .ann-body.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-        .ann-read-more-btn { background:none; border:none; padding:0; font-size:12px; font-weight:700; color:#4f46e5; cursor:pointer; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px; }
+        .ann-read-more-btn { background:none; border:none; padding:0; font-size:12px; font-weight:700; color:#dc2626; cursor:pointer; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px; }
         .ann-read-more-btn:hover { opacity:.75; }
         .ann-footer { display:flex; justify-content:space-between; align-items:center; gap:8px; padding-top:12px; border-top:1px solid #f1f5f9; }
         .ann-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -242,11 +245,11 @@
         .ann-toggle-btn.make-live:hover { background:rgba(5,150,105,0.07); }
         .ann-toggle-btn.make-hidden { color:#64748b; border-color:rgba(100,116,139,0.3); }
         .ann-toggle-btn.make-hidden:hover { background:rgba(100,116,139,0.07); }
-        .ann-edit-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid rgba(99,102,241,0.3); color:#4f46e5; background:transparent; cursor:pointer; }
-        .ann-edit-btn:hover { background:rgba(99,102,241,0.06); }
+        .ann-edit-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid rgba(220,38,38,0.3); color:#dc2626; background:transparent; cursor:pointer; }
+        .ann-edit-btn:hover { background:rgba(220,38,38,0.06); }
         .ann-delete-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; border:1.5px solid rgba(239,68,68,0.25); color:#dc2626; background:transparent; cursor:pointer; }
         .ann-delete-btn:hover { background:rgba(239,68,68,0.06); }
-        .ann-category-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#ede9fe; color:#5b21b6; margin-bottom:6px; }
+        .ann-category-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#fee2e2; color:#dc2626; margin-bottom:6px; }
         .ann-img-preview { margin-top:8px; display:none; }
         .ann-img-preview img { width:100%; max-height:140px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb; }
         .visibility-badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.3px; }
@@ -255,10 +258,134 @@
         .visibility-badge.hidden { background:#f1f5f9; color:#64748b; border:1.5px solid #e2e8f0; }
         .visibility-badge.hidden::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#94a3b8; }
         .empty-block { font-style: italic; color: #94a3b8; }
-        .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 16px; }
-        .login-card { width: 100%; max-width: 420px; background: #fff; border-radius: 24px; padding: 36px; box-shadow: 0 28px 60px rgba(79,70,229,0.18); border: 1px solid rgba(99,102,241,0.14); }
-        .login-card h1 { font-size: 26px; font-weight: 700; margin-bottom: 12px; color: #1e1b4b; }
-        .login-card p { margin-bottom: 24px; color: #64748b; }
+        /* ── ADMIN LOGIN (Option A — Split Panel) ── */
+        html.login-page { scrollbar-gutter: stable; }
+        .login-split { display: flex; min-height: 100vh; }
+
+        .login-left {
+            flex: 0 0 44%;
+            background: #1e293b;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 56px 52px 44px;
+            position: relative; overflow: hidden;
+        }
+        .login-left::before {
+            content: ''; position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 20% 25%, rgba(220,38,38,.10) 0%, transparent 65%),
+                radial-gradient(ellipse 50% 60% at 85% 80%, rgba(220,38,38,.06) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .ll-watermark {
+            position: absolute; right: -30px; bottom: -50px;
+            font-size: 200px; color: rgba(255,255,255,.025);
+            font-weight: 900; pointer-events: none; user-select: none; line-height: 1;
+        }
+        .ll-mark { display: flex; align-items: center; gap: 12px; margin-bottom: 52px; position: relative; z-index: 1; }
+        .ll-mark-icon {
+            width: 44px; height: 44px; border-radius: 12px; background: #dc2626;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 20px; font-weight: 900; flex-shrink: 0;
+        }
+        .ll-mark-name { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.3; }
+        .ll-mark-sub  { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 2px; }
+        .ll-heading {
+            font-size: 2rem; font-weight: 900; color: #fff;
+            line-height: 1.15; letter-spacing: -.03em;
+            margin-bottom: 14px; position: relative; z-index: 1;
+        }
+        .ll-heading span { color: #fca5a5; }
+        .ll-desc {
+            font-size: .85rem; color: rgba(255,255,255,.45);
+            line-height: 1.75; max-width: 290px;
+            margin-bottom: 36px; position: relative; z-index: 1;
+        }
+        .ll-pills { display: flex; flex-direction: column; gap: 9px; position: relative; z-index: 1; }
+        .ll-pill  { display: flex; align-items: center; gap: 9px; font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.65); }
+        .ll-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; opacity: .8; flex-shrink: 0; }
+        .ll-footer { font-size: .65rem; color: rgba(255,255,255,.2); letter-spacing: .06em; position: relative; z-index: 1; }
+
+        .login-right {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center;
+            padding: 56px 64px;
+            background: #fff;
+        }
+        .login-form-box { width: 100%; max-width: 340px; }
+        .lf-eyebrow { font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #dc2626; margin-bottom: 10px; }
+        .lf-heading { font-size: 1.55rem; font-weight: 900; color: #0f172a; letter-spacing: -.03em; margin-bottom: 6px; }
+        .lf-sub     { font-size: .83rem; color: #94a3b8; margin-bottom: 28px; line-height: 1.6; }
+
+        /* alert */
+        .lf-alert {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 12px 14px; border-radius: 10px;
+            font-size: .82rem; font-weight: 600; line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .lf-alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .lf-alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .lf-alert-icon    { flex-shrink: 0; font-size: .9rem; margin-top: 1px; }
+
+        /* fields */
+        .lf-field { margin-bottom: 16px; }
+        .lf-field label {
+            display: block; font-size: .67rem; font-weight: 700;
+            letter-spacing: .09em; text-transform: uppercase;
+            color: #475569; margin-bottom: 7px;
+        }
+        .lf-iw { position: relative; }
+        .lf-iw-icon {
+            position: absolute; top: 50%; left: 13px;
+            transform: translateY(-50%);
+            color: #cbd5e1; font-size: .82rem; pointer-events: none;
+        }
+        .lf-iw input {
+            display: block; width: 100%;
+            padding: 11px 14px 11px 38px;
+            border: 1.5px solid #e2e8f0; border-radius: 10px;
+            background: #f8fafc; font-family: inherit;
+            font-size: .88rem; color: #0f172a; outline: none;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+        .lf-iw input:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+            background: #fff;
+        }
+        .lf-pw-toggle {
+            position: absolute; top: 50%; right: 11px;
+            transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            font-size: .72rem; font-weight: 700; font-family: inherit;
+            color: #94a3b8; padding: 2px 4px; transition: color .13s;
+        }
+        .lf-pw-toggle:hover { color: #dc2626; }
+
+        .lf-submit {
+            display: block; width: 100%; padding: 13px; margin-top: 6px;
+            background: #dc2626; color: #fff; border: none; border-radius: 10px;
+            font-family: inherit; font-size: .9rem; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(220,38,38,.28);
+            transition: background .15s, transform .12s; letter-spacing: .01em;
+        }
+        .lf-submit:hover { background: #b91c1c; transform: translateY(-1px); }
+        .lf-submit:active { transform: none; }
+
+        .lf-roles {
+            margin-top: 22px; padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+            font-size: .72rem; color: #94a3b8; text-align: center; line-height: 1.7;
+        }
+        .lf-chips { display: flex; gap: 7px; justify-content: center; margin-top: 8px; }
+        .lf-chip  { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: .68rem; font-weight: 700; }
+        .lf-chip-admin { background: #fee2e2; color: #dc2626; }
+        .lf-chip-sec   { background: #fef3c7; color: #92400e; }
+
+        @media (max-width: 768px) {
+            .login-left { display: none; }
+            .login-right { padding: 40px 28px; }
+        }
         @media (max-width: 992px) {
             .admin-layout { flex-direction: column; }
             .admin-sidebar { width: 100%; border-radius: 0; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; padding: 28px 24px; }
@@ -382,7 +509,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #312e81;
+    color: #991b1b;
     font-size: 11px;
     font-weight: 700;
     margin-bottom: 6px;
@@ -392,8 +519,8 @@
     width: 22px;
     height: 22px;
     border-radius: 6px;
-    background: #eef2ff;
-    color: #4338ca;
+    background: #fff1f2;
+    color: #dc2626;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -444,8 +571,8 @@
 .admin-note-input:focus {
     background: #ffffff !important;
     background-color: #ffffff !important;
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.10) !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.10) !important;
 }
 
 .admin-detail-top {
@@ -660,11 +787,11 @@
     cursor: pointer; transition: background .15s, color .15s;
 }
 .att-filter-btn:hover { background: #f8fafc; }
-.att-filter-btn.active-att { background: #4f46e5; border-color: #4f46e5; color: #fff !important; }
+.att-filter-btn.active-att { background: #dc2626; border-color: #dc2626; color: #fff !important; }
 
 .cust-stats-bar { display:flex; gap:0; background:#f8fafc; border:1px solid #e5e7eb; border-radius:14px; padding:14px 24px; margin-bottom:20px; }
 .cust-stat { display:flex; flex-direction:column; align-items:center; flex:1; gap:2px; }
-.cust-stat-num { font-size:24px; font-weight:800; color:#312e81; line-height:1; }
+.cust-stat-num { font-size:24px; font-weight:800; color:#991b1b; line-height:1; }
 .cust-stat-num.active { color:#059669; }
 .cust-stat-num.disabled { color:#ef4444; }
 .cust-stat-label { font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; }
@@ -674,11 +801,11 @@
 .cust-search-input-wrap { flex:1; min-width:200px; position:relative; }
 .cust-search-input-wrap i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:14px; pointer-events:none; }
 .cust-search-input { width:100%; padding:10px 13px 10px 36px; border-radius:12px; border:1.5px solid #e5e7eb; font-size:14px; outline:none; box-sizing:border-box; }
-.cust-search-input:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+.cust-search-input:focus { border-color:#ef4444; box-shadow:0 0 0 3px rgba(220,38,38,0.1); }
 .cust-filter-pills { display:flex; gap:6px; }
 .cust-filter-pill { padding:8px 16px; border-radius:999px; border:1.5px solid #e5e7eb; background:#fff; font-size:13px; font-weight:600; color:#6b7280; cursor:pointer; text-decoration:none; white-space:nowrap; }
-.cust-filter-pill.active-pill { background:#4f46e5; border-color:#4f46e5; color:#fff; }
-.cust-filter-pill:hover:not(.active-pill) { border-color:#6366f1; color:#4f46e5; text-decoration:none; }
+.cust-filter-pill.active-pill { background:#dc2626; border-color:#dc2626; color:#fff; }
+.cust-filter-pill:hover:not(.active-pill) { border-color:#ef4444; color:#dc2626; text-decoration:none; }
 .cust-result-count { font-size:13px; color:#94a3b8; align-self:center; white-space:nowrap; }
 
 .cust-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
@@ -686,7 +813,7 @@
 .cust-card:hover { box-shadow:0 8px 24px rgba(15,23,42,0.1); transform:translateY(-2px); }
 .cust-card-top { display:flex; align-items:center; gap:14px; padding:18px 18px 14px; }
 .cust-avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; color:#fff; flex-shrink:0; }
-.cust-avatar.active { background:linear-gradient(135deg,#4f46e5,#7c3aed); }
+.cust-avatar.active { background:linear-gradient(135deg,#dc2626,#b91c1c); }
 .cust-avatar.disabled { background:linear-gradient(135deg,#94a3b8,#64748b); }
 .cust-info { flex:1; min-width:0; }
 .cust-name { font-size:15px; font-weight:700; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
@@ -697,12 +824,12 @@
 .cust-meta { display:flex; gap:0; padding:0 18px 14px; flex-wrap:wrap; }
 .cust-meta-item { display:flex; align-items:center; gap:5px; font-size:12px; color:#6b7280; margin-right:14px; margin-bottom:4px; }
 .cust-meta-item i { color:#94a3b8; font-size:12px; }
-.cust-res-count { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; background:rgba(99,102,241,0.08); border-radius:999px; font-size:12px; font-weight:700; color:#4338ca; }
+.cust-res-count { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; background:rgba(220,38,38,0.08); border-radius:999px; font-size:12px; font-weight:700; color:#dc2626; }
 .cust-footer { display:flex; gap:8px; padding:12px 18px; border-top:1px solid #f1f5f9; margin-top:auto; }
 .cust-footer form { margin:0; }
 .cust-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:9px; font-size:12px; font-weight:700; border:1.5px solid; cursor:pointer; white-space:nowrap; text-decoration:none; background:transparent; }
-.cust-btn.view { color:#4f46e5; border-color:rgba(99,102,241,0.3); }
-.cust-btn.view:hover { background:rgba(99,102,241,0.07); }
+.cust-btn.view { color:#dc2626; border-color:rgba(220,38,38,0.3); }
+.cust-btn.view:hover { background:rgba(220,38,38,0.07); }
 .cust-btn.enable { color:#059669; border-color:rgba(5,150,105,0.3); }
 .cust-btn.enable:hover { background:rgba(5,150,105,0.07); }
 .cust-btn.disable { color:#dc2626; border-color:rgba(239,68,68,0.25); }
@@ -714,9 +841,9 @@
 .cust-modal-header { padding:24px 24px 0; }
 .cust-modal-avatar-row { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
 .cust-modal-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:#fff; flex-shrink:0; }
-.cust-modal-avatar.active { background:linear-gradient(135deg,#4f46e5,#7c3aed); }
+.cust-modal-avatar.active { background:linear-gradient(135deg,#dc2626,#b91c1c); }
 .cust-modal-avatar.disabled { background:linear-gradient(135deg,#94a3b8,#64748b); }
-.cust-modal-name { font-size:18px; font-weight:800; color:#1e1b4b; margin:0 0 4px; }
+.cust-modal-name { font-size:18px; font-weight:800; color:#7f1d1d; margin:0 0 4px; }
 .cust-modal-sub { font-size:13px; color:#64748b; margin:0; }
 .cust-modal-meta { display:flex; flex-wrap:wrap; gap:10px; padding:16px 24px; background:#f8fafc; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; }
 .cust-modal-meta-item { display:flex; align-items:center; gap:6px; font-size:13px; color:#374151; }
@@ -725,9 +852,9 @@
 .cust-modal-stat { border-radius:12px; padding:14px; text-align:center; }
 .cust-modal-stat-num { font-size:22px; font-weight:800; line-height:1; margin-bottom:4px; }
 .cust-modal-stat-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; }
-.cust-modal-stat.total { background:rgba(99,102,241,0.08); }
-.cust-modal-stat.total .cust-modal-stat-num { color:#4338ca; }
-.cust-modal-stat.total .cust-modal-stat-label { color:#6366f1; }
+.cust-modal-stat.total { background:rgba(220,38,38,0.08); }
+.cust-modal-stat.total .cust-modal-stat-num { color:#dc2626; }
+.cust-modal-stat.total .cust-modal-stat-label { color:#ef4444; }
 .cust-modal-stat.approved { background:rgba(16,185,129,0.08); }
 .cust-modal-stat.approved .cust-modal-stat-num { color:#065f46; }
 .cust-modal-stat.approved .cust-modal-stat-label { color:#10b981; }
@@ -809,7 +936,7 @@
     border-radius: 999px;
     background: rgba(79, 70, 229, 0.08);
     border: 1px solid rgba(79, 70, 229, 0.18);
-    color: #312e81;
+    color: #991b1b;
     font-size: 12px;
     font-weight: 700;
     text-decoration: none;
@@ -819,7 +946,7 @@
 .admin-detail-view-btn:hover,
 .admin-detail-view-btn:focus {
     background: rgba(79, 70, 229, 0.14);
-    color: #1e1b4b;
+    color: #7f1d1d;
     text-decoration: none;
 }
 
@@ -844,7 +971,7 @@
 .schedule-stat-num {
     font-size: 26px;
     font-weight: 800;
-    color: #312e81;
+    color: #991b1b;
     line-height: 1;
 }
 .schedule-stat-label {
@@ -910,9 +1037,9 @@
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    background: rgba(99,102,241,0.09);
-    color: #312e81;
-    border: 1px solid rgba(99,102,241,0.18);
+    background: rgba(220,38,38,0.09);
+    color: #991b1b;
+    border: 1px solid rgba(220,38,38,0.18);
 }
 .admin-days-badge.is-done {
     background: rgba(100,116,139,0.09);
@@ -1001,12 +1128,12 @@
 .rpt-label { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
 .rpt-label span { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.10em; white-space: nowrap; }
 .rpt-label-line { flex: 1; height: 1px; background: #e5e7eb; }
-.rpt-summary-box { border-left: 4px solid #6366f1; background: #f8fafc; border-radius: 0 16px 16px 0; padding: 18px 20px; margin-bottom: 24px; }
-.rpt-summary-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-weight: 700; color: #1e1b4b; font-size: 15px; }
-.rpt-summary-badge { font-size: 12px; padding: 3px 12px; border-radius: 999px; background: rgba(99,102,241,0.12); color: #4338ca; font-weight: 600; }
+.rpt-summary-box { border-left: 4px solid #ef4444; background: #f8fafc; border-radius: 0 16px 16px 0; padding: 18px 20px; margin-bottom: 24px; }
+.rpt-summary-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-weight: 700; color: #7f1d1d; font-size: 15px; }
+.rpt-summary-badge { font-size: 12px; padding: 3px 12px; border-radius: 999px; background: rgba(220,38,38,0.12); color: #dc2626; font-weight: 600; }
 .rpt-summary-text { font-size: 13px; color: #475569; line-height: 1.75; margin-bottom: 16px; }
 .rpt-highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.rpt-hl { background: #fff; border-radius: 12px; padding: 12px 14px; border: 1px solid rgba(99,102,241,0.14); }
+.rpt-hl { background: #fff; border-radius: 12px; padding: 12px 14px; border: 1px solid rgba(220,38,38,0.14); }
 .rpt-hl-label { font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
 .rpt-hl-val { font-size: 22px; font-weight: 700; color: #1f2937; }
 .rpt-hl-sub { font-size: 11px; color: #10b981; margin-top: 3px; }
@@ -1031,7 +1158,7 @@
 .rpt-scale-lbl { font-size: 10px; color: #9ca3af; }
 .rpt-scale-bar { display: flex; gap: 3px; }
 .rpt-sc { width: 18px; height: 10px; border-radius: 3px; }
-.rpt-placeholder-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; border: 1.5px dashed #c7d2fe; border-radius: 16px; background: #f8fafc; text-align: center; }
+.rpt-placeholder-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; border: 1.5px dashed #fecaca; border-radius: 16px; background: #f8fafc; text-align: center; }
         .don-hidden { display: none; }
 .rpt-placeholder-title { font-size: 14px; font-weight: 600; color: #64748b; margin: 10px 0 6px; }
 .rpt-placeholder-sub { font-size: 12px; color: #94a3b8; max-width: 280px; line-height: 1.6; }
@@ -1048,36 +1175,93 @@
 
 @if(!$isLoggedIn)
 {{-- ===================== LOGIN ===================== --}}
-<div class="login-wrapper">
-    <div class="login-card">
-        <h1>Welcome back</h1>
-        <p>Sign in to manage reservations and announcements.</p>
+<script>document.documentElement.classList.add('login-page');</script>
+<div class="login-split">
 
-        @if(session('flash_success'))
-            <div class="alert alert-success">{{ session('flash_success') }}</div>
-        @endif
-        @if(session('flash_error'))
-            <div class="alert alert-danger">{{ session('flash_error') }}</div>
-        @endif
-        @if(session('login_error'))
-            <div class="alert alert-danger">{{ session('login_error') }}</div>
-        @endif
-
-        <form method="POST" action="{{ route('admin.handle') }}">
-            @csrf
-            <input type="hidden" name="action" value="login">
-            <input type="hidden" name="redirect_section" value="{{ $section }}">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+    {{-- LEFT PANEL --}}
+    <div class="login-left">
+        <div style="position:relative;z-index:1;">
+            <div class="ll-mark">
+                <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo" style="width:48px;height:48px;border-radius:12px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.15);">
+                <div>
+                    <div class="ll-mark-name">St. John the Baptist Parish</div>
+                    <div class="ll-mark-sub">Tiaong, Quezon</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <h1 class="ll-heading">Parish<br><span>Administration</span><br>Portal</h1>
+            <p class="ll-desc">Securely manage reservations, announcements, customer accounts, and parish records.</p>
+            <div class="ll-pills">
+                <div class="ll-pill"><div class="ll-pill-dot"></div> Review &amp; approve reservation requests</div>
+                <div class="ll-pill"><div class="ll-pill-dot"></div> Manage the daily sacrament schedule</div>
+                <div class="ll-pill"><div class="ll-pill-dot"></div> Publish announcements to parishioners</div>
+                <div class="ll-pill"><div class="ll-pill-dot"></div> Monitor donations and generate reports</div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-        </form>
+        </div>
+        <div class="ll-footer">RESTRICTED ACCESS &middot; AUTHORIZED PERSONNEL ONLY</div>
+        <img src="{{ asset('img/about/about_1.jpg') }}" alt="" aria-hidden="true" style="position:absolute;right:-40px;bottom:-40px;width:260px;height:260px;border-radius:50%;object-fit:cover;opacity:.07;pointer-events:none;user-select:none;z-index:0;">
     </div>
+
+    {{-- RIGHT PANEL --}}
+    <div class="login-right">
+        <div class="login-form-box">
+            <div class="lf-eyebrow">Admin Access</div>
+            <h2 class="lf-heading">Welcome back</h2>
+            <p class="lf-sub">Sign in with your administrator credentials to continue.</p>
+
+            @if(session('flash_success'))
+                <div class="lf-alert lf-alert-success">
+                    <span class="lf-alert-icon">&#10003;</span>
+                    <span>{{ session('flash_success') }}</span>
+                </div>
+            @endif
+            @if(session('flash_error'))
+                <div class="lf-alert lf-alert-error">
+                    <span class="lf-alert-icon">&#9888;</span>
+                    <span>{{ session('flash_error') }}</span>
+                </div>
+            @endif
+            @if(session('login_error'))
+                <div class="lf-alert lf-alert-error">
+                    <span class="lf-alert-icon">&#9888;</span>
+                    <span>{{ session('login_error') }}</span>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.handle') }}">
+                @csrf
+                <input type="hidden" name="action" value="login">
+                <input type="hidden" name="redirect_section" value="{{ $section }}">
+
+                <div class="lf-field">
+                    <label for="username">Username</label>
+                    <div class="lf-iw">
+                        <i class="lf-iw-icon fa fa-user-o"></i>
+                        <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="lf-field">
+                    <label for="password">Password</label>
+                    <div class="lf-iw">
+                        <i class="lf-iw-icon fa fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required autocomplete="current-password">
+                        <button type="button" class="lf-pw-toggle" onclick="(function(b){var i=document.getElementById('password');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide';})(this)">Show</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="lf-submit">Sign In to Dashboard</button>
+            </form>
+
+            <div class="lf-roles">
+                Two access levels on this system
+                <div class="lf-chips">
+                    <span class="lf-chip lf-chip-admin">Administrator</span>
+                    <span class="lf-chip lf-chip-sec">Secretary</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @else
@@ -1133,7 +1317,9 @@ function adminStatusBadge(string $status): string {
 <div class="admin-layout">
     <aside class="admin-sidebar">
         <div class="sidebar-brand">
-            <div class="sidebar-brand-icon">&#10013;</div>
+            <div class="sidebar-brand-icon">
+                <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo">
+            </div>
             <div class="sidebar-brand-name">St. John the Baptist Parish</div>
             <div class="sidebar-brand-sub">Administration Panel</div>
         </div>
@@ -1571,7 +1757,7 @@ function adminStatusBadge(string $status): string {
                             <div class="status-column {{ $meta['class'] }}">
                                 <h3>
                                     {{ $meta['title'] }}
-                                    <span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;margin-left:8px;background:rgba(99,102,241,0.12);color:#4f46e5">{{ count($filteredGrouped[$statusKey] ?? []) }}</span>
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;margin-left:8px;background:rgba(220,38,38,0.12);color:#dc2626">{{ count($filteredGrouped[$statusKey] ?? []) }}</span>
                                 </h3>
                                 <p>{{ $meta['subtitle'] }}</p>
 
@@ -1902,9 +2088,9 @@ function adminStatusBadge(string $status): string {
     $rptCell = function(int $val, int $max, string $rgb): string {
         $pct = $max > 0 ? $val / $max : 0;
         if ($pct === 0.0) return 'background:#f1f5f9;color:#cbd5e1';
-        if ($pct < 0.25)  return "background:rgba({$rgb},0.14);color:rgba(30,27,75,0.55)";
-        if ($pct < 0.50)  return "background:rgba({$rgb},0.30);color:rgba(30,27,75,0.75)";
-        if ($pct < 0.75)  return "background:rgba({$rgb},0.55);color:#1e1b4b";
+        if ($pct < 0.25)  return "background:rgba({$rgb},0.14);color:rgba(127,29,29,0.55)";
+        if ($pct < 0.50)  return "background:rgba({$rgb},0.30);color:rgba(127,29,29,0.75)";
+        if ($pct < 0.75)  return "background:rgba({$rgb},0.55);color:#7f1d1d";
         return "background:rgba({$rgb},0.82);color:#fff";
     };
 
@@ -1917,7 +2103,7 @@ function adminStatusBadge(string $status): string {
 <section class="section-card" style="margin-bottom:24px">
     <form method="GET" action="{{ route('admin.index') }}" id="rptFilterForm"
           style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;padding:20px 24px;
-                 background:#f8fafc;border-radius:18px;border:1px solid rgba(99,102,241,0.13);
+                 background:#f8fafc;border-radius:18px;border:1px solid rgba(220,38,38,0.13);
                  margin-bottom:28px">
         <input type="hidden" name="section" value="reports">
 
@@ -1929,13 +2115,13 @@ function adminStatusBadge(string $status): string {
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">From</label>
             <div style="display:flex;gap:6px;align-items:center">
                 <select name="report_from_month" onchange="document.getElementById('rptFilterForm').submit()"
-                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(220,38,38,0.07);cursor:pointer;appearance:none">
                     @foreach($rptMonthOpts as $rmi => $rmn)
                         <option value="{{ $rmi + 1 }}" {{ $reportFromMonth === $rmi + 1 ? 'selected' : '' }}>{{ $rmn }}</option>
                     @endforeach
                 </select>
                 <select name="report_from_year" onchange="document.getElementById('rptFilterForm').submit()"
-                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(220,38,38,0.07);cursor:pointer;appearance:none">
                     @for($y = now()->year + 1; $y >= now()->year - 4; $y--)
                         <option value="{{ $y }}" {{ $reportFromYear === $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
@@ -1949,13 +2135,13 @@ function adminStatusBadge(string $status): string {
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">To</label>
             <div style="display:flex;gap:6px;align-items:center">
                 <select name="report_to_month" onchange="document.getElementById('rptFilterForm').submit()"
-                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                        style="min-width:130px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(220,38,38,0.07);cursor:pointer;appearance:none">
                     @foreach($rptMonthOpts as $rmi => $rmn)
                         <option value="{{ $rmi + 1 }}" {{ $reportToMonth === $rmi + 1 ? 'selected' : '' }}>{{ $rmn }}</option>
                     @endforeach
                 </select>
                 <select name="report_to_year" onchange="document.getElementById('rptFilterForm').submit()"
-                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                        style="min-width:90px;padding:9px 40px 9px 14px;border-radius:12px;border:1.5px solid #d1d5db;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 14px center;color:#1f2937;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(220,38,38,0.07);cursor:pointer;appearance:none">
                     @for($y = now()->year + 1; $y >= now()->year - 4; $y--)
                         <option value="{{ $y }}" {{ $reportToYear === $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
@@ -1966,10 +2152,10 @@ function adminStatusBadge(string $status): string {
         <div style="display:flex;flex-direction:column;gap:6px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Type</label>
             <select name="report_type" onchange="document.getElementById('rptFilterForm').submit()"
-                    style="min-width:170px;padding:9px 38px 9px 14px;border-radius:12px;border:1.5px solid rgba(99,102,241,0.25);
+                    style="min-width:170px;padding:9px 38px 9px 14px;border-radius:12px;border:1.5px solid rgba(220,38,38,0.25);
                            background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;
                            color:#1f2937;font-size:14px;font-weight:600;
-                           box-shadow:0 2px 8px rgba(99,102,241,0.07);cursor:pointer;appearance:none">
+                           box-shadow:0 2px 8px rgba(220,38,38,0.07);cursor:pointer;appearance:none">
                 <option value="all"     {{ $reportType === 'all'     ? 'selected' : '' }}>All sacraments</option>
                 <option value="baptism" {{ $reportType === 'baptism' ? 'selected' : '' }}>Baptism</option>
                 <option value="wedding" {{ $reportType === 'wedding' ? 'selected' : '' }}>Wedding</option>
@@ -1992,11 +2178,11 @@ function adminStatusBadge(string $status): string {
         <div style="display:flex;flex-direction:column;gap:6px;margin-left:auto">
             <label style="font-size:11px;font-weight:700;color:transparent;letter-spacing:.07em">Export</label>
             <button type="button" onclick="window.print()"
-                    style="padding:9px 20px;border-radius:12px;border:1.5px solid rgba(99,102,241,0.35);
-                           background:#fff;color:#4338ca;font-size:14px;font-weight:700;cursor:pointer;
+                    style="padding:9px 20px;border-radius:12px;border:1.5px solid rgba(220,38,38,0.35);
+                           background:#fff;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;
                            display:inline-flex;align-items:center;gap:8px;
-                           box-shadow:0 2px 8px rgba(99,102,241,0.10);transition:all .2s ease"
-                    onmouseover="this.style.background='rgba(99,102,241,0.08)'"
+                           box-shadow:0 2px 8px rgba(220,38,38,0.10);transition:all .2s ease"
+                    onmouseover="this.style.background='rgba(220,38,38,0.08)'"
                     onmouseout="this.style.background='#fff'">
                 <i class="fa fa-download"></i> Export PDF
             </button>
@@ -2175,10 +2361,10 @@ function adminStatusBadge(string $status): string {
             <span class="rpt-scale-lbl">Low</span>
             <div class="rpt-scale-bar">
                 <div class="rpt-sc" style="background:#f1f5f9"></div>
-                <div class="rpt-sc" style="background:rgba(99,102,241,0.14)"></div>
-                <div class="rpt-sc" style="background:rgba(99,102,241,0.30)"></div>
-                <div class="rpt-sc" style="background:rgba(99,102,241,0.55)"></div>
-                <div class="rpt-sc" style="background:rgba(99,102,241,0.82)"></div>
+                <div class="rpt-sc" style="background:rgba(220,38,38,0.14)"></div>
+                <div class="rpt-sc" style="background:rgba(220,38,38,0.30)"></div>
+                <div class="rpt-sc" style="background:rgba(220,38,38,0.55)"></div>
+                <div class="rpt-sc" style="background:rgba(220,38,38,0.82)"></div>
             </div>
             <span class="rpt-scale-lbl">High</span>
         </div>
@@ -2196,7 +2382,7 @@ function adminStatusBadge(string $status): string {
         </div>
         @if(array_sum($attendanceAvg) === 0)
             <div class="rpt-placeholder-box" style="padding:32px 16px">
-                <i class="fa fa-users" style="font-size:28px;color:#c7d2fe"></i>
+                <i class="fa fa-users" style="font-size:28px;color:#fecaca"></i>
                 <div class="rpt-placeholder-title">No attendance logged yet</div>
                 <div class="rpt-placeholder-sub">Log attendance on past events below to see averages here.</div>
             </div>
@@ -2236,11 +2422,11 @@ function adminStatusBadge(string $status): string {
             </div>
             <div style="display:flex;flex-direction:column;gap:16px;padding:16px 0 0">
                 <div style="text-align:center">
-                    <div style="font-size:42px;font-weight:800;color:#4f46e5;line-height:1">{{ $totalLogged }}</div>
+                    <div style="font-size:42px;font-weight:800;color:#dc2626;line-height:1">{{ $totalLogged }}</div>
                     <div style="font-size:13px;color:#6b7280">of {{ $totalPast }} past events logged</div>
                 </div>
                 <div style="background:#f1f5f9;border-radius:999px;height:10px;overflow:hidden">
-                    <div style="height:100%;width:{{ $pct }}%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:999px;transition:.3s"></div>
+                    <div style="height:100%;width:{{ $pct }}%;background:linear-gradient(90deg,#dc2626,#b91c1c);border-radius:999px;transition:.3s"></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                     <div style="padding:10px;border-radius:10px;background:rgba(16,185,129,.07);text-align:center">
@@ -2283,7 +2469,7 @@ function adminStatusBadge(string $status): string {
                         <div style="font-size:13px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $pr['name'] ?? '—' }}</div>
                         <div style="font-size:11px;color:#94a3b8">{{ $prDateFmt }}</div>
                     </div>
-                    <span style="font-size:22px;font-weight:800;color:#4f46e5;line-height:1;flex-shrink:0">{{ $prAtt['attended_count'] }}</span>
+                    <span style="font-size:22px;font-weight:800;color:#dc2626;line-height:1;flex-shrink:0">{{ $prAtt['attended_count'] }}</span>
                     <button type="button"
                             style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid rgba(100,116,139,0.25);color:#64748b;font-size:11px;font-weight:700;background:transparent;cursor:pointer;flex-shrink:0"
                             onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', {{ $prAtt['attended_count'] }}, '{{ addslashes($prAtt['notes'] ?? '') }}')">
@@ -2363,7 +2549,7 @@ function adminStatusBadge(string $status): string {
                     <td style="padding:10px 12px;color:#6b7280">{{ $prDateFmt }}</td>
                     <td style="padding:10px 12px">
                         <button type="button"
-                                style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px solid rgba(99,102,241,.3);color:#4f46e5;font-size:12px;font-weight:700;background:transparent;cursor:pointer"
+                                style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px solid rgba(220,38,38,.3);color:#dc2626;font-size:12px;font-weight:700;background:transparent;cursor:pointer"
                                 onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', 0, '')">
                             <i class="fa fa-plus"></i> Log
                         </button>
@@ -2389,7 +2575,7 @@ function adminStatusBadge(string $status): string {
                 <input type="hidden" name="event_type"     id="attEventType">
                 <div class="modal-header" style="background:#f8fafc;border-bottom:1px solid #f1f5f9;padding:20px 24px">
                     <div>
-                        <h5 style="font-weight:800;color:#1e1b4b;margin:0" id="attModalTitle">Log Attendance</h5>
+                        <h5 style="font-weight:800;color:#7f1d1d;margin:0" id="attModalTitle">Log Attendance</h5>
                         <small style="color:#64748b" id="attModalSub"></small>
                     </div>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
@@ -2412,7 +2598,7 @@ function adminStatusBadge(string $status): string {
                 </div>
                 <div class="modal-footer" style="border-top:1px solid #f1f5f9;padding:16px 24px;gap:10px">
                     <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                    <button type="submit" style="padding:9px 22px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+                    <button type="submit" style="padding:9px 22px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
                         <i class="fa fa-save"></i> Save attendance
                     </button>
                 </div>
@@ -2464,7 +2650,7 @@ function adminStatusBadge(string $status): string {
                     ? round(array_sum(array_column($utilizationMonthly, 'rate')) / count($utilizationMonthly), 1)
                     : 0;
             @endphp
-            <span style="flex-shrink:0;font-size:18px;font-weight:800;color:#4f46e5">{{ $avgUtil }}%<span style="font-size:11px;font-weight:500;color:#9ca3af;margin-left:4px">avg</span></span>
+            <span style="flex-shrink:0;font-size:18px;font-weight:800;color:#dc2626">{{ $avgUtil }}%<span style="font-size:11px;font-weight:500;color:#9ca3af;margin-left:4px">avg</span></span>
         </div>
 
         <div style="position:relative;height:200px">
@@ -2481,7 +2667,7 @@ function adminStatusBadge(string $status): string {
             @foreach($utilizationMonthly as $mn => $ud)
             <div style="text-align:center;padding:6px 4px;border-radius:8px;background:#f8fafc">
                 <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase">{{ $mn }}</div>
-                <div style="font-size:14px;font-weight:800;color:{{ $ud['rate'] >= 50 ? '#4f46e5' : ($ud['rate'] >= 20 ? '#f59e0b' : '#94a3b8') }}">{{ $ud['rate'] }}%</div>
+                <div style="font-size:14px;font-weight:800;color:{{ $ud['rate'] >= 50 ? '#dc2626' : ($ud['rate'] >= 20 ? '#f59e0b' : '#94a3b8') }}">{{ $ud['rate'] }}%</div>
                 <div style="font-size:9px;color:#cbd5e1">{{ $ud['approved'] }}/{{ $ud['capacity'] }}</div>
             </div>
             @endforeach
@@ -2498,7 +2684,7 @@ function adminStatusBadge(string $status): string {
             <p>Total ceremonies per priest — {{ now()->format('Y') }}</p>
         </div>
         @if($adminRole === 'admin')
-        <button class="btn btn-sm" style="background:#f1f5f9;color:#4f46e5;border:1px solid #e0e7ff;font-weight:600;white-space:nowrap;flex-shrink:0" onclick="togglePriestManager()">
+        <button class="btn btn-sm" style="background:#f1f5f9;color:#dc2626;border:1px solid #fee2e2;font-weight:600;white-space:nowrap;flex-shrink:0" onclick="togglePriestManager()">
             <i class="fa fa-cog"></i> Manage Priests
         </button>
         @endif
@@ -2506,7 +2692,7 @@ function adminStatusBadge(string $status): string {
 
     @if(count($officiantWorkload) === 0)
         <div style="text-align:center;padding:32px 16px;color:#94a3b8">
-            <i class="fa fa-users" style="font-size:28px;margin-bottom:10px;display:block;color:#c7d2fe"></i>
+            <i class="fa fa-users" style="font-size:28px;margin-bottom:10px;display:block;color:#fecaca"></i>
             <div style="font-weight:600;margin-bottom:4px;color:#64748b">No priests in the roster yet</div>
             @if($adminRole === 'admin')
             <div style="font-size:13px">Click "Manage Priests" above to add priests.</div>
@@ -2515,7 +2701,7 @@ function adminStatusBadge(string $status): string {
     @else
         @php
             $wlMax    = max(array_column($officiantWorkload, 'count')) ?: 1;
-            $wlPalette = ['#4f46e5','#10b981','#f97316','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#ef4444'];
+            $wlPalette = ['#dc2626','#10b981','#f97316','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#ef4444'];
         @endphp
         <div style="display:flex;flex-direction:column">
             @foreach($officiantWorkload as $wi => $wo)
@@ -2754,7 +2940,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: donLabels,
                 datasets: [
                     { label:'Building Fund',   data: donLabels.map(m => donData[m].building_fund),  backgroundColor:'#92400e', borderRadius:4, stack:'d' },
-                    { label:'Mass Intention',  data: donLabels.map(m => donData[m].mass_intention), backgroundColor:'#7c3aed', borderRadius:4, stack:'d' },
+                    { label:'Mass Intention',  data: donLabels.map(m => donData[m].mass_intention), backgroundColor:'#b91c1c', borderRadius:4, stack:'d' },
                     { label:'Tithes',          data: donLabels.map(m => donData[m].tithes),         backgroundColor:'#ca8a04', borderRadius:4, stack:'d' },
                     { label:'Other',           data: donLabels.map(m => donData[m].other),          backgroundColor:'#94a3b8', borderRadius:4, stack:'d' },
                 ]
@@ -2785,7 +2971,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data: utilLabels.map(m => utilData[m].rate),
                     backgroundColor: utilLabels.map(m => {
                         const r = utilData[m].rate;
-                        return r >= 50 ? 'rgba(79,70,229,0.8)' : r >= 20 ? 'rgba(245,158,11,0.8)' : 'rgba(148,163,184,0.6)';
+                        return r >= 50 ? 'rgba(220,38,38,0.8)' : r >= 20 ? 'rgba(245,158,11,0.8)' : 'rgba(148,163,184,0.6)';
                     }),
                     borderRadius: 6,
                 }]
@@ -2834,7 +3020,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let attCurrentType = 'all';
 
 const attColors = {
-    all:     { bg: '#4f46e5',                border: '#4f46e5', color: '#fff' },
+    all:     { bg: '#dc2626',                border: '#dc2626', color: '#fff' },
     wedding: { bg: 'rgba(244,114,182,0.12)', border: '#f472b6', color: '#f472b6' },
     baptism: { bg: 'rgba(45,212,191,0.12)',  border: '#2dd4bf', color: '#2dd4bf' },
     funeral: { bg: 'rgba(100,116,139,0.12)', border: '#64748b', color: '#64748b' },
@@ -2865,7 +3051,7 @@ function renderAttPagination(filteredRows) {
     var from = Math.max(1, attPage-2), to = Math.min(pages, from+4);
     for (var p = from; p <= to; p++) {
         var active = p === attPage;
-        btns += '<button onclick="attGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#4f46e5':'#e5e7eb') + ';background:' + (active?'#4f46e5':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
+        btns += '<button onclick="attGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#dc2626':'#e5e7eb') + ';background:' + (active?'#dc2626':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
     }
     btns += '<button onclick="attGoPage(' + (attPage+1) + ')" ' + (attPage===pages?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (attPage===pages?'opacity:.4;cursor:default':'') + '">Next ›</button>';
     btns += '</div>';
@@ -2948,7 +3134,7 @@ function renderDataPagination() {
     var from = Math.max(1, dataPage-2), to = Math.min(pages, from+4);
     for (var p = from; p <= to; p++) {
         var active = p === dataPage;
-        btns += '<button onclick="dataGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#4f46e5':'#e5e7eb') + ';background:' + (active?'#4f46e5':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
+        btns += '<button onclick="dataGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#dc2626':'#e5e7eb') + ';background:' + (active?'#dc2626':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
     }
     btns += '<button onclick="dataGoPage(' + (dataPage+1) + ')" ' + (dataPage===pages?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (dataPage===pages?'opacity:.4;cursor:default':'') + '">Next ›</button>';
     btns += '</div>';
@@ -3145,7 +3331,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') annCloseEdit
                     <a href="{{ route('admin.index', ['section'=>'customers','customer_status'=>'disabled','customer_search'=>$customerSearch ?? '']) }}"
                        class="cust-filter-pill {{ ($customerStatus ?? 'all') === 'disabled' ? 'active-pill' : '' }}">Disabled</a>
                 </div>
-                <button type="submit" class="cust-filter-pill" style="border-color:#4f46e5;color:#4f46e5;">
+                <button type="submit" class="cust-filter-pill" style="border-color:#dc2626;color:#dc2626;">
                     <i class="fa fa-search"></i> Search
                 </button>
                 <span class="cust-result-count">{{ count($allCustomers) }} result{{ count($allCustomers) !== 1 ? 's' : '' }}</span>
@@ -3340,7 +3526,7 @@ $purposeLabels = [
 ];
 $purposeColors = [
     'building_fund'  => '#92400e',
-    'mass_intention' => '#7c3aed',
+    'mass_intention' => '#b91c1c',
     'tithes'         => '#ca8a04',
     'other'          => '#94a3b8',
 ];
@@ -3350,7 +3536,7 @@ $purposeColors = [
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">
     <div class="section-card" style="margin:0;padding:20px 22px">
         <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Total Collected</div>
-        <div style="font-size:26px;font-weight:800;color:#4f46e5">₱{{ number_format($donationSectionTotal, 2) }}</div>
+        <div style="font-size:26px;font-weight:800;color:#dc2626">₱{{ number_format($donationSectionTotal, 2) }}</div>
         <div style="font-size:12px;color:#94a3b8;margin-top:4px">{{ count($donationsList) }} donation{{ count($donationsList) !== 1 ? 's' : '' }}</div>
     </div>
     @foreach($donationsByPurpose as $pk => $pv)
@@ -3377,19 +3563,19 @@ $purposeColors = [
         <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</label>
             <input type="text" name="donor_name" required maxlength="255" value="{{ old('donor_name') }}"
-                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
                    placeholder="Full name">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Amount (₱)</label>
             <input type="number" name="amount" step="0.01" min="0.01" required value="{{ old('amount') }}"
-                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box"
                    placeholder="0.00">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</label>
             <select name="purpose" id="purposeSelect" onchange="toggleCustomPurpose(this.value)"
-                    style="padding:9px 38px 9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none;width:100%;box-sizing:border-box">
+                    style="padding:9px 38px 9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none;width:100%;box-sizing:border-box">
                 <option value="building_fund"  {{ old('purpose')==='building_fund'  ? 'selected':'' }}>Building Fund</option>
                 <option value="mass_intention" {{ old('purpose')==='mass_intention' ? 'selected':'' }}>Mass Intention</option>
                 <option value="tithes"         {{ old('purpose')==='tithes'         ? 'selected':'' }}>Tithes</option>
@@ -3398,22 +3584,22 @@ $purposeColors = [
             <input type="text" name="custom_purpose" id="customPurposeInput"
                    value="{{ old('custom_purpose') }}"
                    placeholder="Specify purpose..."
-                   style="display:{{ old('purpose')==='other' ? 'block' : 'none' }};margin-top:6px;padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.35);font-size:14px;width:100%;box-sizing:border-box;outline:none">
+                   style="display:{{ old('purpose')==='other' ? 'block' : 'none' }};margin-top:6px;padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.35);font-size:14px;width:100%;box-sizing:border-box;outline:none">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date Received</label>
             <input type="date" name="donation_date" required value="{{ old('donation_date', date('Y-m-d')) }}"
-                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;width:100%;box-sizing:border-box">
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;width:100%;box-sizing:border-box">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes (optional)</label>
             <input type="text" name="notes" maxlength="500" value="{{ old('notes') }}"
-                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;width:100%;box-sizing:border-box"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;width:100%;box-sizing:border-box"
                    placeholder="e.g. In memory of Juan dela Cruz">
         </div>
         <div>
             <button type="submit"
-                    style="width:100%;padding:10px 0;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+                    style="width:100%;padding:10px 0;border-radius:10px;border:none;background:#dc2626;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
                 Save &amp; Generate Receipt
             </button>
         </div>
@@ -3427,12 +3613,12 @@ $purposeColors = [
         <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Search Donor</label>
             <input type="text" name="donation_search" value="{{ $donationSearch }}"
-                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px"
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px"
                    placeholder="Name...">
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</label>
-            <select name="donation_purpose" style="padding:8px 38px 8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none">
+            <select name="donation_purpose" style="padding:8px 38px 8px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;background:#fff url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;) no-repeat right 12px center;appearance:none">
                 <option value="all" {{ $donationPurpose==='all' ? 'selected':'' }}>All purposes</option>
                 <option value="building_fund"  {{ $donationPurpose==='building_fund'  ? 'selected':'' }}>Building Fund</option>
                 <option value="mass_intention" {{ $donationPurpose==='mass_intention' ? 'selected':'' }}>Mass Intention</option>
@@ -3443,14 +3629,14 @@ $purposeColors = [
         <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">From</label>
             <input type="date" name="donation_from" value="{{ $donationFrom }}"
-                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px">
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px">
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">To</label>
             <input type="date" name="donation_to" value="{{ $donationTo }}"
-                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.22);font-size:14px">
+                   style="padding:8px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px">
         </div>
-        <button type="submit" style="padding:9px 20px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:13px;font-weight:700;cursor:pointer">Filter</button>
+        <button type="submit" style="padding:9px 20px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.3);background:#fff;color:#dc2626;font-size:13px;font-weight:700;cursor:pointer">Filter</button>
         @if($donationSearch || $donationPurpose !== 'all' || $donationFrom || $donationTo)
         <a href="{{ route('admin.index', ['section'=>'donations']) }}"
            style="padding:9px 16px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#94a3b8;font-size:13px;font-weight:600;text-decoration:none">Clear</a>
@@ -3462,7 +3648,7 @@ $purposeColors = [
 <section class="section-card" style="margin-bottom:24px">
     <div class="section-header">
         <div><h2>Donation Records</h2><p>{{ count($donationsList) }} record{{ count($donationsList) !== 1 ? 's' : '' }} found</p></div>
-        <button onclick="window.print()" style="padding:8px 18px;border-radius:10px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:13px;font-weight:700;cursor:pointer">
+        <button onclick="window.print()" style="padding:8px 18px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.3);background:#fff;color:#dc2626;font-size:13px;font-weight:700;cursor:pointer">
             <i class="fa fa-print"></i> Print List
         </button>
     </div>
@@ -3479,7 +3665,7 @@ $purposeColors = [
                 <tr style="background:#f8fafc">
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Receipt #</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</th>
-                    <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.06em">Amount</th>
+                    <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">Amount</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes</th>
@@ -3492,7 +3678,7 @@ $purposeColors = [
                 <tr style="border-top:1px solid #f1f5f9">
                     <td style="padding:10px 14px;font-family:monospace;font-size:12px;color:#64748b;white-space:nowrap">{{ $don['receipt_number'] ?? '—' }}</td>
                     <td style="padding:10px 14px;font-weight:600;color:#1f2937">{{ $don['donor_name'] ?? '—' }}</td>
-                    <td style="padding:10px 14px;text-align:right;font-weight:700;color:#4f46e5;white-space:nowrap">₱{{ number_format((float)($don['amount'] ?? 0), 2) }}</td>
+                    <td style="padding:10px 14px;text-align:right;font-weight:700;color:#dc2626;white-space:nowrap">₱{{ number_format((float)($don['amount'] ?? 0), 2) }}</td>
                     <td style="padding:10px 14px">
                         <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;
                               background:{{ ($purposeColors[$donPurpose] ?? '#94a3b8') }}20;
@@ -3504,7 +3690,7 @@ $purposeColors = [
                     <td style="padding:10px 14px;color:#94a3b8;font-size:13px;max-width:200px">{{ $don['notes'] ?? '—' }}</td>
                     <td style="padding:10px 14px;text-align:center;white-space:nowrap">
                         <button onclick="printReceipt({{ json_encode($don) }})"
-                                style="padding:5px 12px;border-radius:8px;border:1.5px solid rgba(99,102,241,0.3);background:#fff;color:#4f46e5;font-size:12px;font-weight:600;cursor:pointer;margin-right:6px">
+                                style="padding:5px 12px;border-radius:8px;border:1.5px solid rgba(220,38,38,0.3);background:#fff;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;margin-right:6px">
                             <i class="fa fa-print"></i> Receipt
                         </button>
                         <form method="POST" action="{{ route('admin.donations.delete', $don['id']) }}" style="display:inline"
@@ -3521,7 +3707,7 @@ $purposeColors = [
             <tfoot>
                 <tr style="border-top:2px solid #e2e8f0;background:#f8fafc">
                     <td colspan="2" style="padding:10px 14px;font-weight:700;color:#374151">Total</td>
-                    <td style="padding:10px 14px;text-align:right;font-weight:800;color:#4f46e5;font-size:16px">₱{{ number_format($donationSectionTotal, 2) }}</td>
+                    <td style="padding:10px 14px;text-align:right;font-weight:800;color:#dc2626;font-size:16px">₱{{ number_format($donationSectionTotal, 2) }}</td>
                     <td colspan="4"></td>
                 </tr>
             </tfoot>
@@ -3545,9 +3731,9 @@ $purposeColors = [
                 <tr><td style="padding:5px 0;color:#6b7280">Donor</td><td style="padding:5px 0;font-weight:700;color:#1f2937" id="rct-donor"></td></tr>
                 <tr><td style="padding:5px 0;color:#6b7280">Purpose</td><td style="padding:5px 0;color:#374151" id="rct-purpose"></td></tr>
                 <tr><td style="padding:5px 0;color:#6b7280">Notes</td><td style="padding:5px 0;color:#94a3b8;font-style:italic;font-size:12px" id="rct-notes"></td></tr>
-                <tr style="border-top:2px solid #4f46e5;margin-top:8px">
-                    <td style="padding:12px 0 5px;font-weight:700;color:#4f46e5;font-size:15px">Amount</td>
-                    <td style="padding:12px 0 5px;font-weight:800;color:#4f46e5;font-size:20px" id="rct-amount"></td>
+                <tr style="border-top:2px solid #dc2626;margin-top:8px">
+                    <td style="padding:12px 0 5px;font-weight:700;color:#dc2626;font-size:15px">Amount</td>
+                    <td style="padding:12px 0 5px;font-weight:800;color:#dc2626;font-size:20px" id="rct-amount"></td>
                 </tr>
             </table>
             <div style="margin-top:24px;padding-top:16px;border-top:1px dashed #e2e8f0;display:flex;justify-content:space-between">
@@ -3568,7 +3754,7 @@ $purposeColors = [
                 Close
             </button>
             <button onclick="printReceiptNow()"
-                    style="padding:9px 22px;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+                    style="padding:9px 22px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
                 <i class="fa fa-print"></i> Print
             </button>
         </div>
@@ -3787,7 +3973,7 @@ function printReceiptNow() {
                 {{-- Edit Announcement Modal --}}
                 <div id="annEditModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
                     <div style="background:#fff;border-radius:20px;width:100%;max-width:560px;margin:20px;box-shadow:0 32px 80px rgba(15,23,42,.22);overflow:hidden;">
-                        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+                        <div style="background:linear-gradient(135deg,#dc2626,#b91c1c);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
                             <div>
                                 <div style="color:#fff;font-weight:700;font-size:15px;"><i class="fa fa-pencil"></i> Edit Announcement</div>
                                 <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;">Changes will update immediately on the home page if set to Live.</div>
@@ -3842,7 +4028,7 @@ function printReceiptNow() {
                             </div>
 
                             <label style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;cursor:pointer;">
-                                <input type="checkbox" name="announcement_show" id="edit_ann_show" value="1" style="width:16px;height:16px;accent-color:#4f46e5;">
+                                <input type="checkbox" name="announcement_show" id="edit_ann_show" value="1" style="width:16px;height:16px;accent-color:#dc2626;">
                                 <div>
                                     <span style="font-size:13px;font-weight:600;color:#374151;display:block;">Show on home page</span>
                                     <span style="font-size:11px;color:#6b7280;">Visitors will see this announcement immediately</span>
@@ -3855,7 +4041,7 @@ function printReceiptNow() {
                                     Cancel
                                 </button>
                                 <button type="submit"
-                                    style="flex:2;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;cursor:pointer;">
+                                    style="flex:2;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:14px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;cursor:pointer;">
                                     <i class="fa fa-save"></i> Save changes
                                 </button>
                             </div>

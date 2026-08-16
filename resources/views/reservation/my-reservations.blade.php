@@ -103,7 +103,7 @@
             display: inline-flex;
             align-items: center;
             gap: .6rem;
-            background: #009ddc;
+            background: #dc2626;
             color: #fff !important;
             font-weight: 400;
             font-size: .85rem;
@@ -114,7 +114,7 @@
             text-decoration: none !important;
             transition: background .2s, transform .15s;
         }
-        .myres-btn-primary:hover { background: #007bb5; transform: translateY(-1px); }
+        .myres-btn-primary:hover { background: #b91c1c; transform: translateY(-1px); }
 
         .myres-btn-outline {
             display: inline-flex;

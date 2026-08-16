@@ -115,6 +115,90 @@
             object-fit: cover;
         }
 
+        /* ---- HERO BANNER ---- */
+        .contact-hero {
+            position: relative;
+            background: linear-gradient(160deg, #0f172a 0%, #1a2f52 60%, #0f172a 100%);
+            overflow: hidden;
+            padding: 80px 24px 96px;
+            text-align: center;
+            isolation: isolate;
+        }
+
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(241,91,42,.13) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .contact-hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.7);
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.14);
+            padding: 7px 18px;
+            border-radius: 999px;
+            margin-bottom: 26px;
+        }
+
+        .contact-hero h1 {
+            font-size: clamp(2rem, 3.5vw + 1rem, 3rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.18;
+            margin-bottom: 18px;
+        }
+
+        .contact-hero h1 em {
+            font-style: normal;
+            color: #fdd77f;
+        }
+
+        .contact-hero-sub {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,.72);
+            line-height: 1.75;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .contact-hero-wave {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            line-height: 0;
+            z-index: 1;
+        }
+
         /* ---- CONTACT PAGE ---- */
         .contact-section {
             position: relative;
@@ -277,19 +361,23 @@
 
 @include('partials.header')
 
+<section class="contact-hero">
+    <div class="contact-hero-inner">
+        <div class="contact-hero-eyebrow">
+            <i class="fa fa-paper-plane" style="color:#f15b2a;"></i> Parish Inquiries
+        </div>
+        <h1>We are here to <em>listen,<br>guide, and pray</em> with you</h1>
+        <p class="contact-hero-sub">Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.</p>
+    </div>
+    <div class="contact-hero-wave">
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:56px;width:100%;display:block;">
+            <path d="M0,56 L0,28 Q360,0 720,28 Q1080,56 1440,28 L1440,56 Z" fill="#eef2fb"/>
+        </svg>
+    </div>
+</section>
+
 <section class="contact-section">
     <div class="container">
-
-        <div class="text-center contact-intro">
-            <br>
-            <span class="section-subtitle">
-                <i class="fa fa-paper-plane"></i> Connect With the Parish
-            </span>
-            <h2>We are here to listen, guide, and pray with you</h2>
-            <p class="mt-3">
-                Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.
-            </p>
-        </div>
 
         <div class="contact-wrapper">
 

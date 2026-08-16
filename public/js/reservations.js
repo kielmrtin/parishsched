@@ -354,10 +354,6 @@ list.push({
             intro.textContent = 'Select a date on the calendar to see existing approved reservations and prefill the request form.';
             availabilityContainer.appendChild(intro);
 
-            const legend = document.createElement('p');
-            legend.className = 'small text-muted mb-0';
-            legend.innerHTML = 'Dates without a <span class="badge badge-danger">Booked</span> tag remain open for requests.';
-            availabilityContainer.appendChild(legend);
         }
 
         function renderAvailabilityDetails(dateKey, reservationsForDate) {
@@ -407,68 +403,65 @@ list.push({
             applyDateToInput(dateKey);
             modalElement.setAttribute('data-selected-date', dateKey);
 
-            if (typeof $ === 'function') {
-                $(modalElement).modal('show');
-            }
+            showInlineDatePanel(dateKey);
         }
 
         renderAvailabilityDefault();
 
-        if (prefilledDateFromServer) {
-            applyDateToInput(prefilledDateFromServer);
+        // ── Inline panel helpers ──
+        function showInlineDatePanel(dateKey) {
+            var emptyState = document.getElementById('res-empty-state');
+            var formContent = document.getElementById('res-form-content');
+            var dateDisplay = document.getElementById('res-date-display');
+            var dateSub = document.getElementById('res-date-sub');
+
+            if (emptyState) { emptyState.style.display = 'none'; }
+            if (formContent) { formContent.style.display = 'flex'; }
+
+            if (dateDisplay) { dateDisplay.textContent = formatDisplayDate(dateKey); }
+
+            if (dateSub) {
+                var parts = dateKey.split('-');
+                if (parts.length === 3) {
+                    var dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    var reservationsForDate = bookedLookup[dateKey] || [];
+                    var hasApproved = reservationsForDate.some(function (r) { return r.status === 'approved'; });
+                    dateSub.textContent = dayNames[dt.getDay()] + ' · ' + (hasApproved ? 'Has existing reservations' : 'Open for requests');
+                }
+            }
+
+            shouldShowFormOnOpen = true;
+            toggleFormVisibility(true);
+            dispatchModalEvent('reservation:show-form');
         }
 
-        if (modalElement && typeof $ === 'function') {
-            $(modalElement).on('show.bs.modal', function () {
-                toggleFormVisibility(shouldShowFormOnOpen);
-                const selectedDate = modalElement.getAttribute('data-selected-date');
-                if (shouldShowFormOnOpen) {
-                    focusFirstFormField();
-                }
+        function showInlineEmptyState() {
+            var emptyState = document.getElementById('res-empty-state');
+            var formContent = document.getElementById('res-form-content');
+            if (emptyState) { emptyState.style.display = 'flex'; }
+            if (formContent) { formContent.style.display = 'none'; }
+        }
 
-                const dateInput = document.getElementById('reservation-date');
-
-if (dateInput) {
-    dateInput.addEventListener('change', function () {
-        if (!this.value) return;
-
-        const parts = this.value.split('-');
-        const selected = new Date(parts[0], parts[1] - 1, parts[2]);
-
-        setSelectedDate(selected); // reuse your existing function
-    });
-}
-
-                if (!selectedDate) {
-                    if (shouldOpenFromServer && prefilledDateFromServer) {
-                        modalElement.setAttribute('data-selected-date', prefilledDateFromServer);
-                        if (modalTitle) {
-                            modalTitle.textContent = 'Reserve — ' + formatDisplayDate(prefilledDateFromServer);
-                        }
-                        renderAvailabilityDetails(prefilledDateFromServer, bookedLookup[prefilledDateFromServer] || []);
-                        applyDateToInput(prefilledDateFromServer);
-                    } else {
-                        if (modalTitle) {
-                            modalTitle.textContent = 'Start a Reservation';
-                        }
-                        renderAvailabilityDefault();
-                    }
-                }
-            });
-
-            $(modalElement).on('hidden.bs.modal', function () {
+        var changeDateBtn = document.getElementById('res-change-date-btn');
+        if (changeDateBtn) {
+            changeDateBtn.addEventListener('click', function () {
                 modalElement.removeAttribute('data-selected-date');
                 shouldShowFormOnOpen = false;
                 toggleFormVisibility(false);
                 if (formElement && typeof formElement.reset === 'function') {
                     formElement.reset();
                 }
-                if (messageContainer) {
-                    messageContainer.innerHTML = '';
-                }
+                if (messageContainer) { messageContainer.innerHTML = ''; }
                 dispatchModalEvent('reservation:reset');
                 renderAvailabilityDefault();
+                showInlineEmptyState();
             });
+        }
+        // ── End inline panel helpers ──
+
+        if (prefilledDateFromServer) {
+            applyDateToInput(prefilledDateFromServer);
         }
 
         function attachDayInteraction(dayElement, dateKey) {
@@ -482,6 +475,9 @@ if (dateInput) {
             dayElement.dataset.date = dateKey;
 
             dayElement.addEventListener('click', function () {
+                document.querySelectorAll('#availability-calendar .calendar_day.selected-day')
+                    .forEach(function (el) { el.classList.remove('selected-day'); });
+                dayElement.classList.add('selected-day');
                 populateModal(dateKey);
             });
 
@@ -621,6 +617,13 @@ if (dateInput) {
 
         cellWrapper.classList.add('status_' + status);
 
+        if (date.getTime() === today.getTime()) {
+            cellWrapper.classList.add('is_today');
+            const todayDot = document.createElement('span');
+            todayDot.className = 'today-indicator-dot';
+            cellWrapper.appendChild(todayDot);
+        }
+
         if (baptismCount >= 5) {
             cellWrapper.classList.add('status_full');
         }
@@ -723,8 +726,8 @@ cellWrapper.title = '';
 
         render();
 
-        if (shouldOpenFromServer && modalElement && typeof $ === 'function') {
-            $(modalElement).modal('show');
+        if (shouldOpenFromServer && prefilledDateFromServer && modalElement) {
+            populateModal(prefilledDateFromServer);
         }
     }
 

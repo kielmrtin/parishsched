@@ -2,24 +2,42 @@
     'use strict';
 
     $(document).ready(function () {
+
+
         const buttons = $('.filter_buttons .filter_btn');
         const items = $('#schedule-events .schedule_item');
 
-        function filterEvents(filter) {
-            if (filter === 'all') {
-                items.stop(true, true).fadeIn(180);
-                return;
-            }
+        var FADE_OUT = 180;
+        var FADE_IN  = 260;
 
+        function filterEvents(filter) {
+            // Phase 1: fade out ALL items at once
             items.each(function () {
-                const item = $(this);
-                const type = item.data('type');
-                if (type === filter) {
-                    item.stop(true, true).fadeIn(180);
-                } else {
-                    item.stop(true, true).fadeOut(150);
-                }
+                var el = this;
+                el.style.transition = 'opacity ' + FADE_OUT + 'ms ease';
+                el.style.opacity = '0';
             });
+
+            // Phase 2: after fade out — collapse hidden items, then fade in matching
+            setTimeout(function () {
+                items.each(function () {
+                    var el = this;
+                    var type = $(el).data('type');
+                    var shouldShow = (filter === 'all' || type === filter);
+                    el.style.display = shouldShow ? 'flex' : 'none';
+                });
+
+                // Force reflow so layout settles before fade in
+                if (items[0]) { void items[0].offsetWidth; }
+
+                items.each(function () {
+                    var el = this;
+                    if (el.style.display !== 'none') {
+                        el.style.transition = 'opacity ' + FADE_IN + 'ms ease';
+                        el.style.opacity = '1';
+                    }
+                });
+            }, FADE_OUT + 30);
         }
 
         buttons.on('click', function (event) {

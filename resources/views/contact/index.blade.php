@@ -34,33 +34,91 @@
             object-fit: cover;
         }
 
+        /* ---- HERO BANNER ---- */
+        .contact-hero {
+            position: relative;
+            background: url('{{ asset('img/banner/bradcam3.jpg') }}') center center / cover no-repeat;
+            overflow: hidden;
+            padding: 80px 24px 96px;
+            text-align: center;
+            isolation: isolate;
+        }
+
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.52);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-hero::after { display: none; }
+
+        .contact-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .contact-hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: #fca5a5;
+            background: rgba(220,38,38,.2);
+            border: 1px solid rgba(220,38,38,.4);
+            padding: 7px 18px;
+            border-radius: 999px;
+            margin-bottom: 26px;
+        }
+
+        .contact-hero h1 {
+            font-size: clamp(2rem, 3.5vw + 1rem, 3rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.18;
+            margin-bottom: 18px;
+        }
+
+        .contact-hero h1 em {
+            font-style: normal;
+            color: #fff;
+        }
+
+        .contact-hero-sub {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,.72);
+            line-height: 1.75;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .contact-hero-wave {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            line-height: 0;
+            z-index: 1;
+        }
+
         /* CONTACT PAGE UI - SAME AS YOUR OLD PAGE */
         .contact-section {
             position: relative;
-            background: linear-gradient(135deg, rgba(19, 52, 119, 0.05), rgba(0, 123, 255, 0.08));
+            background: #eef2fb;
             padding: 50px 0 100px;
+            overflow: hidden;
         }
 
-        .contact-section::before {
-            content: "";
-            position: absolute;
-            top: -120px;
-            right: -80px;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0));
-            z-index: 0;
-        }
-
+        .contact-section::before,
         .contact-section::after {
-            content: "";
-            position: absolute;
-            bottom: -120px;
-            left: -80px;
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle at center, rgba(46, 105, 255, 0.15), rgba(46, 105, 255, 0));
-            z-index: 0;
+            display: none;
         }
 
         .contact-section .container {
@@ -103,7 +161,7 @@
         }
 
         .contact-details-panel {
-            background: linear-gradient(160deg, #163a9f 0%, #009ddc 100%);
+            background: linear-gradient(160deg, #7f1d1d 0%, #dc2626 100%);
             color: #ffffff;
         }
 
@@ -238,23 +296,27 @@
     </style>
 </head>
 
-<body class="schedule-page">
+<body class="schedule-page" style="overflow-x:hidden;">
 
 @include('partials.header')
 
+<section class="contact-hero">
+    <div class="contact-hero-inner">
+        <div class="contact-hero-eyebrow">
+            <i class="fa fa-paper-plane" style="color:#fff;"></i> Parish Inquiries
+        </div>
+        <h1>We are here to <em>listen,<br>guide, and pray</em> with you</h1>
+        <p class="contact-hero-sub">Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.</p>
+    </div>
+    <div class="contact-hero-wave">
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:40px;width:100%;display:block;">
+            <path d="M0,56 L0,28 Q360,0 720,28 Q1080,56 1440,28 L1440,56 Z" fill="#eef2fb"/>
+        </svg>
+    </div>
+</section>
+
 <section class="contact-section">
     <div class="container">
-
-        <div class="text-center contact-intro">
-            <br>
-            <span class="section-subtitle">
-                <i class="fa fa-paper-plane"></i> Connect With the Parish
-            </span>
-            <h2>We are here to listen, guide, and pray with you</h2>
-            <p class="mt-3">
-                Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.
-            </p>
-        </div>
 
         <div class="contact-wrapper">
             <div class="row g-0">

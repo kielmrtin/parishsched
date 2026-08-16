@@ -32,10 +32,10 @@
 
     <style>
         :root {
-            --about-primary: #3a7bd5;
-            --about-secondary: #00d2ff;
+            --about-primary: #dc2626;
+            --about-secondary: #ef4444;
             --about-dark: #102542;
-            --about-light: #f5f9ff;
+            --about-light: #fef2f2;
         }
 
         .about-hero {
@@ -225,8 +225,8 @@
             margin-top: 35px;
             padding: 30px;
             border-radius: 20px;
-            background: linear-gradient(135deg, rgba(58, 123, 213, 0.15), rgba(0, 210, 255, 0.2));
-            border: 1px solid rgba(58, 123, 213, 0.25);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.15));
+            border: 1px solid rgba(220, 38, 38, 0.22);
         }
 
         .about-timeline {
@@ -252,6 +252,12 @@
             padding-left: 30px;
         }
 
+        @keyframes tm-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+            70%  { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
         .timeline-marker {
             position: absolute;
             left: -2px;
@@ -261,7 +267,7 @@
             border-radius: 50%;
             background: #fff;
             border: 3px solid var(--about-primary);
-            box-shadow: 0 0 0 6px rgba(58, 123, 213, 0.15);
+            animation: tm-pulse 1.2s ease-out infinite;
         }
 
         .timeline-year {
@@ -291,31 +297,45 @@
             display: grid;
             place-items: center;
             border-radius: 18px;
-            background: linear-gradient(135deg, rgba(58, 123, 213, 0.2), rgba(0, 210, 255, 0.35));
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.18), rgba(220, 38, 38, 0.25));
             color: var(--about-primary);
             font-size: 1.5rem;
             margin-bottom: 20px;
         }
 
         .pastoral-team .single_team_member {
-            padding: 40px 30px;
+            padding: 44px 36px;
             border-radius: 24px;
             background: #fff;
-            box-shadow: 0 30px 60px rgba(16, 37, 66, 0.12);
-            border: 1px solid rgba(16, 37, 66, 0.08);
+            box-shadow: 0 4px 24px rgba(16, 37, 66, 0.08), 0 1px 4px rgba(16, 37, 66, 0.04);
+            border: 1px solid rgba(16, 37, 66, 0.07);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .pastoral-team .single_team_member:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 38px 75px rgba(16, 37, 66, 0.18);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(16, 37, 66, 0.14);
         }
 
-        .pastoral-team .team_thumb img {
-            width: 140px;
-            height: 140px;
-            object-fit: cover;
-            box-shadow: 0 15px 30px rgba(16, 37, 66, 0.15);
+        .pastoral-team .team_thumb {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff1f2, #fecaca);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(220, 38, 38, 0.18);
+        }
+
+        .pastoral-team .team-role {
+            color: var(--about-primary);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 14px;
         }
 
         .cta-panel {
@@ -393,6 +413,60 @@
                 padding: 40px 30px;
             }
         }
+
+        .footer_social a:hover,
+        .footer_social a:focus {
+            background: rgba(220, 38, 38, 0.18) !important;
+            color: #dc2626 !important;
+        }
+
+        /* section_title span (e.g. "Visit Us") — override style.css blue */
+        .section_title span {
+            color: #dc2626 !important;
+        }
+        /* section-pretitle inside section_title (e.g. "Our Pastoral Team") */
+        .section_title .section-pretitle {
+            color: #dc2626 !important;
+        }
+
+        /* boxed-btn3 buttons — override style.css blue; no !important so inline glass styles still win */
+        .boxed-btn3 {
+            background: #dc2626;
+            border-color: #dc2626;
+        }
+
+        /* View Mass Schedule — glass hover with red outline and red text */
+        .hero-actions .boxed-btn3:not([style]):hover {
+            background: rgba(220, 38, 38, 0.15) !important;
+            border-color: #dc2626 !important;
+            color: #dc2626 !important;
+        }
+
+        /* Plan a Celebration — white glass hover */
+        .hero-actions .boxed-btn3[style]:hover {
+            background: rgba(255, 255, 255, 0.28) !important;
+            border-color: rgba(255, 255, 255, 0.6) !important;
+            color: #fff !important;
+        }
+
+        /* Connect with our team — white background, red outline and red text on hover */
+        .cta-panel .boxed-btn3[style]:hover {
+            background: #fff !important;
+            border-color: #dc2626 !important;
+            color: #dc2626 !important;
+        }
+
+        /* Login / Create Account nav buttons */
+        .home-header .book_btn .boxed-btn3 {
+            background: #dc2626 !important;
+            border-color: #dc2626 !important;
+        }
+        .home-header .book_btn .boxed-btn3:hover {
+            background: #fff !important;
+            color: #dc2626 !important;
+            border-color: #dc2626 !important;
+        }
+
     </style>
 </head>
 
@@ -554,11 +628,11 @@
     </div>
 </section>
 
-<section class="section-padding pastoral-team" style="padding-top: 80px;">
+<section class="section-padding pastoral-team" style="padding-top: 40px;">
     <div class="container">
         <div class="row">
             <div class="col-xl-12">
-                <div class="section_title text-center mb-70">
+                <div class="section_title text-center" style="margin-bottom: 50px;">
                     <span class="section-pretitle d-inline-flex">Our Pastoral Team</span>
                     <h2 class="section-title-xl mt-3">Meet the ministers walking with you</h2>
                     <p class="mt-3">Our team accompanies parishioners through worship, formation, and outreach—ready to listen, guide, and pray with you.</p>
@@ -566,19 +640,23 @@
             </div>
         </div>
         <div class="row justify-content-center team-row">
-            <div class="col-lg-6 col-md-6">
-                <div class="single_team_member text-center h-100">
-                    <div class="team_thumb mb-4 mx-auto"></div>
+            <div class="col-lg-5 col-md-6">
+                <div class="single_team_member text-center">
+                    <div class="team_thumb mb-4 mx-auto">
+                        <i class="fa fa-plus" style="color: rgba(220,38,38,.45); font-size: 1.6rem;"></i>
+                    </div>
                     <h4 class="mb-1">Rev. Fr. Edwin Baruelo, E.V.</h4>
-                    <span class="d-block mb-3">Parish Priest</span>
+                    <span class="team-role">Parish Priest</span>
                     <p class="mb-0">Fr. Edwin shepherds the parish community, presides at the sacraments, and leads pastoral care for families.</p>
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6">
-                <div class="single_team_member text-center h-100">
-                    <div class="team_thumb mb-4 mx-auto"></div>
+            <div class="col-lg-5 col-md-6">
+                <div class="single_team_member text-center">
+                    <div class="team_thumb mb-4 mx-auto">
+                        <i class="fa fa-plus" style="color: rgba(220,38,38,.45); font-size: 1.6rem;"></i>
+                    </div>
                     <h4 class="mb-1">Rev. Fr. Norman Jalla</h4>
-                    <span class="d-block mb-3">Assistant Parish Priest</span>
+                    <span class="team-role">Parish Priest</span>
                     <p class="mb-0">Fr. Norman organizes medical missions, livelihood programs, and parish relief operations across the barangays.</p>
                 </div>
             </div>
@@ -598,8 +676,8 @@
 
 <section class="map_area pb-120" style="padding: 50px;">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
                 <div class="section_title mb-30">
                     <span>Visit Us</span>
                     <h3>Our location</h3>
@@ -614,10 +692,10 @@
                     <li><i class="fa fa-clock-o"></i> Parish Office Hours: Tuesday – Sunday, 8:00 AM – 5:00 PM</li>
                 </ul>
             </div>
-            <div class="col-lg-6">
-                <div class="mapouter">
+            <div class="col-lg-6" style="padding-left: 40px;">
+                <div class="mapouter" style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
                     <div class="gmap_canvas">
-                        <iframe width="100%" height="350" id="gmap_canvas" src="https://maps.google.com/maps?q=St.%20John%20The%20Baptist%20Parish%20Tiaong%20Quezon&t=&z=15&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" title="Map to St. John the Baptist Parish"></iframe>
+                        <iframe width="100%" height="380" id="gmap_canvas" src="https://maps.google.com/maps?q=St.%20John%20The%20Baptist%20Parish%20Tiaong%20Quezon&t=&z=15&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" title="Map to St. John the Baptist Parish"></iframe>
                     </div>
                 </div>
             </div>

@@ -298,7 +298,7 @@ function annCardToggle(btn, id) {
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-xl-8 col-lg-9">
-                <div class="section_title text-center mb-60" style="padding: 50px;">
+                <div class="section_title text-center mb-60">
                     <span>Parish pillars</span>
                     <h3>Rooted in faith, animated by service</h3>
                     <p class="section_subtitle">
@@ -367,3 +367,18 @@ function annCardToggle(btn, id) {
 <!-- events_preview_end -->
 
 @endsection
+
+@push('preloads')
+<link rel="preload" as="image" href="{{ asset('img/banner/banner.webp') }}" type="image/webp" fetchpriority="high">
+<link rel="preload" as="image" href="{{ asset('img/banner/banner2.webp') }}" type="image/webp">
+@endpush
+
+@push('scripts')
+<script>
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('load', function () { window.scrollTo(0, 0); });
+    window.addEventListener('pagehide', function () { window.scrollTo(0, 0); });
+
+</script>
+@endpush

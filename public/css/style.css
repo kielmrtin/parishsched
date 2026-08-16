@@ -959,8 +959,8 @@
 
 .footer_social a:hover,
 .footer_social a:focus {
-    background: #ffe082;
-    color: #321e6d;
+    background: rgba(220,38,38,.18);
+    color: #dc2626;
 }
 
 .footer_links {
@@ -1569,35 +1569,8 @@
     background: #000 !important;
 }
 
-/* ===== RESERVATION HEADER (BLACK VERSION OF HOME HEADER) ===== */
-
-body.reservation-page.header-area {
-    padding-top: 0 !important;
-    top: 0 !important;
-}
-
-body.reservation-page .main-header-area {
-    background: black !important;
-    position: absolute;
-    top: 0 !important;
-    left: 0;
-    right: 0;
-    width: 100%;
-    padding: 28px 150px;
-}
-
-/* SCROLL (still black but shrinks) */
-body.reservation-page .main-header-area.sticky {
-    background: black !important;
-    position: fixed;
-    top: -72px !important;
-    padding: 20px 150px !important;
-}
-
-/* MENU FIX */
-body.reservation-page .main-header-area.sticky .main-menu {
-    padding: 0 !important;
-}
+/* ===== RESERVATION HEADER ===== */
+/* Uses schedule-page class — no overrides needed */
 
 /* AUTH PAGES HEADER - SAME AS RESERVATION PAGE */
 body.auth-body .header-area {
@@ -2142,7 +2115,33 @@ body.reservation-page .main-header-area,
     border-radius: 50%;
 }
 
+/* ── Global header alignment ── */
+.header-area {
+    padding-top: 0 !important;
+}
+.home-header .main-header-area {
+    padding-top: 16px !important;
+}
+.main-header-area {
+    padding: 18px 150px !important;
+}
+.main-header-area .row {
+    min-height: 88px;
+    align-items: center !important;
+}
+.main-header-area .main-menu {
+    padding: 0 !important;
+}
 
 
 
-
+/* Reserve Now button — red on all pages */
+.reserve-btn.boxed-btn3 {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+.reserve-btn.boxed-btn3:hover {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #fff !important;
+}
