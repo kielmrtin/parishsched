@@ -24,55 +24,8 @@
 <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-</head>
-
-<body>
-
-    @include('partials.header')
-
-    @yield('content')
-
-    @include('partials.footer')
-
-    <!-- JS -->
-<script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
-<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/main.js') }}"></script>
-<script src="{{ asset('js/vendor/modernizr-3.5.0.min.js') }}"></script>
-<script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
-<script src="{{ asset('js/popper.min.js') }}"></script>
-<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/owl.carousel.min.js') }}"></script>
-<script src="{{ asset('js/isotope.pkgd.min.js') }}"></script>
-<script src="{{ asset('js/ajax-form.js') }}"></script>
-<script src="{{ asset('js/waypoints.min.js') }}"></script>
-<script src="{{ asset('js/jquery.counterup.min.js') }}"></script>
-<script src="{{ asset('js/imagesloaded.pkgd.min.js') }}"></script>
-<script src="{{ asset('js/scrollIt.js') }}"></script>
-<script src="{{ asset('js/jquery.scrollUp.min.js') }}"></script>
-<script src="{{ asset('js/wow.min.js') }}"></script>
-<script src="{{ asset('js/nice-select.min.js') }}"></script>
-<script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
-<script src="{{ asset('js/jquery.magnific-popup.min.js') }}"></script>
-<script src="{{ asset('js/plugins.js') }}"></script>
-<script src="{{ asset('js/gijgo.min.js') }}"></script>
-
-<!-- contact js -->
-<script src="{{ asset('js/contact.js') }}"></script>
-<script src="{{ asset('js/jquery.ajaxchimp.min.js') }}"></script>
-<script src="{{ asset('js/jquery.form.js') }}"></script>
-<script src="{{ asset('js/jquery.validate.min.js') }}"></script>
-<script src="{{ asset('js/mail-script.js') }}"></script>
-
-@if (!request()->is('reservation'))
-    <script src="{{ asset('js/main.js') }}"></script>
-@endif
-
-@if(session('auth_notification'))
-@php $notif = session('auth_notification'); $isLogin = str_contains($notif['title'] ?? '', 'Login'); @endphp
 <style>
-.ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:ps-fade-in .25s ease both}
-@keyframes ps-fade-in{from{opacity:0}to{opacity:1}}
+.ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
 .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
 @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
@@ -107,7 +60,11 @@
 .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
 .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
 </style>
+</head>
 
+<body>
+@if(session('auth_notification'))
+@php $notif = session('auth_notification'); $isLogin = str_contains($notif['title'] ?? '', 'Login'); @endphp
 <div class="ps-overlay" id="ps-overlay">
   <div class="ps-modal">
     <div class="ps-hdr" id="ps-hdr">
@@ -161,6 +118,47 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endif
+
+    @include('partials.header')
+
+    @yield('content')
+
+    @include('partials.footer')
+
+    <!-- JS -->
+<script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/main.js') }}"></script>
+<script src="{{ asset('js/vendor/modernizr-3.5.0.min.js') }}"></script>
+<script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('js/isotope.pkgd.min.js') }}"></script>
+<script src="{{ asset('js/ajax-form.js') }}"></script>
+<script src="{{ asset('js/waypoints.min.js') }}"></script>
+<script src="{{ asset('js/jquery.counterup.min.js') }}"></script>
+<script src="{{ asset('js/imagesloaded.pkgd.min.js') }}"></script>
+<script src="{{ asset('js/scrollIt.js') }}"></script>
+<script src="{{ asset('js/jquery.scrollUp.min.js') }}"></script>
+<script src="{{ asset('js/wow.min.js') }}"></script>
+<script src="{{ asset('js/nice-select.min.js') }}"></script>
+<script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
+<script src="{{ asset('js/jquery.magnific-popup.min.js') }}"></script>
+<script src="{{ asset('js/plugins.js') }}"></script>
+<script src="{{ asset('js/gijgo.min.js') }}"></script>
+
+<!-- contact js -->
+<script src="{{ asset('js/contact.js') }}"></script>
+<script src="{{ asset('js/jquery.ajaxchimp.min.js') }}"></script>
+<script src="{{ asset('js/jquery.form.js') }}"></script>
+<script src="{{ asset('js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('js/mail-script.js') }}"></script>
+
+@if (!request()->is('reservation'))
+    <script src="{{ asset('js/main.js') }}"></script>
+@endif
+
 
 @stack('scripts')
 </body>

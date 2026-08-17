@@ -448,12 +448,19 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     </div>
                                     <div class="form-group">
                                         <label for="funeral-marital-status">Marital status of the deceased *</label>
-                                        <select class="form-control" id="funeral-marital-status" style="height:44px;" name="funeral-marital-status" data-funeral-required="true" data-funeral-marital-select="true">
+                                        <select class="res-time-select form-control" id="funeral-marital-status" name="funeral-marital-status" data-funeral-required="true" data-funeral-marital-select="true" style="display:none">
                                             <option value="">Select status</option>
                                             @foreach($funeralMaritalStatusOptions as $statusValue => $statusLabel)
                                                 <option value="{{ $statusValue }}" @selected($formData['funeral-marital-status'] === $statusValue)>{{ $statusLabel }}</option>
                                             @endforeach
                                         </select>
+                                        <div class="res-csl" id="funeral-marital-custom">
+                                            <button type="button" class="res-csl-btn" id="funeral-marital-btn">
+                                                <span class="res-csl-label" id="funeral-marital-label">Select status</span>
+                                                <i class="fa fa-chevron-down res-csl-arrow"></i>
+                                            </button>
+                                            <ul class="res-csl-list" id="funeral-marital-list"></ul>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -743,6 +750,49 @@ foreach ($approvedReservationsJson as $dayGroup) {
         /* watch for options being added/removed by reservations.js */
         new MutationObserver(sync).observe(sel, { childList: true, subtree: true, attributes: true });
 
+        sync();
+    })();
+
+    (function () {
+        var sel   = document.getElementById('funeral-marital-status');
+        var wrap  = document.getElementById('funeral-marital-custom');
+        var btn   = document.getElementById('funeral-marital-btn');
+        var label = document.getElementById('funeral-marital-label');
+        var list  = document.getElementById('funeral-marital-list');
+        if (!sel || !wrap || !btn || !list) return;
+
+        function sync() {
+            var val    = sel.value;
+            var chosen = sel.options[sel.selectedIndex];
+            label.textContent = (chosen && chosen.value !== '') ? chosen.textContent : 'Select status';
+            list.innerHTML = '';
+            for (var i = 0; i < sel.options.length; i++) {
+                var opt = sel.options[i];
+                var li  = document.createElement('li');
+                li.textContent   = opt.textContent;
+                li.dataset.value = opt.value;
+                if (opt.value === val && opt.value !== '') li.classList.add('is-selected');
+                if (opt.value === '')                      li.classList.add('is-placeholder');
+                (function (v) {
+                    li.addEventListener('click', function () {
+                        if (v === '') return;
+                        sel.value = v;
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                        close();
+                    });
+                })(opt.value);
+                list.appendChild(li);
+            }
+        }
+
+        function open()   { wrap.classList.add('is-open');    btn.classList.add('is-open'); }
+        function close()  { wrap.classList.remove('is-open'); btn.classList.remove('is-open'); }
+        function toggle() { wrap.classList.contains('is-open') ? close() : open(); }
+
+        btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+        sel.addEventListener('change', sync);
+        new MutationObserver(sync).observe(sel, { childList: true, subtree: true, attributes: true });
         sync();
     })();
     </script>

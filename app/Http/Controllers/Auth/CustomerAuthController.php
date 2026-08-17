@@ -269,7 +269,7 @@ public function logout(Request $request)
 
     $otp = (string) random_int(100000, 999999);
 
-    Http::withHeaders([
+    $otpResponse = Http::withHeaders([
         'apikey'        => config('services.supabase.key'),
         'Authorization' => 'Bearer ' . config('services.supabase.key'),
         'Content-Type'  => 'application/json',
@@ -281,19 +281,25 @@ public function logout(Request $request)
         'created_at' => now()->toISOString(),
     ]);
 
+    if ($otpResponse->failed()) {
+        \Illuminate\Support\Facades\Log::error('OTP insert failed', ['body' => $otpResponse->body()]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Could not send OTP. Please try again.',
+        ], 500);
+    }
+
     // SMS_DISABLED — re-enable when SMS is restored
     // app(\App\Services\SmsNotificationService::class)->send(
     //     $request->phone,
     //     "ParishSched OTP: {$otp}. Use this code to verify your account. It expires in 5 minutes. Do not share this code."
     // );
 
-    return back()->with([
-        'auth_notification' => [
-            'icon' => 'success',
-            'title' => 'OTP Sent',
-            'text' => 'A verification code was sent to your phone number.',
-        ],
-    ])->withInput();
+    return response()->json([
+        'success' => true,
+        'message' => 'A verification code was sent to your phone number.',
+    ]);
 }
 
 }

@@ -373,10 +373,103 @@
 
         .boxed-btn3 { background: #dc2626 !important; border-color: #dc2626 !important; }
         .boxed-btn3:hover { background: #fff !important; color: #dc2626 !important; border-color: #dc2626 !important; }
+    .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+    .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
+    @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+    .ps-cross{width:18px;height:18px;flex-shrink:0}
+    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+    .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
+    .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+    .ps-glow{position:absolute;width:280px;height:280px;top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite;border-radius:50%}
+    @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+    .ps-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-float 4s ease-in infinite;opacity:0}
+    @keyframes ps-float{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.45}100%{opacity:0;transform:translateY(-200px) scale(1.1)}}
+    .ps-hdr-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-hfloat 4s ease-in infinite;opacity:0}
+    @keyframes ps-hfloat{0%{opacity:0;transform:translateY(0) scale(0)}15%{opacity:.6}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
+    .ps-icon{position:relative;width:82px;height:82px;margin-bottom:24px;z-index:2}
+    .ps-ring{position:absolute;inset:-5px;border-radius:50%;animation:ps-spin 3s linear infinite}
+    @keyframes ps-spin{to{transform:rotate(360deg)}}
+    .ps-inner{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:ps-ipop .5s .15s cubic-bezier(.34,1.56,.64,1) both;backdrop-filter:blur(8px)}
+    @keyframes ps-ipop{from{transform:scale(0)}to{transform:scale(1)}}
+    .ps-inner svg{width:38px;height:38px}
+    .ps-stroke{stroke-width:2.6;stroke-linecap:round;fill:none;stroke-dasharray:80;stroke-dashoffset:80;animation:ps-draw .6s .45s ease forwards}
+    @keyframes ps-draw{to{stroke-dashoffset:0}}
+    .ps-title{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:9px;z-index:2;animation:ps-up .4s .5s both}
+    .ps-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:26px;z-index:2;animation:ps-up .4s .6s both}
+    @keyframes ps-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
+    .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
+    .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
     </style>
 </head>
 
 <body class="auth-body">
+@if(session('auth_notification'))
+@php
+    $notif   = session('auth_notification');
+    $nType   = $notif['icon'] ?? 'warning';
+    $nColors = [
+        'success' => ['glow'=>'rgba(34,197,94,.13)',  'ring'=>'rgba(34,197,94,.5),rgba(134,239,172,.3)',   'inner'=>'rgba(34,197,94,.1)',  'border'=>'rgba(34,197,94,.3)',  'stroke'=>'#4ade80', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#4ade8066','h3'=>'#4ade804d', 'b1'=>'#4ade8066','b2'=>'#4ade8059','b3'=>'rgba(255,255,255,.18)'],
+        'error'   => ['glow'=>'rgba(220,38,38,.13)',  'ring'=>'rgba(220,38,38,.5),rgba(252,165,165,.3)',   'inner'=>'rgba(220,38,38,.1)',  'border'=>'rgba(220,38,38,.3)',  'stroke'=>'#f87171', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#f8717166','h3'=>'#f871714d', 'b1'=>'#f8717166','b2'=>'#f8717159','b3'=>'rgba(255,255,255,.18)'],
+        'warning' => ['glow'=>'rgba(245,158,11,.13)', 'ring'=>'rgba(245,158,11,.5),rgba(253,211,100,.3)', 'inner'=>'rgba(245,158,11,.1)', 'border'=>'rgba(245,158,11,.3)', 'stroke'=>'#fbbf24', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#fbbf2466','h3'=>'#fbbf244d', 'b1'=>'#fbbf2466','b2'=>'#fbbf2459','b3'=>'rgba(255,255,255,.18)'],
+    ];
+    $nc = $nColors[$nType] ?? $nColors['warning'];
+@endphp
+<div class="ps-overlay" id="ps-overlay-notif">
+  <div class="ps-modal">
+    <div class="ps-hdr" id="ps-hdr-notif">
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span class="ps-parish">St. John the Baptist Parish</span>
+      <span class="ps-dot"></span>
+      <span class="ps-loc">Tiaong, Quezon</span>
+    </div>
+    <div class="ps-body" id="ps-body-notif">
+      <div class="ps-glow" style="background:radial-gradient(circle,{{ $nc['glow'] }} 0%,transparent 70%)"></div>
+      <div class="ps-icon">
+        <div class="ps-ring" style="background:conic-gradient({{ $nc['ring'] }},transparent 58%)"></div>
+        <div class="ps-inner" style="background:{{ $nc['inner'] }};border:1.5px solid {{ $nc['border'] }}">
+          <svg viewBox="0 0 42 42">
+            @if($nType === 'success')
+              <polyline class="ps-stroke" style="stroke:{{ $nc['stroke'] }}" points="10,22 18,30 32,14"/>
+            @elseif($nType === 'error')
+              <line class="ps-stroke" style="stroke:{{ $nc['stroke'] }}" x1="13" y1="13" x2="29" y2="29"/>
+              <line class="ps-stroke" style="stroke:{{ $nc['stroke'] }}" x1="29" y1="13" x2="13" y2="29"/>
+            @else
+              <line class="ps-stroke" style="stroke:{{ $nc['stroke'] }}" x1="21" y1="10" x2="21" y2="24"/>
+              <circle cx="21" cy="31" r="1.5" fill="{{ $nc['stroke'] }}" style="opacity:0;animation:ps-up .3s .9s both"/>
+            @endif
+          </svg>
+        </div>
+      </div>
+      <h2 class="ps-title">{{ $notif['title'] ?? '' }}</h2>
+      <p class="ps-sub">{{ $notif['text'] ?? '' }}</p>
+      <div class="ps-btns">
+        <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay-notif').remove()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const hColors = ['{{ $nc['h1'] }}','{{ $nc['h2'] }}','{{ $nc['h3'] }}'];
+    const bColors = ['{{ $nc['b1'] }}','{{ $nc['b2'] }}','{{ $nc['b3'] }}'];
+    function spawnDots(elId, cols, count, cls) {
+        const c = document.getElementById(elId); if (!c) return;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div'), s = Math.random()*6+4;
+            p.className = cls;
+            p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+            c.appendChild(p);
+        }
+    }
+    spawnDots('ps-hdr-notif', hColors, 10, 'ps-hdr-particle');
+    spawnDots('ps-body-notif', bColors, 20, 'ps-particle');
+    document.getElementById('ps-overlay-notif').addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+});
+</script>
+@endif
 
     @include('partials.header')
 
@@ -521,16 +614,67 @@
     <script src="{{ asset('js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @if(session('auth_notification'))
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const n = @json(session('auth_notification'));
-        Swal.fire({ icon: n.icon||'info', title: n.title||'', text: n.text||'', confirmButtonColor: '#dc2626' });
-    });
+    function showPsModal(type, title, text) {
+        const existing = document.getElementById('ps-overlay');
+        if (existing) existing.remove();
+
+        const cfg = {
+            success: { glow: 'rgba(34,197,94,.13)',  ring: 'rgba(34,197,94,.5),rgba(134,239,172,.3)', inner: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.3)', stroke: '#4ade80', icon: '<polyline class="ps-stroke" style="stroke:#4ade80" points="10,22 18,30 32,14"/>' },
+            error:   { glow: 'rgba(220,38,38,.13)',   ring: 'rgba(220,38,38,.5),rgba(252,165,165,.3)', inner: 'rgba(220,38,38,.1)', border: 'rgba(220,38,38,.3)', stroke: '#f87171', icon: '<line class="ps-stroke" style="stroke:#f87171" x1="13" y1="13" x2="29" y2="29"/><line class="ps-stroke" style="stroke:#f87171" x1="29" y1="13" x2="13" y2="29"/>' },
+            warning: { glow: 'rgba(245,158,11,.13)',  ring: 'rgba(245,158,11,.5),rgba(253,211,100,.3)', inner: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.3)', stroke: '#fbbf24', icon: '<line class="ps-stroke" style="stroke:#fbbf24" x1="21" y1="10" x2="21" y2="24"/><circle cx="21" cy="31" r="1.5" fill="#fbbf24" style="opacity:0;animation:ps-up .3s .9s both"/>' },
+        };
+        const c = cfg[type] || cfg.warning;
+
+        const hColors = ['rgba(255,255,255,.25)', c.stroke + '66', c.stroke + '4d'];
+        const bColors = [c.stroke + '66', c.stroke + '59', 'rgba(255,255,255,.18)'];
+
+        const el = document.createElement('div');
+        el.id = 'ps-overlay';
+        el.className = 'ps-overlay';
+        el.innerHTML = `
+          <div class="ps-modal">
+            <div class="ps-hdr" id="ps-hdr-otp">
+              <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+              <span class="ps-parish">St. John the Baptist Parish</span>
+              <span class="ps-dot"></span>
+              <span class="ps-loc">Tiaong, Quezon</span>
+            </div>
+            <div class="ps-body" id="ps-body-otp">
+              <div class="ps-glow" style="background:radial-gradient(circle,${c.glow} 0%,transparent 70%)"></div>
+              <div class="ps-icon">
+                <div class="ps-ring" style="background:conic-gradient(${c.ring},transparent 58%)"></div>
+                <div class="ps-inner" style="background:${c.inner};border:1.5px solid ${c.border}">
+                  <svg viewBox="0 0 42 42">${c.icon}</svg>
+                </div>
+              </div>
+              <h2 class="ps-title">${title}</h2>
+              <p class="ps-sub">${text}</p>
+              <div class="ps-btns">
+                <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay').remove()">OK</button>
+              </div>
+            </div>
+          </div>`;
+        document.body.appendChild(el);
+
+        function spawnDots(elId, cols, count, cls) {
+            const container = document.getElementById(elId);
+            if (!container) return;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                const s = Math.random()*6+4;
+                p.className = cls;
+                p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+                container.appendChild(p);
+            }
+        }
+        spawnDots('ps-hdr-otp', hColors, 10, 'ps-hdr-particle');
+        spawnDots('ps-body-otp', bColors, 20, 'ps-particle');
+
+        el.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+    }
     </script>
-    @endif
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -544,7 +688,7 @@
         sendOtpBtn.addEventListener('click', function () {
             const phone = phoneInput.value.trim();
             if (!phone) {
-                Swal.fire({ icon: 'warning', title: 'Phone required', text: 'Please enter your phone number first.', confirmButtonColor: '#dc2626' });
+                showPsModal('warning', 'Phone Required', 'Please enter your phone number first.');
                 return;
             }
             sendOtpBtn.disabled = true;
@@ -553,6 +697,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 },
                 body: JSON.stringify({ phone: phone })
@@ -560,15 +705,15 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire({ icon: 'success', title: 'OTP Sent', text: data.message || 'Check your phone for the code.', confirmButtonColor: '#dc2626' });
+                    showPsModal('success', 'OTP Sent', data.message || 'Check your phone for the code.');
                     startCountdown(30);
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: data.message || 'Could not send OTP. Try again.', confirmButtonColor: '#dc2626' });
+                    showPsModal('error', 'Failed', data.message || 'Could not send OTP. Try again.');
                     sendOtpBtn.disabled = false;
                 }
             })
             .catch(() => {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Network error. Please try again.', confirmButtonColor: '#dc2626' });
+                showPsModal('error', 'Network Error', 'Network error. Please try again.');
                 sendOtpBtn.disabled = false;
             });
         });

@@ -319,10 +319,89 @@
 
         .boxed-btn3 { background: #dc2626 !important; border-color: #dc2626 !important; }
         .boxed-btn3:hover { background: #fff !important; color: #dc2626 !important; border-color: #dc2626 !important; }
+    .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+    .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
+    @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+    .ps-cross{width:18px;height:18px;flex-shrink:0}
+    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+    .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
+    .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+    .ps-glow{position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(245,158,11,.13) 0%,transparent 70%);top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite}
+    @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+    .ps-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-float 4s ease-in infinite;opacity:0}
+    @keyframes ps-float{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.45}100%{opacity:0;transform:translateY(-200px) scale(1.1)}}
+    .ps-hdr-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-hfloat 4s ease-in infinite;opacity:0}
+    @keyframes ps-hfloat{0%{opacity:0;transform:translateY(0) scale(0)}15%{opacity:.6}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
+    .ps-icon{position:relative;width:82px;height:82px;margin-bottom:24px;z-index:2}
+    .ps-ring{position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(rgba(245,158,11,.5) 0%,rgba(253,211,100,.3) 40%,transparent 58%);animation:ps-spin 3s linear infinite}
+    @keyframes ps-spin{to{transform:rotate(360deg)}}
+    .ps-inner{position:absolute;inset:0;border-radius:50%;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.3);display:flex;align-items:center;justify-content:center;animation:ps-ipop .5s .15s cubic-bezier(.34,1.56,.64,1) both;backdrop-filter:blur(8px)}
+    @keyframes ps-ipop{from{transform:scale(0)}to{transform:scale(1)}}
+    .ps-inner svg{width:38px;height:38px}
+    .ps-warn{stroke:#fbbf24;stroke-width:2.6;stroke-linecap:round;fill:none;stroke-dasharray:80;stroke-dashoffset:80;animation:ps-draw .6s .45s ease forwards}
+    @keyframes ps-draw{to{stroke-dashoffset:0}}
+    .ps-title{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:9px;z-index:2;animation:ps-up .4s .5s both}
+    .ps-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:26px;z-index:2;animation:ps-up .4s .6s both}
+    @keyframes ps-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
+    .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#009DFF;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
+    .ps-btn-solo:hover{background:#0088e0;transform:translateY(-1px)}
     </style>
 </head>
 
 <body class="auth-body">
+@if(session('auth_notification'))
+@php $notif = session('auth_notification'); @endphp
+<div class="ps-overlay" id="ps-overlay">
+  <div class="ps-modal">
+    <div class="ps-hdr" id="ps-hdr-lr">
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span class="ps-parish">St. John the Baptist Parish</span>
+      <span class="ps-dot"></span>
+      <span class="ps-loc">Tiaong, Quezon</span>
+    </div>
+    <div class="ps-body" id="ps-body-lr">
+      <div class="ps-glow"></div>
+      <div class="ps-icon">
+        <div class="ps-ring"></div>
+        <div class="ps-inner">
+          <svg viewBox="0 0 42 42">
+            <line class="ps-warn" x1="21" y1="10" x2="21" y2="24"/>
+            <circle class="ps-warn" cx="21" cy="31" r="1.5" fill="#fbbf24" stroke="none" style="animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:0;animation:ps-up .3s .9s both"/>
+          </svg>
+        </div>
+      </div>
+      <h2 class="ps-title">{{ $notif['title'] }}</h2>
+      <p class="ps-sub">{{ $notif['text'] }}</p>
+      <div class="ps-btns">
+        <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay').remove()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const colors = ['rgba(245,158,11,.4)','rgba(253,211,100,.35)','rgba(255,255,255,.18)'];
+  const hColors = ['rgba(255,255,255,.25)','rgba(245,158,11,.4)','rgba(253,211,100,.3)'];
+  function spawnDots(el, cols, count, cls) {
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      const s = Math.random()*6+4;
+      p.className = cls;
+      p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+      el.appendChild(p);
+    }
+  }
+  spawnDots(document.getElementById('ps-hdr-lr'), hColors, 10, 'ps-hdr-particle');
+  spawnDots(document.getElementById('ps-body-lr'), colors, 20, 'ps-particle');
+  document.getElementById('ps-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.remove();
+  });
+});
+</script>
+@endif
 
     @include('partials.header')
 
@@ -412,88 +491,6 @@
     <script src="{{ asset('js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    @if(session('auth_notification'))
-    @php $notif = session('auth_notification'); @endphp
-    <style>
-    .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:ps-fade-in .25s ease both}
-    @keyframes ps-fade-in{from{opacity:0}to{opacity:1}}
-    .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
-    @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
-    .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
-    .ps-cross{width:18px;height:18px;flex-shrink:0}
-    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
-    .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
-    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
-    .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
-    .ps-glow{position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(245,158,11,.13) 0%,transparent 70%);top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite}
-    @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
-    .ps-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-float 4s ease-in infinite;opacity:0}
-    @keyframes ps-float{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.45}100%{opacity:0;transform:translateY(-200px) scale(1.1)}}
-    .ps-hdr-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-hfloat 4s ease-in infinite;opacity:0}
-    @keyframes ps-hfloat{0%{opacity:0;transform:translateY(0) scale(0)}15%{opacity:.6}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
-    .ps-icon{position:relative;width:82px;height:82px;margin-bottom:24px;z-index:2}
-    .ps-ring{position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(rgba(245,158,11,.5) 0%,rgba(253,211,100,.3) 40%,transparent 58%);animation:ps-spin 3s linear infinite}
-    @keyframes ps-spin{to{transform:rotate(360deg)}}
-    .ps-inner{position:absolute;inset:0;border-radius:50%;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.3);display:flex;align-items:center;justify-content:center;animation:ps-ipop .5s .15s cubic-bezier(.34,1.56,.64,1) both;backdrop-filter:blur(8px)}
-    @keyframes ps-ipop{from{transform:scale(0)}to{transform:scale(1)}}
-    .ps-inner svg{width:38px;height:38px}
-    .ps-warn{stroke:#fbbf24;stroke-width:2.6;stroke-linecap:round;fill:none;stroke-dasharray:80;stroke-dashoffset:80;animation:ps-draw .6s .45s ease forwards}
-    @keyframes ps-draw{to{stroke-dashoffset:0}}
-    .ps-title{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:9px;z-index:2;animation:ps-up .4s .5s both}
-    .ps-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:26px;z-index:2;animation:ps-up .4s .6s both}
-    @keyframes ps-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
-    .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#009DFF;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
-    .ps-btn-solo:hover{background:#0088e0;transform:translateY(-1px)}
-    </style>
-    <div class="ps-overlay" id="ps-overlay">
-      <div class="ps-modal">
-        <div class="ps-hdr" id="ps-hdr-lr">
-          <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-          <span class="ps-parish">St. John the Baptist Parish</span>
-          <span class="ps-dot"></span>
-          <span class="ps-loc">Tiaong, Quezon</span>
-        </div>
-        <div class="ps-body" id="ps-body-lr">
-          <div class="ps-glow"></div>
-          <div class="ps-icon">
-            <div class="ps-ring"></div>
-            <div class="ps-inner">
-              <svg viewBox="0 0 42 42">
-                <line class="ps-warn" x1="21" y1="10" x2="21" y2="24"/>
-                <circle class="ps-warn" cx="21" cy="31" r="1.5" fill="#fbbf24" stroke="none" style="animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:0;animation:ps-up .3s .9s both"/>
-              </svg>
-            </div>
-          </div>
-          <h2 class="ps-title">{{ $notif['title'] }}</h2>
-          <p class="ps-sub">{{ $notif['text'] }}</p>
-          <div class="ps-btns">
-            <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay').remove()">OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const colors = ['rgba(245,158,11,.4)','rgba(253,211,100,.35)','rgba(255,255,255,.18)'];
-      const hColors = ['rgba(255,255,255,.25)','rgba(245,158,11,.4)','rgba(253,211,100,.3)'];
-      function spawnDots(el, cols, count, cls) {
-        for (let i = 0; i < count; i++) {
-          const p = document.createElement('div');
-          const s = Math.random()*6+4;
-          p.className = cls;
-          p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
-          el.appendChild(p);
-        }
-      }
-      spawnDots(document.getElementById('ps-hdr-lr'), hColors, 10, 'ps-hdr-particle');
-      spawnDots(document.getElementById('ps-body-lr'), colors, 20, 'ps-particle');
-      document.getElementById('ps-overlay').addEventListener('click', function(e) {
-        if (e.target === this) this.remove();
-      });
-    });
-    </script>
-    @endif
 
 </body>
 </html>
