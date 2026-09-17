@@ -28,6 +28,13 @@ class SmsNotificationService
 
     public function send(?string $phone, string $message): bool
     {
+        if (!filter_var(env('SMS_NOTIFICATIONS_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+            Log::info('SMS notifications disabled via SMS_NOTIFICATIONS_ENABLED; skipping send.', [
+                'phone' => $phone,
+            ]);
+            return false;
+        }
+
         $phone = $this->normalizePhone($phone);
 
         if ($phone === '' || trim($message) === '') {
