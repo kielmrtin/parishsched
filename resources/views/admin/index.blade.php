@@ -436,7 +436,7 @@
         .adm-cfm-title{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:10px;z-index:2;animation:adm-cfm-up .4s .5s both}
         .adm-cfm-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:28px;z-index:2;animation:adm-cfm-up .4s .6s both}
         @keyframes adm-cfm-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .adm-cfm-btns{display:flex;gap:10px;width:100%;z-index:2;animation:adm-cfm-up .4s .7s both}
+        .adm-cfm-btns{display:flex;gap:10px;width:100%;margin-top:16px;z-index:2;animation:adm-cfm-up .4s .7s both}
         .adm-cfm-cancel{flex:1;padding:13px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .15s}
         .adm-cfm-cancel:hover{background:rgba(255,255,255,.12);color:#fff}
         .adm-cfm-ok{flex:1.5;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s;letter-spacing:.02em}
