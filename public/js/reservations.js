@@ -288,9 +288,29 @@ list.push({
             const wrapper = document.createElement('div');
             wrapper.className = 'reservation_detail_item';
 
-            const title = document.createElement('h6');
+            const etIcons = {
+                baptism: '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="15"/><line x1="1" y1="6" x2="15" y2="6"/></svg>',
+                wedding: '<svg width="11" height="10" viewBox="0 0 20 18" fill="currentColor"><path d="M10 17S1 11 1 5.5A4.5 4.5 0 019.5 2c.186 0 .37.011.55.033a4.5 4.5 0 018.45 3.467C18.5 11 10 17 10 17z"/></svg>',
+                funeral: '<svg width="9" height="13" viewBox="0 0 12 18" fill="currentColor"><path d="M3.5 0h5C9.5 0 12 1 12 3.5v11C12 17 10.5 18 9 18H3c-1.5 0-3-1-3-3.5v-11C0 1 2.5 0 3.5 0z"/></svg>',
+            };
+            const etMap = {
+                baptism: { color: '#16a34a', bg: 'rgba(22,163,74,.1)',  border: '#86efac', cardBorder: '#bbf7d0' },
+                wedding: { color: '#be185d', bg: 'rgba(190,24,93,.08)', border: '#f9a8d4', cardBorder: '#fce7f3' },
+                funeral: { color: '#475569', bg: 'rgba(71,85,105,.08)', border: '#cbd5e1', cardBorder: '#f1f5f9' },
+            };
+            const etKey = (reservation.eventType || '').toLowerCase();
+            const et = etMap[etKey] || { color: '#475569', bg: 'rgba(71,85,105,.08)', border: '#cbd5e1', cardBorder: '#f1f5f9' };
+            const etIcon = etIcons[etKey] || '•';
+
+            wrapper.style.borderLeftColor  = et.border;
+            wrapper.style.borderColor      = et.cardBorder;
+            wrapper.style.borderLeftWidth  = '4px';
+
+            const title = document.createElement('div');
             title.className = 'reservation_detail_title';
-            title.textContent = reservation.eventType || 'Reserved';
+            title.innerHTML = '<span class="rdt-icon" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:' + et.bg + ';color:' + et.color + ';margin-right:7px;flex-shrink:0;">' + etIcon + '</span><span style="color:' + et.color + ';font-weight:800;">' + (reservation.eventType || 'Reserved') + '</span>';
+            title.style.display = 'flex';
+            title.style.alignItems = 'center';
             wrapper.appendChild(title);
 
             const detailsList = document.createElement('ul');
@@ -426,8 +446,8 @@ list.push({
                     var dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
                     var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     var reservationsForDate = bookedLookup[dateKey] || [];
-                    var hasApproved = reservationsForDate.some(function (r) { return r.status === 'approved'; });
-                    dateSub.textContent = dayNames[dt.getDay()] + ' · ' + (hasApproved ? 'Has existing reservations' : 'Open for requests');
+                    var hasReservations = reservationsForDate.some(function (r) { return r.status === 'approved' || r.status === 'pending' || r.status === 'booked'; });
+                    dateSub.textContent = dayNames[dt.getDay()] + ' · ' + (hasReservations ? 'Has existing reservations' : 'Open for requests');
                 }
             }
 
@@ -494,7 +514,9 @@ list.push({
 
         const state = {
             year: today.getFullYear(),
-            month: today.getMonth()
+            month: today.getMonth(),
+            view: 'day',
+            yearStart: Math.floor(today.getFullYear() / 12) * 12
         };
 
         const navigation = document.createElement('div');
@@ -693,38 +715,165 @@ cellWrapper.title = '';
     return monthWrapper;
 }
 
+        const calMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
         function updateNavigationControls() {
-            const isAtYearStart = state.month === 0;
-            const isAtYearEnd = state.month === 11;
+            // Rebuild label as clickable month + year buttons
+            monthLabel.innerHTML = '';
+            if (state.view === 'year') {
+                const range = document.createElement('span');
+                range.textContent = `${state.yearStart} – ${state.yearStart + 11}`;
+                monthLabel.appendChild(range);
+            } else {
+                const mBtn = document.createElement('button');
+                mBtn.type = 'button'; mBtn.className = 'cal-hdr-btn';
+                mBtn.textContent = monthNames[state.month];
+                mBtn.addEventListener('click', function() { state.view = 'month'; render(); });
+                const yBtn = document.createElement('button');
+                yBtn.type = 'button'; yBtn.className = 'cal-hdr-btn';
+                yBtn.textContent = state.year;
+                yBtn.addEventListener('click', function() { state.view = 'year'; state.yearStart = Math.floor(state.year / 12) * 12; render(); });
+                monthLabel.appendChild(mBtn);
+                monthLabel.appendChild(yBtn);
+            }
+            const todayNow = new Date();
+            // Disable prev in month view if already at current month
+            if (state.view === 'day') {
+                previousButton.disabled = state.year === todayNow.getFullYear() && state.month === todayNow.getMonth();
+                nextButton.disabled = false;
+            } else {
+                previousButton.disabled = false;
+                nextButton.disabled = false;
+            }
+        }
 
-            previousButton.disabled = isAtYearStart;
-            nextButton.disabled = isAtYearEnd;
+        function renderMonthPicker() {
+            const todayNow = new Date();
+            const div = document.createElement('div');
+            div.className = 'res-cal-mpicker';
+            for (let m = 0; m < 12; m++) {
+                const isPast = state.year < todayNow.getFullYear() || (state.year === todayNow.getFullYear() && m < todayNow.getMonth());
+                const isCur  = state.year === todayNow.getFullYear() && m === todayNow.getMonth();
+                const isSel  = m === state.month && state.year === state.year;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'res-cal-mcell' + (isCur ? ' is-today' : '') + (m === state.month ? ' is-selected' : '') + (isPast ? ' is-past' : '');
+                btn.textContent = calMonthNames[m];
+                btn.disabled = isPast;
+                btn.addEventListener('click', function() { state.month = m; state.view = 'day'; render(); });
+                div.appendChild(btn);
+            }
+            return div;
+        }
 
-            monthLabel.textContent = `${monthNames[state.month]} ${state.year}`;
+        function renderYearPicker() {
+            const todayNow = new Date();
+            const div = document.createElement('div');
+            div.className = 'res-cal-ypicker';
+            for (let y = state.yearStart; y < state.yearStart + 12; y++) {
+                const isPast = y < todayNow.getFullYear();
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'res-cal-ycell' + (y === todayNow.getFullYear() ? ' is-today' : '') + (y === state.year ? ' is-selected' : '') + (isPast ? ' is-past' : '');
+                btn.textContent = y;
+                btn.disabled = isPast;
+                btn.addEventListener('click', function() { state.year = y; state.yearStart = Math.floor(y/12)*12; state.view = 'month'; render(); });
+                div.appendChild(btn);
+            }
+            return div;
+        }
+
+        const pickerDayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+        function buildPickerOverlay(grid) {
+            const overlay = document.createElement('div');
+            overlay.className = 'res-cal-picker-overlay';
+
+            const daysRow = document.createElement('div');
+            daysRow.className = 'res-cal-picker-days-row';
+            pickerDayNames.forEach(function (wd) {
+                const span = document.createElement('span');
+                span.textContent = wd;
+                daysRow.appendChild(span);
+            });
+            overlay.appendChild(daysRow);
+            overlay.appendChild(grid);
+
+            const footer = document.createElement('div');
+            footer.className = 'res-cal-picker-footer';
+            const todayBtn = document.createElement('button');
+            todayBtn.type = 'button';
+            todayBtn.className = 'res-cal-picker-today-btn';
+            todayBtn.textContent = 'Today';
+            todayBtn.addEventListener('click', function () {
+                const now = new Date();
+                state.year = now.getFullYear();
+                state.month = now.getMonth();
+                state.view = 'day';
+                render();
+            });
+            footer.appendChild(todayBtn);
+            overlay.appendChild(footer);
+
+            return overlay;
         }
 
         function render() {
+            // The day grid always stays mounted; a month/year picker hovers
+            // over it as a small floating popup instead of replacing it.
             monthContainer.innerHTML = '';
-            const monthDate = new Date(state.year, state.month, 1);
-            monthContainer.appendChild(renderMonth(monthDate));
+            monthContainer.appendChild(renderMonth(new Date(state.year, state.month, 1)));
+
+            const existingPopup = navigation.querySelector('.res-cal-picker-overlay');
+            if (existingPopup) existingPopup.remove();
+
+            if (state.view === 'month') {
+                navigation.appendChild(buildPickerOverlay(renderMonthPicker()));
+            } else if (state.view === 'year') {
+                navigation.appendChild(buildPickerOverlay(renderYearPicker()));
+            }
+
             updateNavigationControls();
         }
 
         previousButton.addEventListener('click', function () {
-            if (state.month > 0) {
-                state.month -= 1;
-                render();
+            if (state.view === 'day') {
+                if (state.month > 0) state.month--;
+                else { state.month = 11; state.year--; }
+            } else if (state.view === 'month') {
+                state.year--;
+            } else {
+                state.yearStart -= 12;
+                state.year = state.yearStart;
             }
+            render();
         });
 
         nextButton.addEventListener('click', function () {
-            if (state.month < 11) {
-                state.month += 1;
-                render();
+            if (state.view === 'day') {
+                if (state.month < 11) state.month++;
+                else { state.month = 0; state.year++; }
+            } else if (state.view === 'month') {
+                state.year++;
+            } else {
+                state.yearStart += 12;
+                state.year = state.yearStart;
             }
+            render();
         });
 
         render();
+
+        document.addEventListener('click', function (event) {
+            if (state.view === 'day') return;
+            // navigation's own contents are rebuilt on every render(), so by the time
+            // this bubbles up, event.target may already be detached — composedPath()
+            // captures the path at dispatch time and stays valid regardless.
+            var path = typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
+            if (path.indexOf(navigation) !== -1) return;
+            state.view = 'day';
+            render();
+        });
 
         if (shouldOpenFromServer && prefilledDateFromServer && modalElement) {
             populateModal(prefilledDateFromServer);
@@ -883,7 +1032,7 @@ function getUsageFor(dateKey, eventType) {
             const status = String(reservation.status || '').toLowerCase();
             const type = String(reservation.eventType || '').toLowerCase();
 
-            return type === eventKey && status === 'approved';
+            return type === eventKey && (status === 'approved' || status === 'pending' || status === 'booked');
         })
         .map(function (reservation) {
             return normalizeTime(reservation.preferredTime || '');
@@ -893,17 +1042,38 @@ function getUsageFor(dateKey, eventType) {
         });
 }
 
+function getStatusMapFor(dateKey, eventType) {
+    const map = new Map();
+    if (!dateKey || !eventType) return map;
+    const eventKey = String(eventType).toLowerCase();
+    const source = Array.isArray(window.approvedReservations) ? window.approvedReservations : [];
+    const dayGroup = source.find(function (g) { return g && g.date === dateKey; });
+    if (!dayGroup || !Array.isArray(dayGroup.reservations)) return map;
+    dayGroup.reservations.forEach(function (r) {
+        const status = String(r.status || '').toLowerCase();
+        const type = String(r.eventType || '').toLowerCase();
+        if (type !== eventKey) return;
+        if (status !== 'approved' && status !== 'pending' && status !== 'booked') return;
+        const slot = normalizeTime(r.preferredTime || '');
+        if (!slot) return;
+        const display = (status === 'approved' || status === 'booked') ? 'booked' : 'pending';
+        if (!map.has(slot) || map.get(slot) === 'pending') {
+            map.set(slot, display);
+        }
+    });
+    return map;
+}
+
 function computeAvailableSlots(eventType, selectedDate) {
     if (!eventType || !(selectedDate instanceof Date)) {
-        return { slots: [], reason: '' };
+        return { slots: [], allSlots: [], reason: '' };
     }
 
     const day = selectedDate.getDay();
     const eventKey = eventType.toLowerCase();
     const dateKey = getDateKey(selectedDate);
     const usage = getUsageFor(dateKey, eventType);
-    const takenSet = new Set(usage.map(normalizeTime));
-    const result = { slots: [], reason: '' };
+    const result = { slots: [], allSlots: [], reason: '' };
 
     const normalizedSelected = new Date(selectedDate.getTime());
     normalizedSelected.setHours(0, 0, 0, 0);
@@ -919,11 +1089,14 @@ function computeAvailableSlots(eventType, selectedDate) {
             return result;
         }
 
+        const statusMap = getStatusMapFor(dateKey, eventType);
         [
             { value: '7:30 AM - 10:00 AM', label: '7:30 AM – 10:00 AM' },
             { value: '3:00 PM - 5:00 PM', label: '3:00 PM – 5:00 PM' },
         ].forEach(function (slot) {
-            if (!takenSet.has(normalizeTime(slot.value))) {
+            const slotStatus = statusMap.get(normalizeTime(slot.value)) || 'available';
+            result.allSlots.push(Object.assign({}, slot, { status: slotStatus }));
+            if (slotStatus === 'available') {
                 result.slots.push(slot);
             }
         });
@@ -942,26 +1115,35 @@ function computeAvailableSlots(eventType, selectedDate) {
         }
 
         const baptismBookingCount = usage.length;
+        const baptismSlot = {
+            value: '11:00 AM - 12:00 PM',
+            label: '11:00 AM – 12:00 PM (' + baptismBookingCount + '/5 booked)'
+        };
 
         if (baptismBookingCount < 5) {
-            result.slots.push({
-                value: '11:00 AM - 12:00 PM',
-                label: '11:00 AM – 12:00 PM (' + baptismBookingCount + '/5 booked)'
-            });
+            result.slots.push(baptismSlot);
+            result.allSlots.push(Object.assign({}, baptismSlot, { status: 'available' }));
         } else {
             result.reason = 'fully_booked';
+            result.allSlots.push(Object.assign({}, baptismSlot, {
+                label: '11:00 AM – 12:00 PM (fully booked)',
+                status: 'booked'
+            }));
         }
 
         return result;
     }
 
     if (eventKey === 'funeral') {
+        const statusMap = getStatusMapFor(dateKey, eventType);
         const funeralSlots = (day === 0 || day === 1)
             ? ['1:00 PM', '2:00 PM']
             : ['8:00 AM', '9:00 AM', '10:00 AM'];
 
         funeralSlots.forEach(function (slot) {
-            if (!takenSet.has(slot)) {
+            const slotStatus = statusMap.get(normalizeTime(slot)) || 'available';
+            result.allSlots.push({ value: slot, label: slot, status: slotStatus });
+            if (slotStatus === 'available') {
                 result.slots.push({ value: slot, label: slot });
             }
         });
@@ -1005,12 +1187,12 @@ function computeAvailableSlots(eventType, selectedDate) {
 
             if (result.reason === 'fully_booked') {
                 if (eventType === 'Wedding') {
-                    return 'Both wedding slots are already reserved for this date.';
+                    return 'Both wedding slots are reserved or pending for this date.';
                 }
                 if (eventType === 'Baptism') {
                     return 'The baptism schedule is fully booked for this date.';
                 }
-                return 'All funeral times for this date are booked.';
+                return 'All funeral times for this date are reserved or pending.';
             }
 
             return 'No time slots are available for the selected date.';
@@ -1018,9 +1200,10 @@ function computeAvailableSlots(eventType, selectedDate) {
 
         function renderOptions(result, eventType) {
             const currentValue = timeSelect.value || lastSelectedValue;
+            const displaySlots = (result.allSlots && result.allSlots.length > 0) ? result.allSlots : result.slots;
             let placeholderText = 'Select a time';
 
-            if (result.slots.length === 0) {
+            if (displaySlots.length === 0) {
                 if (result.reason === 'day_not_allowed') {
                     if (eventType === 'Baptism') {
                         placeholderText = 'Baptisms are available on weekends only.';
@@ -1029,8 +1212,6 @@ function computeAvailableSlots(eventType, selectedDate) {
                     } else {
                         placeholderText = 'No times are available for this date.';
                     }
-                } else if (result.reason === 'fully_booked') {
-                    placeholderText = 'All times for this date are booked.';
                 } else if (result.reason === 'date_in_past') {
                     placeholderText = 'Past dates cannot be reserved.';
                 } else {
@@ -1048,19 +1229,30 @@ function computeAvailableSlots(eventType, selectedDate) {
 
             let hasSelection = false;
 
-            result.slots.forEach(function (slot) {
+            displaySlots.forEach(function (slot) {
                 if (!slot || typeof slot.value !== 'string') {
                     return;
                 }
 
                 const option = document.createElement('option');
                 option.value = slot.value;
-                option.textContent = slot.label || slot.value;
-                if (!hasSelection && currentValue === slot.value) {
-                    option.selected = true;
-                    hasSelection = true;
-                    placeholder.selected = false;
+                const slotStatus = slot.status || 'available';
+
+                if (slotStatus === 'pending') {
+                    option.textContent = (slot.label || slot.value) + ' — Pending';
+                    option.disabled = true;
+                } else if (slotStatus === 'booked') {
+                    option.textContent = (slot.label || slot.value) + ' — Booked';
+                    option.disabled = true;
+                } else {
+                    option.textContent = slot.label || slot.value;
+                    if (!hasSelection && currentValue === slot.value) {
+                        option.selected = true;
+                        hasSelection = true;
+                        placeholder.selected = false;
+                    }
                 }
+
                 timeSelect.appendChild(option);
             });
 
@@ -1072,7 +1264,7 @@ function computeAvailableSlots(eventType, selectedDate) {
                 lastSelectedValue = timeSelect.value;
             }
 
-            timeSelect.disabled = result.slots.length === 0;
+            timeSelect.disabled = displaySlots.length === 0;
         }
 
         function updateSubmitState(result) {
@@ -1162,6 +1354,8 @@ function computeAvailableSlots(eventType, selectedDate) {
         }
 
         const formElement = modalElement.querySelector('[data-reservation-form]');
+        const baptismDetailsBox = modalElement.querySelector('#baptism-details');
+        const baptismRequiredFields = modalElement.querySelectorAll('[data-baptism-required="true"]');
         const weddingDetailsBox = modalElement.querySelector('#wedding-details');
         const weddingRequiredFields = modalElement.querySelectorAll('[data-wedding-required="true"]');
         const weddingCheckboxes = modalElement.querySelectorAll('[data-wedding-checkbox="true"]');
@@ -1177,6 +1371,28 @@ function computeAvailableSlots(eventType, selectedDate) {
         const funeralRequiredFields = modalElement.querySelectorAll('[data-funeral-required="true"]');
         const funeralMaritalSelect = modalElement.querySelector('[data-funeral-marital-select="true"]');
         const attachmentSections = modalElement.querySelectorAll('[data-attachment-section]');
+
+        function updateFileButtonDisplay(fileInput) {
+            const wrap = fileInput.closest('.res-file');
+            if (!wrap) {
+                return;
+            }
+            const nameEl = wrap.querySelector('.res-file-name');
+            const file = fileInput.files && fileInput.files[0];
+            if (file) {
+                wrap.classList.add('has-file');
+                if (nameEl) nameEl.textContent = file.name;
+            } else {
+                wrap.classList.remove('has-file');
+                if (nameEl) nameEl.textContent = 'Choose file';
+            }
+        }
+
+        Array.prototype.forEach.call(modalElement.querySelectorAll('.res-file-input'), function (fileInput) {
+            fileInput.addEventListener('change', function () {
+                updateFileButtonDisplay(fileInput);
+            });
+        });
         const eventTypeRadios = modalElement.querySelectorAll('input[name="reservation-type"]');
         const reservationGenderRadios = modalElement.querySelectorAll('input[name="reservation-gender"]');
         const weddingGenderNotice = modalElement.querySelector('#wedding-gender-notice');
@@ -1519,41 +1735,8 @@ function computeAvailableSlots(eventType, selectedDate) {
         }
 
         function ensureSeminarDatepicker() {
-            if (!canUseSeminarDatepicker || !$weddingSeminarInput) {
-                return false;
-            }
-
-            if (!seminarDatepickerInitialized) {
-                const initialValue = weddingSeminarInput.value || '';
-                $weddingSeminarInput.datepicker({
-                    uiLibrary: 'bootstrap4',
-                    iconsLibrary: 'fontawesome',
-                    format: 'yyyy-mm-dd',
-                    showRightIcon: true,
-                    value: initialValue ? initialValue : undefined,
-                    minDate: function () {
-                        const range = getWeddingSeminarRange();
-                        if (range.min instanceof Date) {
-                            return formatDateForInput(range.min);
-                        }
-                        return undefined;
-                    },
-                    maxDate: function () {
-                        const range = getWeddingSeminarRange();
-                        if (range.max instanceof Date) {
-                            return formatDateForInput(range.max);
-                        }
-                        return undefined;
-                    }
-                });
-                seminarDatepickerInitialized = true;
-            }
-
-            if (seminarDatepickerInitialized) {
-                bindSeminarPickerPositioning();
-            }
-
-            return true;
+            // Seminar date now uses the custom calendar widget — gijgo not needed
+            return false;
         }
 
         function setSeminarInputDisabled(disabled, hasDatepicker) {
@@ -1597,6 +1780,8 @@ function computeAvailableSlots(eventType, selectedDate) {
             if ($weddingSeminarInput) {
                 $weddingSeminarInput.val('');
             }
+            const displayInput = document.getElementById('wedding-seminar-date-display');
+            if (displayInput instanceof HTMLInputElement) displayInput.value = '';
         }
 
         function updateWeddingSeminarLimits(isWeddingSelected) {
@@ -1640,6 +1825,7 @@ function computeAvailableSlots(eventType, selectedDate) {
             if (!(currentValue instanceof Date) || currentValue < range.min || currentValue > range.max) {
                 clearSeminarValue();
             }
+            if (typeof window.seminarCalRefresh === 'function') window.seminarCalRefresh();
         }
 
         function isFormVisible() {
@@ -1676,6 +1862,7 @@ function computeAvailableSlots(eventType, selectedDate) {
                     if (!isActiveSection) {
                         fileInput.removeAttribute('required');
                         fileInput.value = '';
+                        updateFileButtonDisplay(fileInput);
                         group.style.display = 'none';
                         return;
                     }
@@ -1700,6 +1887,7 @@ function computeAvailableSlots(eventType, selectedDate) {
                         group.style.display = 'none';
                         fileInput.removeAttribute('required');
                         fileInput.value = '';
+                        updateFileButtonDisplay(fileInput);
                     }
                 });
             });
@@ -1713,6 +1901,21 @@ function computeAvailableSlots(eventType, selectedDate) {
 
             const isWedding = selectedType === 'Wedding';
             const isFuneral = selectedType === 'Funeral';
+            const isBaptism = selectedType === 'Baptism';
+
+            if (baptismDetailsBox) {
+                baptismDetailsBox.style.display = isBaptism ? '' : 'none';
+            }
+
+            Array.prototype.forEach.call(baptismRequiredFields, function (field) {
+                if (!(field instanceof HTMLElement)) { return; }
+                if (isBaptism) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                    clearField(field);
+                }
+            });
 
             if (weddingDetailsBox) {
                 weddingDetailsBox.style.display = isWedding ? '' : 'none';
@@ -1730,8 +1933,6 @@ function computeAvailableSlots(eventType, selectedDate) {
                     clearField(field);
                 }
             });
-
-            applyWeddingGenderPreferences(isWedding);
 
             if (!isWedding) {
                 Array.prototype.forEach.call(weddingCheckboxes, function (checkbox) {

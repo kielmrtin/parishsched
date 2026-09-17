@@ -8,6 +8,37 @@ use Illuminate\Support\Facades\Http;
 
 class CustomerAuthController extends Controller
 {
+/**
+ * Supabase request pre-authorized with the service-role key, for calls that
+ * need to bypass RLS (e.g. reading/writing customer_otps, customers).
+ */
+private function supabaseAdmin(): \Illuminate\Http\Client\PendingRequest
+{
+    $key = config('services.supabase.service_role_key');
+
+    return Http::withHeaders([
+        'apikey' => $key,
+        'Authorization' => 'Bearer ' . $key,
+    ]);
+}
+
+/**
+ * Map a failed Supabase Auth response to a user-facing message, based on
+ * its error_code/error field. Falls back to $default when nothing matches.
+ */
+private function friendlyAuthError($authResponse, array $messagesByErrorCode, string $default): string
+{
+    $errorCode = $authResponse->json('error_code') ?? $authResponse->json('error') ?? '';
+
+    foreach ($messagesByErrorCode as $needle => $message) {
+        if (str_contains($errorCode, $needle)) {
+            return $message;
+        }
+    }
+
+    return $default;
+}
+
 public function login(Request $request)
 {
     $request->validate([
@@ -28,19 +59,17 @@ public function login(Request $request)
     ]);
 
     if ($authResponse->failed()) {
-        $errorCode = $authResponse->json('error_code') ?? $authResponse->json('error') ?? '';
         \Illuminate\Support\Facades\Log::warning('Supabase login failed', [
             'email'  => $request->email,
             'status' => $authResponse->status(),
             'body'   => $authResponse->body(),
         ]);
 
-        $text = match (true) {
-            str_contains($errorCode, 'email_not_confirmed') => 'Your email is not yet verified. Please check your inbox and click the confirmation link that was sent when you registered.',
-            str_contains($errorCode, 'invalid_credentials') => 'Incorrect email or password. Please try again.',
-            str_contains($errorCode, 'user_not_found')      => 'No account found with that email address.',
-            default                                          => 'Login failed. Please check your email and password and try again.',
-        };
+        $text = $this->friendlyAuthError($authResponse, [
+            'email_not_confirmed' => 'Your email is not yet verified. Please check your inbox and click the confirmation link that was sent when you registered.',
+            'invalid_credentials' => 'Incorrect email or password. Please try again.',
+            'user_not_found'      => 'No account found with that email address.',
+        ], 'Login failed. Please check your email and password and try again.');
 
         return back()->with([
             'auth_notification' => [
@@ -72,10 +101,7 @@ public function login(Request $request)
     // 2. Get profile from customers table
     $customer = null;
     try {
-        $customerResponse = Http::withHeaders([
-            'apikey' => $supabaseKey,
-            'Authorization' => 'Bearer ' . $supabaseKey,
-        ])->get($supabaseUrl . '/rest/v1/customers', [
+        $customerResponse = $this->supabaseAdmin()->get($supabaseUrl . '/rest/v1/customers', [
             'auth_id' => 'eq.' . $authId,
             'select' => '*',
             'limit' => 1,
@@ -139,39 +165,31 @@ public function login(Request $request)
     $request->validate([
     'name' => 'required|string|max:255',
     'email' => 'required|email',
-    'phone' => 'nullable|string|max:20',
-    // 'otp_code' => 'required|string|size:6', // SMS_DISABLED
+    'phone' => 'required|string|max:20',
+    'otp_code' => 'required|string|size:6',
     'password' => 'required|min:8|confirmed',
     'address' => 'required|string|max:500',
 ]);
 
-// SMS_DISABLED — OTP verification skipped; re-enable when SMS is restored
-// $otpResponse = Http::withHeaders([
-//     'apikey'        => config('services.supabase.key'),
-//     'Authorization' => 'Bearer ' . config('services.supabase.key'),
-// ])->get(config('services.supabase.url') . '/rest/v1/customer_otps', [
-//     'phone'       => 'eq.' . $request->phone,
-//     'otp_code'    => 'eq.' . $request->otp_code,
-//     'purpose'     => 'eq.registration',
-//     'verified_at' => 'is.null',
-//     'expires_at'  => 'gt.' . now()->toISOString(),
-//     'select'      => 'id',
-//     'order'       => 'created_at.desc',
-//     'limit'       => 1,
-// ]);
-// $validOtp = $otpResponse->successful() ? ($otpResponse->json()[0] ?? null) : null;
-// if (!$validOtp) {
-//     return back()->withErrors([
-//         'otp_code' => 'Invalid or expired OTP code.',
-//     ])->withInput();
-// }
-// Http::withHeaders([
-//     'apikey'        => config('services.supabase.key'),
-//     'Authorization' => 'Bearer ' . config('services.supabase.key'),
-//     'Content-Type'  => 'application/json',
-// ])->patch(config('services.supabase.url') . '/rest/v1/customer_otps?id=eq.' . $validOtp['id'], [
-//     'verified_at' => now()->toISOString(),
-// ]);
+$otpResponse = $this->supabaseAdmin()->get(config('services.supabase.url') . '/rest/v1/customer_otps', [
+    'phone'       => 'eq.' . $request->phone,
+    'otp_code'    => 'eq.' . $request->otp_code,
+    'purpose'     => 'eq.registration',
+    'verified_at' => 'is.null',
+    'expires_at'  => 'gt.' . now()->toISOString(),
+    'select'      => 'id',
+    'order'       => 'created_at.desc',
+    'limit'       => 1,
+]);
+$validOtp = $otpResponse->successful() ? ($otpResponse->json()[0] ?? null) : null;
+if (!$validOtp) {
+    return back()->withErrors([
+        'otp_code' => 'Invalid or expired OTP code.',
+    ])->withInput();
+}
+$this->supabaseAdmin()->patch(config('services.supabase.url') . '/rest/v1/customer_otps?id=eq.' . $validOtp['id'], [
+    'verified_at' => now()->toISOString(),
+]);
 
     $supabaseUrl = config('services.supabase.url');
     $supabaseKey = config('services.supabase.key');
@@ -190,9 +208,12 @@ public function login(Request $request)
     ]);
 
     if ($authResponse->failed()) {
-        return back()->withErrors([
-            'register' => 'Supabase Auth failed: ' . $authResponse->body(),
-        ])->withInput();
+        $friendlyMessage = $this->friendlyAuthError($authResponse, [
+            'user_already_exists' => 'An account with this email already exists. Please log in instead.',
+            'weak_password'       => 'Your password is too weak. Please choose a stronger one.',
+        ], 'Registration failed. Please try again.');
+
+        return back()->withErrors(['register' => $friendlyMessage])->withInput();
     }
 
     $authUser = $authResponse->json()['user'] ?? null;
@@ -205,9 +226,7 @@ public function login(Request $request)
     }
 
     // 2. Save profile in customers table
-    $customerResponse = Http::withHeaders([
-        'apikey' => $supabaseKey,
-        'Authorization' => 'Bearer ' . $supabaseKey,
+    $customerResponse = $this->supabaseAdmin()->withHeaders([
         'Content-Type' => 'application/json',
         'Prefer' => 'return=representation',
   ])->post($supabaseUrl . '/rest/v1/customers', [
@@ -269,10 +288,8 @@ public function logout(Request $request)
 
     $otp = (string) random_int(100000, 999999);
 
-    $otpResponse = Http::withHeaders([
-        'apikey'        => config('services.supabase.key'),
-        'Authorization' => 'Bearer ' . config('services.supabase.key'),
-        'Content-Type'  => 'application/json',
+    $otpResponse = $this->supabaseAdmin()->withHeaders([
+        'Content-Type' => 'application/json',
     ])->post(config('services.supabase.url') . '/rest/v1/customer_otps', [
         'phone'      => $request->phone,
         'otp_code'   => $otp,
@@ -290,11 +307,17 @@ public function logout(Request $request)
         ], 500);
     }
 
-    // SMS_DISABLED — re-enable when SMS is restored
-    // app(\App\Services\SmsNotificationService::class)->send(
-    //     $request->phone,
-    //     "ParishSched OTP: {$otp}. Use this code to verify your account. It expires in 5 minutes. Do not share this code."
-    // );
+    $smsSent = app(\App\Services\SmsNotificationService::class)->send(
+        $request->phone,
+        "St. John the Baptist Parish: Your ParishSched verification code is {$otp}. It expires in 5 minutes. Do not share this code with anyone."
+    );
+
+    if (!$smsSent) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Could not send the verification code to your phone. Please try again.',
+        ], 500);
+    }
 
     return response()->json([
         'success' => true,

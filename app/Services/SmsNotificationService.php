@@ -26,7 +26,7 @@ class SmsNotificationService
         return $digits;
     }
 
-    public function send(?string $phone, string $message): void
+    public function send(?string $phone, string $message): bool
     {
         $phone = $this->normalizePhone($phone);
 
@@ -35,12 +35,11 @@ class SmsNotificationService
                 'phone' => $phone,
                 'message' => $message,
             ]);
-            return;
+            return false;
         }
 
         try {
-            $response = Http::asForm()
-                ->timeout(15)
+            $response = Http::timeout(15)
                 ->post(env('IPROG_SMS_API_URL'), [
                     'api_token' => env('IPROG_SMS_API_TOKEN'),
                     'message' => trim($message),
@@ -52,8 +51,11 @@ class SmsNotificationService
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
+
+            return $response->successful();
         } catch (\Throwable $e) {
             Log::error('SMS failed: ' . $e->getMessage());
+            return false;
         }
     }
 }

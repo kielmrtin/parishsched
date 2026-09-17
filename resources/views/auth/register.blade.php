@@ -378,9 +378,9 @@
     @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
     .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
     .ps-cross{width:18px;height:18px;flex-shrink:0}
-    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
     .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
-    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
+    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em;white-space:nowrap}
     .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
     .ps-glow{position:absolute;width:280px;height:280px;top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite;border-radius:50%}
     @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
@@ -420,7 +420,7 @@
 <div class="ps-overlay" id="ps-overlay-notif">
   <div class="ps-modal">
     <div class="ps-hdr" id="ps-hdr-notif">
-      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
       <span class="ps-parish">St. John the Baptist Parish</span>
       <span class="ps-dot"></span>
       <span class="ps-loc">Tiaong, Quezon</span>
@@ -559,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
 
                     <div class="form-group">
-                        <label for="otp_code">Verification Code *</label>
+                        <label for="otp_code">Verification Code</label>
                         <div class="iw">
                             <i class="fa fa-shield"></i>
                             <input type="text" id="otp_code" name="otp_code"
@@ -595,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     </div>
 
-                    <button type="submit" class="auth-submit" id="createAccountBtn" disabled>
+                    <button type="submit" class="auth-submit" id="createAccountBtn">
                         Create Account
                     </button>
                 </form>
@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', function () {
         el.innerHTML = `
           <div class="ps-modal">
             <div class="ps-hdr" id="ps-hdr-otp">
-              <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+              <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
               <span class="ps-parish">St. John the Baptist Parish</span>
               <span class="ps-dot"></span>
               <span class="ps-loc">Tiaong, Quezon</span>
@@ -679,9 +679,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const sendOtpBtn = document.getElementById('sendOtpBtn');
-        const otpInput   = document.getElementById('otp_code');
         const phoneInput = document.getElementById('phone');
-        const submitBtn  = document.getElementById('createAccountBtn');
         const countdown  = document.getElementById('otpCountdown');
         let timer = null;
 
@@ -735,9 +733,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         }
 
-        otpInput.addEventListener('input', function () {
-            submitBtn.disabled = otpInput.value.trim().length !== 6;
-        });
     });
     </script>
 

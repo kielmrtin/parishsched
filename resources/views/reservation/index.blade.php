@@ -47,6 +47,12 @@
         'funeral-deceased-name-last' => old('funeral-deceased-name-last', ''),
         'funeral-deceased-name-suffix' => old('funeral-deceased-name-suffix', ''),
         'funeral-marital-status' => old('funeral-marital-status', ''),
+        'baptism-child-name-first' => old('baptism-child-name-first', ''),
+        'baptism-child-name-middle' => old('baptism-child-name-middle', ''),
+        'baptism-child-name-last' => old('baptism-child-name-last', ''),
+        'baptism-child-dob' => old('baptism-child-dob', ''),
+        'baptism-father-name' => old('baptism-father-name', ''),
+        'baptism-mother-name' => old('baptism-mother-name', ''),
     ];
 
     $selectedWeddingRequirements = old('wedding-requirements', []);
@@ -55,8 +61,11 @@
     }
 
     $funeralMaritalStatusOptions = [
-        'married_not_baptized' => 'Married (not baptized in the church)',
         'single' => 'Single / Unmarried',
+        'married_baptized' => 'Married (baptized in the church)',
+        'married_not_baptized' => 'Married (not baptized in the church)',
+        'widowed' => 'Widowed',
+        'annulled' => 'Annulled',
     ];
 
     $attachmentRequirementSets = [
@@ -110,8 +119,8 @@
     $weddingCoupleOrder = $reservationGender === 'male' ? ['groom', 'bride'] : ['bride', 'groom'];
 
     $shouldOpenReservationModal = old() ? true : false;
-    $shouldDisplayReservationForm = true;
     $prefilledReservationDate = $formData['reservation-date'];
+    $shouldDisplayReservationForm = !empty($prefilledReservationDate) || old() ? true : false;
     $approvedReservationsJson = collect($approvedReservations ?? [])->values()->toArray();
     $reservationUsageJson = [];
 
@@ -131,9 +140,9 @@ foreach ($approvedReservationsJson as $dayGroup) {
             continue;
         }
 
-        if ($status !== 'approved') {
-    continue;
-}
+        if (!in_array($status, ['approved', 'pending', 'booked'], true)) {
+            continue;
+        }
         if (!isset($reservationUsageJson[$dateKey])) {
             $reservationUsageJson[$dateKey] = [];
         }
@@ -210,7 +219,12 @@ foreach ($approvedReservationsJson as $dayGroup) {
 
                 @if(!$customerIsLoggedIn)
                     <div class="res-login-prompt">
-                        <div class="res-empty-icon">🔒</div>
+                        <div class="res-empty-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
+                                <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5"/>
+                            </svg>
+                        </div>
                         <h3 class="res-empty-h">Sign in to reserve</h3>
                         <p class="res-empty-p">
                             Please <a href="{{ route('login') }}">log in</a> or
@@ -221,7 +235,13 @@ foreach ($approvedReservationsJson as $dayGroup) {
                 @else
                     {{-- Empty state --}}
                     <div class="res-empty-state" id="res-empty-state" {{ $shouldDisplayReservationForm ? 'style=display:none' : '' }}>
-                        <div class="res-empty-icon">📅</div>
+                        <div class="res-empty-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4.5" width="18" height="16" rx="2.5"/>
+                                <path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>
+                                <path d="M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 17.5h.01M12 17.5h.01"/>
+                            </svg>
+                        </div>
                         <h3 class="res-empty-h">Select a date</h3>
                         <p class="res-empty-p">Click any open date on the calendar to begin your reservation request.</p>
                         @if(session('customer_id'))
@@ -251,9 +271,6 @@ foreach ($approvedReservationsJson as $dayGroup) {
 
                         {{-- Server messages --}}
                         <div data-reservation-messages>
-                            @if(session('success'))
-                                <div class="alert alert-success mx-4 mt-3" role="alert">{{ session('success') }}</div>
-                            @endif
                             @if($errors->any())
                                 <div class="alert alert-danger mx-4 mt-3" role="alert">{{ $errors->first() }}</div>
                             @endif
@@ -285,7 +302,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     <div class="res-section-lbl">Sacrament</div>
                                     <div class="res-type-list">
                                         <label class="res-type-item" data-type="baptism" for="reservation-type-baptism">
-                                            <span class="res-ti-icon">🕊</span>
+                                            <span class="res-ti-icon"><i class="fa fa-plus"></i></span>
                                             <span class="res-ti-text">
                                                 <span class="res-ti-label">Baptism</span>
                                                 <span class="res-ti-sub">Welcoming a new soul</span>
@@ -294,7 +311,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                             <input type="radio" id="reservation-type-baptism" name="reservation-type" class="res-type-radio" value="Baptism" required @checked($formData['reservation-type'] === 'Baptism')>
                                         </label>
                                         <label class="res-type-item" data-type="wedding" for="reservation-type-wedding">
-                                            <span class="res-ti-icon">💍</span>
+                                            <span class="res-ti-icon"><i class="fa fa-heart"></i></span>
                                             <span class="res-ti-text">
                                                 <span class="res-ti-label">Wedding</span>
                                                 <span class="res-ti-sub">Celebrating your union</span>
@@ -303,7 +320,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                             <input type="radio" id="reservation-type-wedding" name="reservation-type" class="res-type-radio" value="Wedding" @checked($formData['reservation-type'] === 'Wedding')>
                                         </label>
                                         <label class="res-type-item" data-type="funeral" for="reservation-type-funeral">
-                                            <span class="res-ti-icon">🕯</span>
+                                            <span class="res-ti-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg></span>
                                             <span class="res-ti-text">
                                                 <span class="res-ti-label">Funeral Mass</span>
                                                 <span class="res-ti-sub">Honoring a life lived</span>
@@ -314,20 +331,6 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     </div>
                                 </div>
 
-                                {{-- GENDER --}}
-                                <div class="res-section">
-                                    <div class="res-section-lbl">Gender</div>
-                                    <div class="d-flex" style="gap:16px;">
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="reservation-gender-male" name="reservation-gender" class="custom-control-input" value="male" @checked($formData['reservation-gender'] === 'male')>
-                                            <label class="custom-control-label" for="reservation-gender-male">Male</label>
-                                        </div>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="reservation-gender-female" name="reservation-gender" class="custom-control-input" value="female" @checked($formData['reservation-gender'] === 'female')>
-                                            <label class="custom-control-label" for="reservation-gender-female">Female</label>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {{-- TIME --}}
                                 <div class="res-section">
@@ -354,83 +357,152 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     <div class="res-section-lbl">Your information</div>
                                     <div class="res-field-grid">
                                         <div class="res-fg">
-                                            <label for="reservation-name-first">First name *</label>
+                                            <label for="reservation-name-first">First name</label>
                                             <input type="text" id="reservation-name-first" name="reservation-name-first" class="form-control" placeholder="First name" required autocomplete="given-name" value="{{ $formData['reservation-name-first'] }}">
                                         </div>
                                         <div class="res-fg">
-                                            <label for="reservation-name-last">Last name *</label>
+                                            <label for="reservation-name-last">Last name</label>
                                             <input type="text" id="reservation-name-last" name="reservation-name-last" class="form-control" placeholder="Last name" required autocomplete="family-name" value="{{ $formData['reservation-name-last'] }}">
                                         </div>
                                         <div class="res-fg">
                                             <label for="reservation-name-middle">Middle name</label>
-                                            <input type="text" id="reservation-name-middle" name="reservation-name-middle" class="form-control" placeholder="Middle name (optional)" autocomplete="additional-name" value="{{ $formData['reservation-name-middle'] }}">
+                                            <input type="text" id="reservation-name-middle" name="reservation-name-middle" class="form-control" placeholder="Middle name" required autocomplete="additional-name" value="{{ $formData['reservation-name-middle'] }}">
                                         </div>
                                         <div class="res-fg">
-                                            <label for="reservation-name-suffix">Suffix</label>
+                                            <label for="reservation-name-suffix">Suffix (optional)</label>
                                             <input type="text" id="reservation-name-suffix" name="reservation-name-suffix" class="form-control" placeholder="Jr., III, etc." autocomplete="honorific-suffix" value="{{ $formData['reservation-name-suffix'] }}">
                                         </div>
                                         <div class="res-fg">
-                                            <label for="reservation-email">Email *</label>
+                                            <label for="reservation-email">Email</label>
                                             <input type="email" id="reservation-email" name="reservation-email" class="form-control" placeholder="name@example.com" required value="{{ $formData['reservation-email'] }}">
                                         </div>
                                         <div class="res-fg">
-                                            <label for="reservation-phone">Contact number *</label>
+                                            <label for="reservation-phone">Contact number</label>
                                             <input type="tel" id="reservation-phone" name="reservation-phone" class="form-control" placeholder="(042) 545-9244" required value="{{ $formData['reservation-phone'] }}">
                                         </div>
                                     </div>
                                 </div>
 
+                                {{-- BAPTISM DETAILS --}}
+                                <div id="baptism-details" class="res-section" @if($formData['reservation-type'] !== 'Baptism') style="display:none" @endif>
+                                    <div class="res-section-lbl">Child's information</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="baptism-child-name-first">First name</label>
+                                            <input type="text" id="baptism-child-name-first" name="baptism-child-name-first" class="form-control" placeholder="First name" data-baptism-required="true" value="{{ $formData['baptism-child-name-first'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="baptism-child-name-last">Last name</label>
+                                            <input type="text" id="baptism-child-name-last" name="baptism-child-name-last" class="form-control" placeholder="Last name" data-baptism-required="true" value="{{ $formData['baptism-child-name-last'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="baptism-child-name-middle">Middle name</label>
+                                            <input type="text" id="baptism-child-name-middle" name="baptism-child-name-middle" class="form-control" placeholder="Middle name" data-baptism-required="true" value="{{ $formData['baptism-child-name-middle'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="baptism-child-name-suffix">Suffix (optional)</label>
+                                            <input type="text" id="baptism-child-name-suffix" name="baptism-child-name-suffix" class="form-control" placeholder="Jr., III, etc." value="{{ old('baptism-child-name-suffix', '') }}">
+                                        </div>
+                                        <div class="res-fg res-fg--dob">
+                                            <label for="baptism-child-dob">Date of birth</label>
+                                            <div class="dob-cal-wrap" id="dob-cal-wrap">
+                                                <div class="dob-input-group">
+                                                    <input type="text" id="baptism-child-dob" class="form-control" placeholder="MM/DD/YYYY" data-baptism-required="true" autocomplete="off" value="{{ $formData['baptism-child-dob'] ? \Carbon\Carbon::parse($formData['baptism-child-dob'])->format('m/d/Y') : '' }}">
+                                                    <button type="button" class="dob-cal-icon-btn" onclick="dobCalToggle()" tabindex="-1">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" id="baptism-child-dob-raw" name="baptism-child-dob" value="{{ $formData['baptism-child-dob'] }}">
+                                                <div class="dob-cal-popup" id="dob-cal-popup" style="display:none;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="res-section-lbl" style="margin-top:18px">Parents</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="baptism-father-name">Father's full name</label>
+                                            <input type="text" id="baptism-father-name" name="baptism-father-name" class="form-control" placeholder="Full name" data-baptism-required="true" value="{{ $formData['baptism-father-name'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="baptism-mother-name">Mother's full name</label>
+                                            <input type="text" id="baptism-mother-name" name="baptism-mother-name" class="form-control" placeholder="Full name" data-baptism-required="true" value="{{ $formData['baptism-mother-name'] }}">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- WEDDING DETAILS --}}
-                                <div id="wedding-details" class="reservation_attachment_box res-section">
-                                    <h6 class="mb-3">Wedding information</h6>
-                                    <div id="wedding-gender-notice" class="alert alert-info mb-3 {{ $showWeddingCoupleFields ? 'd-none' : '' }}" role="status">
-                                        Please select a gender above to continue.
+                                <div id="wedding-details" class="reservation_attachment_box res-section" @if($formData['reservation-type'] !== 'Wedding') style="display:none" @endif>
+                                    <div class="res-section-lbl">Groom's name</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="wedding-groom-name-first">First name</label>
+                                            <input type="text" class="form-control" id="wedding-groom-name-first" name="wedding-groom-name-first" placeholder="First name" value="{{ $formData['wedding-groom-name-first'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-groom-name-last">Last name</label>
+                                            <input type="text" class="form-control" id="wedding-groom-name-last" name="wedding-groom-name-last" placeholder="Last name" value="{{ $formData['wedding-groom-name-last'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-groom-name-middle">Middle name</label>
+                                            <input type="text" class="form-control" id="wedding-groom-name-middle" name="wedding-groom-name-middle" placeholder="Middle name" value="{{ $formData['wedding-groom-name-middle'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-groom-name-suffix">Suffix (optional)</label>
+                                            <input type="text" class="form-control" id="wedding-groom-name-suffix" name="wedding-groom-name-suffix" placeholder="Jr., III, etc." value="{{ $formData['wedding-groom-name-suffix'] }}">
+                                        </div>
                                     </div>
-                                    <div id="wedding-couple-fields" class="wedding-couple-fields mb-3 {{ $showWeddingCoupleFields ? '' : 'd-none' }}">
-                                        @foreach($weddingCoupleOrder as $weddingPerson)
-                                            @if($weddingPerson === 'bride')
-                                                <div class="form-group" data-wedding-person="bride">
-                                                    <label class="d-block" for="wedding-bride-name-first">Bride's name *</label>
-                                                    <div class="form-row">
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-first" name="wedding-bride-name-first" placeholder="First" value="{{ $formData['wedding-bride-name-first'] }}" data-wedding-required="true"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-middle" name="wedding-bride-name-middle" placeholder="Middle" value="{{ $formData['wedding-bride-name-middle'] }}"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-last" name="wedding-bride-name-last" placeholder="Last" value="{{ $formData['wedding-bride-name-last'] }}" data-wedding-required="true"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-bride-name-suffix" name="wedding-bride-name-suffix" placeholder="Suffix" value="{{ $formData['wedding-bride-name-suffix'] }}"></div>
-                                                    </div>
+
+                                    <div class="res-section-lbl" style="margin-top:18px">Bride's name</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="wedding-bride-name-first">First name</label>
+                                            <input type="text" class="form-control" id="wedding-bride-name-first" name="wedding-bride-name-first" placeholder="First name" value="{{ $formData['wedding-bride-name-first'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-bride-name-last">Last name</label>
+                                            <input type="text" class="form-control" id="wedding-bride-name-last" name="wedding-bride-name-last" placeholder="Last name" value="{{ $formData['wedding-bride-name-last'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-bride-name-middle">Middle name</label>
+                                            <input type="text" class="form-control" id="wedding-bride-name-middle" name="wedding-bride-name-middle" placeholder="Middle name" value="{{ $formData['wedding-bride-name-middle'] }}" data-wedding-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="wedding-bride-name-suffix">Suffix (optional)</label>
+                                            <input type="text" class="form-control" id="wedding-bride-name-suffix" name="wedding-bride-name-suffix" placeholder="Jr., III, etc." value="{{ $formData['wedding-bride-name-suffix'] }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="res-section-lbl" style="margin-top:18px">Pre-Cana seminar date</div>
+                                    <div class="res-field-grid" style="grid-template-columns:1fr;">
+                                        <div class="res-fg res-fg--dob">
+                                            <div class="dob-cal-wrap" id="seminar-cal-wrap">
+                                                <div class="dob-input-group">
+                                                    <input type="text" id="wedding-seminar-date-display" class="form-control" placeholder="MM/DD/YYYY" autocomplete="off" value="{{ $formData['wedding-seminar-date'] ? \Carbon\Carbon::parse($formData['wedding-seminar-date'])->format('m/d/Y') : '' }}">
+                                                    <button type="button" class="dob-cal-icon-btn" onclick="seminarCalToggle()" tabindex="-1">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                                    </button>
                                                 </div>
-                                            @else
-                                                <div class="form-group" data-wedding-person="groom">
-                                                    <label class="d-block" for="wedding-groom-name-first">Groom's name *</label>
-                                                    <div class="form-row">
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-first" name="wedding-groom-name-first" placeholder="First" value="{{ $formData['wedding-groom-name-first'] }}" data-wedding-required="true"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-middle" name="wedding-groom-name-middle" placeholder="Middle" value="{{ $formData['wedding-groom-name-middle'] }}"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-last" name="wedding-groom-name-last" placeholder="Last" value="{{ $formData['wedding-groom-name-last'] }}" data-wedding-required="true"></div>
-                                                        <div class="col-6 mb-2"><input type="text" class="form-control" id="wedding-groom-name-suffix" name="wedding-groom-name-suffix" placeholder="Suffix" value="{{ $formData['wedding-groom-name-suffix'] }}"></div>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @endforeach
+                                                <input type="hidden" id="wedding-seminar-date" name="wedding-seminar-date" data-wedding-required="true" value="{{ $formData['wedding-seminar-date'] }}">
+                                                <div class="dob-cal-popup" id="seminar-cal-popup" style="display:none;"></div>
+                                            </div>
+                                            <small class="form-text text-muted mt-1">Required before your wedding. Pre-Cana seminars are usually held within a year of the wedding date.</small>
+                                        </div>
                                     </div>
+
+                                    <div class="res-section-lbl" style="margin-top:18px">Kumpisal / Kumpil / Binyag details</div>
                                     <div class="form-group">
-                                        <label for="wedding-seminar-date">Seminar date *</label>
-                                        <input type="text" class="form-control" id="wedding-seminar-date" name="wedding-seminar-date" placeholder="Select seminar date" value="{{ $formData['wedding-seminar-date'] }}" data-wedding-required="true">
-                                        <small class="form-text text-muted">Between one and five days before your wedding.</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="wedding-sacrament-details">Kumpisa / Kumpil / Binyag details</label>
                                         <textarea class="form-control" id="wedding-sacrament-details" name="wedding-sacrament-details" rows="2" placeholder="Parishes or dates for confession, confirmation, and baptism">{{ $formData['wedding-sacrament-details'] }}</textarea>
                                     </div>
-                                    <div class="form-group mb-0">
-                                        <h6 class="mb-2">Mga kailangan bago ikasal *</h6>
-                                        <p class="small text-muted">Confirm you have prepared the following requirements.</p>
-                                        @foreach($weddingRequirementChecklist as $requirementKey => $requirementLabel)
-                                            @php $inputId = 'wedding-requirement-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $requirementKey); @endphp
-                                            <div class="custom-control custom-checkbox mb-1">
-                                                <input type="checkbox" class="custom-control-input" id="{{ $inputId }}" name="wedding-requirements[]" value="{{ $requirementKey }}" @checked(in_array($requirementKey, $selectedWeddingRequirements, true)) data-wedding-required="true" data-wedding-checkbox="true">
-                                                <label class="custom-control-label" for="{{ $inputId }}">{{ $requirementLabel }}</label>
-                                            </div>
-                                        @endforeach
-                                    </div>
+
+                                    <div class="res-section-lbl" style="margin-top:4px">Mga kailangan bago ikasal</div>
+                                    <p class="small text-muted mb-2">Confirm you have prepared the following requirements.</p>
+                                    @foreach($weddingRequirementChecklist as $requirementKey => $requirementLabel)
+                                        @php $inputId = 'wedding-requirement-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $requirementKey); @endphp
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox" class="custom-control-input" id="{{ $inputId }}" name="wedding-requirements[]" value="{{ $requirementKey }}" @checked(in_array($requirementKey, $selectedWeddingRequirements, true)) data-wedding-required="true" data-wedding-checkbox="true">
+                                            <label class="custom-control-label" for="{{ $inputId }}">{{ $requirementLabel }}</label>
+                                        </div>
+                                    @endforeach
                                 </div>
 
                                 {{-- FUNERAL DETAILS --}}
@@ -438,16 +510,16 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     <h6 class="mb-3">Funeral information</h6>
                                     <div class="alert alert-warning small" role="alert">Arrange the funeral schedule at the parish office at least one day before burial.</div>
                                     <div class="form-group">
-                                        <label class="d-block" for="funeral-deceased-name-first">Name of the deceased *</label>
+                                        <label class="d-block" for="funeral-deceased-name-first">Name of the deceased</label>
                                         <div class="form-row">
                                             <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-first" name="funeral-deceased-name-first" placeholder="First" value="{{ $formData['funeral-deceased-name-first'] }}" data-funeral-required="true"></div>
                                             <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-middle" name="funeral-deceased-name-middle" placeholder="Middle" value="{{ $formData['funeral-deceased-name-middle'] }}"></div>
                                             <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-last" name="funeral-deceased-name-last" placeholder="Last" value="{{ $formData['funeral-deceased-name-last'] }}" data-funeral-required="true"></div>
-                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-suffix" name="funeral-deceased-name-suffix" placeholder="Suffix" value="{{ $formData['funeral-deceased-name-suffix'] }}"></div>
+                                            <div class="col-6 mb-2"><input type="text" class="form-control" id="funeral-deceased-name-suffix" name="funeral-deceased-name-suffix" placeholder="Suffix (optional)" value="{{ $formData['funeral-deceased-name-suffix'] }}"></div>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="funeral-marital-status">Marital status of the deceased *</label>
+                                        <label for="funeral-marital-status">Marital status of the deceased</label>
                                         <select class="res-time-select form-control" id="funeral-marital-status" name="funeral-marital-status" data-funeral-required="true" data-funeral-marital-select="true" style="display:none">
                                             <option value="">Select status</option>
                                             @foreach($funeralMaritalStatusOptions as $statusValue => $statusLabel)
@@ -473,7 +545,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     @endphp
                                     @if(!empty($documents))
                                         <div class="reservation_attachment_box res-section" id="{{ $sectionId }}" data-attachment-section="{{ $eventType }}" style="{{ $shouldShowSection ? '' : 'display:none;' }}">
-                                            <h6 class="mb-2">{{ $attachmentSet['title'] ?? 'Required documents' }}</h6>
+                                            <div class="res-section-lbl">{{ $attachmentSet['title'] ?? 'Required documents' }}</div>
                                             @if(!empty($attachmentSet['description']))
                                                 <p class="small text-muted">{{ $attachmentSet['description'] }}</p>
                                             @endif
@@ -492,8 +564,14 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                                          data-attachment-conditional-field="{{ $conditionalField }}"
                                                          data-attachment-conditional-value="{{ $conditionalValue }}"
                                                      @endif>
-                                                    <label for="{{ $inputId }}">{{ $label }} *</label>
-                                                    <input type="file" class="form-control-file" id="{{ $inputId }}" name="{{ $fieldName }}" accept="{{ $accept }}">
+                                                    <label for="{{ $inputId }}">{{ $label }}</label>
+                                                    <div class="res-file">
+                                                        <input type="file" class="res-file-input" id="{{ $inputId }}" name="{{ $fieldName }}" accept="{{ $accept }}">
+                                                        <label for="{{ $inputId }}" class="res-file-btn">
+                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                            <span class="res-file-name">Choose file</span>
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             @endforeach
                                             @if(!empty($attachmentSet['notes']))
@@ -568,7 +646,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <div class="ps-overlay" id="ps-res-overlay">
       <div class="ps-modal">
         <div class="ps-hdr" id="ps-res-hdr">
-          <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
           <span class="ps-parish">St. John the Baptist Parish</span>
           <span class="ps-dot"></span>
           <span class="ps-loc">Tiaong, Quezon</span>
@@ -621,7 +699,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <div class="ps-overlay" id="ps-overlay">
       <div class="ps-modal">
         <div class="ps-hdr" id="ps-hdr-res">
-          <svg style="width:18px;height:18px;flex-shrink:0" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <svg style="width:18px;height:18px;flex-shrink:0" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
           <span class="ps-parish">St. John the Baptist Parish</span>
           <span class="ps-dot"></span>
           <span class="ps-loc">Tiaong, Quezon</span>
@@ -674,6 +752,463 @@ foreach ($approvedReservationsJson as $dayGroup) {
     @endif
 
     <script src="{{ asset('js/reservations.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var panel    = document.getElementById('reservationDayModal');
+        var notice   = document.querySelector('[data-reservation-availability]');
+
+        // The actual scroll container is .res-form-body (flex:1 inside .res-form-content)
+        function getScrollEl() {
+            return panel ? panel.querySelector('.res-form-body') : null;
+        }
+
+        // Scroll lock: trap wheel events so only the form body scrolls
+        if (panel) {
+            panel.addEventListener('wheel', function (e) {
+                var el = getScrollEl();
+                if (!el) return;
+                var delta    = e.deltaY;
+                var atTop    = el.scrollTop <= 0;
+                var atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+                if ((delta < 0 && atTop) || (delta > 0 && atBottom)) return;
+                e.preventDefault();
+                el.scrollTop += delta;
+            }, { passive: false });
+        }
+
+        // Fade + collapse availability notice as the form body scrolls
+        function bindFade() {
+            var el = getScrollEl();
+            if (!el || el._fadeBound) return;
+            el._fadeBound = true;
+            if (notice) {
+                notice.style.overflow   = 'hidden';
+                notice.style.transition = 'opacity .15s, max-height .2s';
+            }
+            el.addEventListener('scroll', function () {
+                var scrollTop = el.scrollTop;
+                if (!notice) return;
+                // Capture full height lazily so it's measured after content renders
+                var fullH = notice.scrollHeight;
+                var fadeDistance = Math.max(fullH * 0.7, 60);
+                var op = Math.max(0, 1 - scrollTop / fadeDistance);
+                notice.style.opacity = op;
+                if (op >= 1) {
+                    notice.style.maxHeight = '';   // let it breathe when fully visible
+                } else {
+                    notice.style.maxHeight = (fullH * op) + 'px';
+                }
+            });
+        }
+
+        bindFade();
+        setTimeout(bindFade, 400);
+    });
+    </script>
+    <script>
+    (function() {
+        const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const MON_ABB = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const today = new Date(); today.setHours(23,59,59,999);
+        let calYear  = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let calSelected = null;
+        let calView = 'day'; // 'day' | 'month' | 'year'
+
+        const initVal = document.getElementById('baptism-child-dob-raw')?.value;
+        if (initVal) {
+            const d = new Date(initVal + 'T00:00:00');
+            if (!isNaN(d)) { calYear = d.getFullYear(); calMonth = d.getMonth(); calSelected = { y: calYear, m: calMonth, d: d.getDate() }; }
+        }
+
+        const pad = n => String(n).padStart(2,'0');
+
+        function render() {
+            const popup = document.getElementById('dob-cal-popup');
+            if (!popup) return;
+            if (calView === 'month') { popup.innerHTML = buildMonthView(); return; }
+            if (calView === 'year')  { popup.innerHTML = buildYearView();  return; }
+            popup.innerHTML = buildDayView();
+        }
+
+        function buildDayView() {
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const now = new Date();
+            let cells = '';
+            for (let i = 0; i < firstDay; i++) cells += `<span class="dob-cal-day is-blank"></span>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isT = now.getFullYear()===calYear && now.getMonth()===calMonth && now.getDate()===d;
+                const isF = new Date(calYear, calMonth, d) > today;
+                const isS = calSelected && calSelected.y===calYear && calSelected.m===calMonth && calSelected.d===d;
+                let cls = 'dob-cal-day' + (isT?' is-today':'') + (isS?' is-selected':'') + (isF?' is-disabled':'');
+                cells += `<button type="button" class="${cls}" ${isF?'disabled':''} data-y="${calYear}" data-m="${calMonth}" data-d="${d}" onclick="dobCalPick(this)">${d}</button>`;
+            }
+            const total = firstDay + daysInMonth;
+            const next = total % 7 === 0 ? 0 : 7 - (total % 7);
+            for (let i = 0; i < next; i++) cells += `<span class="dob-cal-day is-blank"></span>`;
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(-1)">&#8249;</button>
+                <div class="dob-cal-hdr-labels">
+                    <button type="button" class="dob-cal-hdr-btn" onclick="dobCalSetView('month')">${MONTHS[calMonth]}</button>
+                    <button type="button" class="dob-cal-hdr-btn" onclick="dobCalSetView('year')">${calYear}</button>
+                </div>
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-days-row"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+            <div class="dob-cal-grid">${cells}</div>
+            <div class="dob-cal-footer">
+                <button type="button" class="dob-cal-today-btn" onclick="dobCalSelectToday()">Today</button>
+                <button type="button" class="dob-cal-clear-btn" onclick="dobCalClear()">Clear</button>
+            </div>`;
+        }
+
+        function buildMonthView() {
+            const now = new Date();
+            let cells = '';
+            for (let m = 0; m < 12; m++) {
+                const isT = now.getFullYear()===calYear && now.getMonth()===m;
+                const isS = calSelected && calSelected.y===calYear && calSelected.m===m;
+                cells += `<button type="button" class="dob-cal-mcell${isT?' is-today':''}${isS?' is-selected':''}" onclick="dobCalPickMonth(${m})">${MON_ABB[m]}</button>`;
+            }
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(-1)">&#8249;</button>
+                <button type="button" class="dob-cal-hdr-btn" onclick="dobCalSetView('year')">${calYear}</button>
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-month-grid">${cells}</div>`;
+        }
+
+        function buildYearView() {
+            const now = new Date();
+            const startYear = Math.floor(calYear / 12) * 12;
+            let cells = '';
+            for (let y = startYear; y < startYear + 12; y++) {
+                const isT = now.getFullYear()===y;
+                const isS = calSelected && calSelected.y===y;
+                cells += `<button type="button" class="dob-cal-ycell${isT?' is-today':''}${isS?' is-selected':''}" onclick="dobCalPickYear(${y})">${y}</button>`;
+            }
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(-1)">&#8249;</button>
+                <span class="dob-cal-hdr-range">${startYear} – ${startYear+11}</span>
+                <button type="button" class="dob-cal-nav" onclick="dobCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-year-grid">${cells}</div>`;
+        }
+
+        window.dobCalToggle = function() {
+            const popup = document.getElementById('dob-cal-popup');
+            if (!popup) return;
+            if (popup.style.display !== 'none') { popup.style.display = 'none'; return; }
+            calView = 'day';
+            render();
+            popup.style.display = 'block';
+        };
+
+        window.dobCalShift = function(dir) {
+            if (calView === 'day')   { calMonth += dir; if (calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;} }
+            else if (calView==='month') { calYear += dir; }
+            else { calYear = Math.floor(calYear/12)*12 + dir*12; }
+            render();
+        };
+
+        window.dobCalSetView = function(v) { calView = v; render(); };
+
+        window.dobCalPickMonth = function(m) { calMonth = m; calView = 'day'; render(); };
+
+        window.dobCalPickYear = function(y) { calYear = y; calView = 'month'; render(); };
+
+        window.dobCalPick = function(el) {
+            if (el.disabled) return;
+            let y = parseInt(el.dataset.y), m = parseInt(el.dataset.m), d = parseInt(el.dataset.d);
+            const nd = new Date(y, m, d); if (nd > today) return;
+            y = nd.getFullYear(); m = nd.getMonth(); d = nd.getDate();
+            calYear = y; calMonth = m; calSelected = { y, m, d };
+            const raw = document.getElementById('baptism-child-dob-raw');
+            if (raw) raw.value = `${y}-${pad(m+1)}-${pad(d)}`;
+            const disp = document.getElementById('baptism-child-dob');
+            if (disp) disp.value = `${pad(m+1)}/${pad(d)}/${y}`;
+            document.getElementById('dob-cal-popup').style.display = 'none';
+        };
+
+        window.dobCalSelectToday = function() {
+            const now = new Date();
+            const fake = { dataset:{y:now.getFullYear(),m:now.getMonth(),d:now.getDate()}, disabled:false };
+            dobCalPick(fake);
+        };
+
+        window.dobCalClear = function() {
+            calSelected = null;
+            const raw = document.getElementById('baptism-child-dob-raw'); if (raw) raw.value = '';
+            const disp = document.getElementById('baptism-child-dob'); if (disp) disp.value = '';
+            document.getElementById('dob-cal-popup').style.display = 'none';
+        };
+
+        // Parse typed date on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            const inp = document.getElementById('baptism-child-dob');
+            if (!inp) return;
+            inp.addEventListener('blur', function() {
+                const v = this.value.trim(); if (!v) return;
+                const m1 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                const m2 = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                let nd = null;
+                if (m1) nd = new Date(+m1[3], +m1[1]-1, +m1[2]);
+                else if (m2) nd = new Date(v+'T00:00:00');
+                else { const t = new Date(v); if (!isNaN(t)) nd = t; }
+                if (nd && !isNaN(nd) && nd <= today) {
+                    const y=nd.getFullYear(), mo=nd.getMonth(), d=nd.getDate();
+                    calYear=y; calMonth=mo; calSelected={y,m:mo,d};
+                    const raw=document.getElementById('baptism-child-dob-raw');
+                    if (raw) raw.value=`${y}-${pad(mo+1)}-${pad(d)}`;
+                    this.value=`${pad(mo+1)}/${pad(d)}/${y}`;
+                } else if (v) {
+                    this.value='';
+                    const raw=document.getElementById('baptism-child-dob-raw'); if (raw) raw.value='';
+                    calSelected=null;
+                }
+            });
+        });
+
+        // Close on outside click — but NOT when the click was on a re-rendered element
+        document.addEventListener('click', function(e) {
+            if (!document.contains(e.target)) return; // element was removed by innerHTML re-render
+            const wrap = document.getElementById('dob-cal-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                const popup = document.getElementById('dob-cal-popup');
+                if (popup) popup.style.display = 'none';
+            }
+        });
+    })();
+    </script>
+    <script>
+    /* Seminar date calendar — valid range: 1–5 days before wedding date */
+    (function() {
+        const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const MON_ABB = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const today = new Date();
+        let calYear  = today.getFullYear();
+        let calMonth = today.getMonth();
+        let calSelected = null;
+        let calView = 'day';
+
+        const initVal = document.getElementById('wedding-seminar-date')?.value;
+        if (initVal) {
+            const d = new Date(initVal + 'T00:00:00');
+            if (!isNaN(d)) { calYear = d.getFullYear(); calMonth = d.getMonth(); calSelected = { y: calYear, m: calMonth, d: d.getDate() }; }
+        }
+
+        const pad = n => String(n).padStart(2,'0');
+
+        function getSeminarRange() {
+            const rdInput = document.getElementById('reservation-date');
+            if (!rdInput || !rdInput.value) return null;
+            const parts = rdInput.value.split('-');
+            if (parts.length !== 3) return null;
+            const wedding = new Date(+parts[0], +parts[1]-1, +parts[2]);
+            if (isNaN(wedding.getTime())) return null;
+            const max = new Date(wedding.getTime());
+            max.setDate(max.getDate() - 1);
+            const min = new Date(wedding.getTime());
+            min.setDate(min.getDate() - 5);
+            return { min, max };
+        }
+
+        function render() {
+            const popup = document.getElementById('seminar-cal-popup');
+            if (!popup) return;
+            if (calView === 'month') { popup.innerHTML = buildMonthView(); return; }
+            if (calView === 'year')  { popup.innerHTML = buildYearView();  return; }
+            popup.innerHTML = buildDayView();
+        }
+
+        function buildDayView() {
+            const range = getSeminarRange();
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const now = new Date();
+            let cells = '';
+            for (let i = 0; i < firstDay; i++) cells += `<span class="dob-cal-day is-blank"></span>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const thisDate = new Date(calYear, calMonth, d);
+                const isT = now.getFullYear()===calYear && now.getMonth()===calMonth && now.getDate()===d;
+                const isS = calSelected && calSelected.y===calYear && calSelected.m===calMonth && calSelected.d===d;
+                const isDisabled = range ? (thisDate < range.min || thisDate > range.max) : false;
+                cells += `<button type="button" class="dob-cal-day${isT?' is-today':''}${isS?' is-selected':''}${isDisabled?' is-disabled':''}" ${isDisabled?'disabled':''} data-y="${calYear}" data-m="${calMonth}" data-d="${d}" onclick="seminarCalPick(this)">${d}</button>`;
+            }
+            const total = firstDay + daysInMonth;
+            const next = total % 7 === 0 ? 0 : 7 - (total % 7);
+            for (let i = 0; i < next; i++) cells += `<span class="dob-cal-day is-blank"></span>`;
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(-1)">&#8249;</button>
+                <div class="dob-cal-hdr-labels">
+                    <button type="button" class="dob-cal-hdr-btn" onclick="seminarCalSetView('month')">${MONTHS[calMonth]}</button>
+                    <button type="button" class="dob-cal-hdr-btn" onclick="seminarCalSetView('year')">${calYear}</button>
+                </div>
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-days-row"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+            <div class="dob-cal-grid">${cells}</div>
+            <div class="dob-cal-footer">
+                <button type="button" class="dob-cal-today-btn" onclick="seminarCalSelectToday()">Today</button>
+                <button type="button" class="dob-cal-clear-btn" onclick="seminarCalClear()">Clear</button>
+            </div>`;
+        }
+
+        function buildMonthView() {
+            const range = getSeminarRange();
+            const now = new Date(); let cells = '';
+            for (let m = 0; m < 12; m++) {
+                const isT = now.getFullYear()===calYear && now.getMonth()===m;
+                const isS = calSelected && calSelected.y===calYear && calSelected.m===m;
+                let isDisabled = false;
+                if (range) {
+                    const monthStart = new Date(calYear, m, 1);
+                    const monthEnd = new Date(calYear, m + 1, 0);
+                    isDisabled = monthEnd < range.min || monthStart > range.max;
+                }
+                cells += `<button type="button" class="dob-cal-mcell${isT?' is-today':''}${isS?' is-selected':''}${isDisabled?' is-disabled':''}" ${isDisabled?'disabled':''} onclick="seminarCalPickMonth(${m})">${MON_ABB[m]}</button>`;
+            }
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(-1)">&#8249;</button>
+                <button type="button" class="dob-cal-hdr-btn" onclick="seminarCalSetView('year')">${calYear}</button>
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-month-grid">${cells}</div>`;
+        }
+
+        function buildYearView() {
+            const range = getSeminarRange();
+            const now = new Date(); const startYear = Math.floor(calYear / 12) * 12; let cells = '';
+            for (let y = startYear; y < startYear + 12; y++) {
+                const isT = now.getFullYear()===y; const isS = calSelected && calSelected.y===y;
+                let isDisabled = false;
+                if (range) {
+                    const yearStart = new Date(y, 0, 1);
+                    const yearEnd = new Date(y, 11, 31);
+                    isDisabled = yearEnd < range.min || yearStart > range.max;
+                }
+                cells += `<button type="button" class="dob-cal-ycell${isT?' is-today':''}${isS?' is-selected':''}${isDisabled?' is-disabled':''}" ${isDisabled?'disabled':''} onclick="seminarCalPickYear(${y})">${y}</button>`;
+            }
+            return `<div class="dob-cal-header">
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(-1)">&#8249;</button>
+                <span class="dob-cal-hdr-range">${startYear} – ${startYear+11}</span>
+                <button type="button" class="dob-cal-nav" onclick="seminarCalShift(1)">&#8250;</button>
+            </div>
+            <div class="dob-cal-year-grid">${cells}</div>`;
+        }
+
+        window.seminarCalToggle = function() {
+            const popup = document.getElementById('seminar-cal-popup');
+            if (!popup) return;
+            if (popup.style.display !== 'none') { popup.style.display = 'none'; return; }
+            // Jump to the valid range's month when opening with no selection
+            const range = getSeminarRange();
+            if (range && !calSelected) { calYear = range.min.getFullYear(); calMonth = range.min.getMonth(); }
+            calView = 'day'; render(); popup.style.display = 'block';
+        };
+        window.seminarCalShift = function(dir) {
+            if (calView==='day')    { calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;} }
+            else if (calView==='month') { calYear+=dir; }
+            else { calYear = Math.floor(calYear/12)*12 + dir*12; }
+            render();
+        };
+        window.seminarCalSetView   = function(v) { calView = v; render(); };
+        window.seminarCalPickMonth = function(m) { calMonth = m; calView = 'day'; render(); };
+        window.seminarCalPickYear  = function(y) { calYear = y; calView = 'month'; render(); };
+        window.seminarCalPick = function(el) {
+            if (el.disabled || el.classList.contains('is-disabled')) return;
+            let y=parseInt(el.dataset.y), m=parseInt(el.dataset.m), d=parseInt(el.dataset.d);
+            const nd=new Date(y,m,d); y=nd.getFullYear(); m=nd.getMonth(); d=nd.getDate();
+            const range = getSeminarRange();
+            if (range) { const picked=new Date(y,m,d); if (picked<range.min||picked>range.max) return; }
+            calYear=y; calMonth=m; calSelected={y,m,d};
+            const raw=document.getElementById('wedding-seminar-date');
+            if (raw) raw.value=`${y}-${pad(m+1)}-${pad(d)}`;
+            const disp=document.getElementById('wedding-seminar-date-display');
+            if (disp) disp.value=`${pad(m+1)}/${pad(d)}/${y}`;
+            document.getElementById('seminar-cal-popup').style.display='none';
+        };
+        window.seminarCalSelectToday = function() {
+            const now = new Date();
+            const range = getSeminarRange();
+            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            if (range && (todayDate < range.min || todayDate > range.max)) return;
+            const y=now.getFullYear(), m=now.getMonth(), d=now.getDate();
+            calYear=y; calMonth=m; calSelected={y,m,d};
+            const raw=document.getElementById('wedding-seminar-date');
+            if (raw) raw.value=`${y}-${pad(m+1)}-${pad(d)}`;
+            const disp=document.getElementById('wedding-seminar-date-display');
+            if (disp) disp.value=`${pad(m+1)}/${pad(d)}/${y}`;
+            document.getElementById('seminar-cal-popup').style.display='none';
+        };
+        window.seminarCalClear = function() {
+            calSelected=null;
+            const raw=document.getElementById('wedding-seminar-date'); if (raw) raw.value='';
+            const disp=document.getElementById('wedding-seminar-date-display'); if (disp) disp.value='';
+            const popup=document.getElementById('seminar-cal-popup'); if (popup) popup.style.display='none';
+        };
+        window.seminarCalRefresh = function() {
+            // Clear selection if it falls outside the updated range, then re-render
+            if (calSelected) {
+                const range = getSeminarRange();
+                if (range) {
+                    const sel = new Date(calSelected.y, calSelected.m, calSelected.d);
+                    if (sel < range.min || sel > range.max) {
+                        calSelected = null;
+                        const raw = document.getElementById('wedding-seminar-date'); if (raw) raw.value = '';
+                        const disp = document.getElementById('wedding-seminar-date-display'); if (disp) disp.value = '';
+                    }
+                }
+            }
+            const popup = document.getElementById('seminar-cal-popup');
+            if (popup && popup.style.display !== 'none') render();
+        };
+
+        // Parse typed seminar date on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            const inp = document.getElementById('wedding-seminar-date-display');
+            if (!inp) return;
+            inp.addEventListener('blur', function() {
+                const v = this.value.trim(); if (!v) return;
+                const m1 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                const m2 = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                let nd = null;
+                if (m1) nd = new Date(+m1[3], +m1[1]-1, +m1[2]);
+                else if (m2) nd = new Date(v+'T00:00:00');
+                else { const t = new Date(v); if (!isNaN(t)) nd = t; }
+                if (nd && !isNaN(nd)) {
+                    const range = getSeminarRange();
+                    const picked = new Date(nd.getFullYear(), nd.getMonth(), nd.getDate());
+                    if (range && (picked < range.min || picked > range.max)) {
+                        this.value = '';
+                        const raw = document.getElementById('wedding-seminar-date'); if (raw) raw.value = '';
+                        calSelected = null;
+                    } else {
+                        const y=nd.getFullYear(), mo=nd.getMonth(), d=nd.getDate();
+                        calYear=y; calMonth=mo; calSelected={y,m:mo,d};
+                        const raw=document.getElementById('wedding-seminar-date');
+                        if (raw) raw.value=`${y}-${pad(mo+1)}-${pad(d)}`;
+                        this.value=`${pad(mo+1)}/${pad(d)}/${y}`;
+                    }
+                } else if (v) {
+                    this.value='';
+                    const raw=document.getElementById('wedding-seminar-date'); if (raw) raw.value='';
+                    calSelected=null;
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!document.contains(e.target)) return;
+            const wrap = document.getElementById('seminar-cal-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                const popup = document.getElementById('seminar-cal-popup');
+                if (popup) popup.style.display = 'none';
+            }
+        });
+    })();
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

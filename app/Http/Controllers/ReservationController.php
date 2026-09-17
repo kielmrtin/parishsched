@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ReservationSubmitted;
-use App\Mail\ReservationCustomerConfirmation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
+
 class ReservationController extends Controller
 {
     public function index()
@@ -59,6 +57,13 @@ class ReservationController extends Controller
         'reservation_date' => 'required|date',
         'reservation_time' => 'required|string|max:100',
         'notes' => 'nullable|string',
+        'baptism-child-name-first' => 'nullable|string|max:100',
+        'baptism-child-name-middle' => 'nullable|string|max:100',
+        'baptism-child-name-last' => 'nullable|string|max:100',
+        'baptism-child-name-suffix' => 'nullable|string|max:20',
+        'baptism-child-dob' => 'nullable|date',
+        'baptism-father-name' => 'nullable|string|max:200',
+        'baptism-mother-name' => 'nullable|string|max:200',
         'baptism_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'wedding_file1' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'wedding_file2' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -183,8 +188,8 @@ $files[] = [
   $customerId = null;
 
 $customerResponse = Http::withHeaders([
-    'apikey' => config('services.supabase.key'),
-    'Authorization' => 'Bearer ' . config('services.supabase.key'),
+    'apikey' => config('services.supabase.service_role_key'),
+    'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
 ])->get(config('services.supabase.url') . '/rest/v1/customers', [
     'select' => 'id',
     'email' => 'eq.' . $validated['email'],
@@ -210,12 +215,45 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
     'reservation_date' => $validated['reservation_date'],
     'reservation_time' => $validated['reservation_time'],
     'status' => 'pending',
-    'details' => [
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'phone' => $validated['phone'],
-        'notes' => $validated['notes'] ?? null,
-    ],
+    'details' => array_filter([
+        'name'    => $validated['name'],
+        'email'   => $validated['email'],
+        'phone'   => $validated['phone'],
+        'notes'   => $validated['notes'] ?? null,
+        'baptism' => strtolower($validated['event_type']) === 'baptism' ? [
+            'child_first'  => $request->input('baptism-child-name-first', ''),
+            'child_middle' => $request->input('baptism-child-name-middle', ''),
+            'child_last'   => $request->input('baptism-child-name-last', ''),
+            'child_suffix' => $request->input('baptism-child-name-suffix', ''),
+            'child_name'   => trim(implode(' ', array_filter([
+                $request->input('baptism-child-name-first', ''),
+                $request->input('baptism-child-name-middle', ''),
+                $request->input('baptism-child-name-last', ''),
+            ]))) . ($request->input('baptism-child-name-suffix') ? ', ' . $request->input('baptism-child-name-suffix') : ''),
+            'child_dob'    => $request->input('baptism-child-dob', ''),
+            'father_name'  => $request->input('baptism-father-name', ''),
+            'mother_name'  => $request->input('baptism-mother-name', ''),
+        ] : null,
+        'wedding' => strtolower($validated['event_type']) === 'wedding' ? [
+            'groom_first'      => $request->input('wedding-groom-name-first', ''),
+            'groom_middle'     => $request->input('wedding-groom-name-middle', ''),
+            'groom_last'       => $request->input('wedding-groom-name-last', ''),
+            'groom_suffix'     => $request->input('wedding-groom-name-suffix', ''),
+            'bride_first'      => $request->input('wedding-bride-name-first', ''),
+            'bride_middle'     => $request->input('wedding-bride-name-middle', ''),
+            'bride_last'       => $request->input('wedding-bride-name-last', ''),
+            'bride_suffix'     => $request->input('wedding-bride-name-suffix', ''),
+            'seminar_date'     => $request->input('wedding-seminar-date', ''),
+            'sacrament_details'=> $request->input('wedding-sacrament-details', ''),
+        ] : null,
+        'funeral' => strtolower($validated['event_type']) === 'funeral' ? [
+            'deceased_first'   => $request->input('funeral-deceased-name-first', ''),
+            'deceased_middle'  => $request->input('funeral-deceased-name-middle', ''),
+            'deceased_last'    => $request->input('funeral-deceased-name-last', ''),
+            'deceased_suffix'  => $request->input('funeral-deceased-name-suffix', ''),
+            'marital_status'   => $request->input('funeral-marital-status', ''),
+        ] : null,
+    ], fn($v) => $v !== null),
 ]);
 
     if ($response->failed()) {
@@ -245,29 +283,11 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
         ]);
     }
 
-    $mailData = $validated;
-
-    try {
-        Mail::to(config('services.admin.notification_email'))->send(
-            new ReservationSubmitted($mailData, $files)
-        );
-    } catch (\Throwable $e) {
-        Log::error('Admin reservation email failed: ' . $e->getMessage());
-    }
-
-    try {
-        Mail::to($mailData['email'])->send(
-            new ReservationCustomerConfirmation($mailData, $files)
-        );
-
-        //app(\App\Services\SmsNotificationService::class)->send(
-    //$validated['phone'],
-    //"Hi {$validated['name']}, your reservation has been submitted successfully. Please wait for parish confirmation."
-//);
-
-    } catch (\Throwable $e) {
-        Log::error('Customer reservation confirmation email failed: ' . $e->getMessage());
-    }
+    // Admin notification + customer confirmation emails are sent by the
+    // Supabase Database Webhook (ReservationWebhookController) instead of
+    // here, so both the website and the Flutter app — which inserts
+    // directly into Supabase and never runs this method — trigger the
+    // same emails exactly once, regardless of which one submitted.
 
     return back()->with([
         'success' => 'Reservation submitted successfully!',
@@ -299,17 +319,23 @@ public function cancelRequest(Request $request, string $id)
     $reservation = $res->successful() ? ($res->json()[0] ?? null) : null;
 
     if (!$reservation || (string)($reservation['customer_id'] ?? '') !== (string)$customerId) {
-        return redirect()->route('reservation.my')->with('error', 'Reservation not found.');
+        return redirect()->route('reservation.my')->with('auth_notification', [
+            'icon' => 'error', 'title' => 'Not Found', 'text' => 'Reservation not found.',
+        ]);
     }
 
     $status = strtolower($reservation['status'] ?? '');
 
     if (!in_array($status, ['pending', 'approved'])) {
-        return redirect()->route('reservation.my')->with('error', 'This reservation cannot be cancelled.');
+        return redirect()->route('reservation.my')->with('auth_notification', [
+            'icon' => 'error', 'title' => 'Cannot Cancel', 'text' => 'This reservation cannot be cancelled.',
+        ]);
     }
 
     if (!empty($reservation['cancellation_requested'])) {
-        return redirect()->route('reservation.my')->with('error', 'A cancellation request is already pending.');
+        return redirect()->route('reservation.my')->with('auth_notification', [
+            'icon' => 'error', 'title' => 'Already Requested', 'text' => 'A cancellation request is already pending.',
+        ]);
     }
 
     // Flag the reservation — use service role key to bypass RLS
@@ -325,9 +351,9 @@ public function cancelRequest(Request $request, string $id)
     ]);
 
     if ($patch->failed()) {
-        return redirect()->route('reservation.my')->with('error',
-            'Could not submit your request: ' . $patch->body()
-        );
+        return redirect()->route('reservation.my')->with('auth_notification', [
+            'icon' => 'error', 'title' => 'Request Failed', 'text' => 'Could not submit your request: ' . $patch->body(),
+        ]);
     }
 
     // Notify admin
@@ -350,7 +376,9 @@ public function cancelRequest(Request $request, string $id)
         \Illuminate\Support\Facades\Log::error('Cancellation admin email failed: ' . $e->getMessage());
     }
 
-    return redirect()->route('reservation.my')->with('success', 'Your cancellation request has been submitted. The parish office will respond shortly.');
+    return redirect()->route('reservation.my')->with('auth_notification', [
+        'icon' => 'success', 'title' => 'Request Submitted', 'text' => 'Your cancellation request has been submitted. The parish office will respond shortly.',
+    ]);
 }
 
 public function myReservations()

@@ -71,7 +71,7 @@ class AdminController extends Controller
     public function logout()
     {
         Session::flush();
-        return redirect()->route('admin.index');
+        return redirect()->route('admin.index')->with('logout_success', 'You have been logged out successfully.');
     }
 
     public function handle(Request $request)
@@ -88,6 +88,7 @@ class AdminController extends Controller
                 Session::put('admin_logged_in', true);
                 Session::put('admin_username', $username);
                 Session::put('admin_role', $role);
+                Session::flash('login_success', 'Welcome back!');
                 $landing = $role === 'secretary' ? 'reservations' : $redirectSection;
                 return redirect()->route('admin.index', ['section' => $landing]);
             }
@@ -301,7 +302,7 @@ class AdminController extends Controller
                 }
             }
 
-            Session::flash('flash_success', 'Cancellation request denied and customer notified.');
+            Session::flash('deny_cancellation_success', 'Cancellation request denied and customer notified.');
             return redirect()->route('admin.index', ['section' => 'reservations']);
         }
 
@@ -313,7 +314,7 @@ class AdminController extends Controller
             $category = trim($request->input('announcement_category', ''));
 
             if ($title === '' || $body === '') {
-                Session::flash('flash_error', 'Please provide both a title and message.');
+                Session::flash('announcement_action_error', 'Please provide both a title and message.');
                 return redirect()->route('admin.index', ['section' => 'announcements']);
             }
 
@@ -331,7 +332,7 @@ class AdminController extends Controller
                     ])->put(rtrim(config('services.supabase.url'), '/') . '/storage/v1/object/announcements/' . $filename);
 
                 if (!$upload->successful()) {
-                    Session::flash('flash_error', 'Image upload failed: ' . $upload->body());
+                    Session::flash('announcement_action_error', 'Image upload failed: ' . $upload->body());
                     return redirect()->route('admin.index', ['section' => 'announcements']);
                 }
 
@@ -347,9 +348,9 @@ class AdminController extends Controller
                 'created_at'   => now()->toISOString(),
             ]);
             if ($insert->successful()) {
-                Session::flash('flash_success', 'Announcement published successfully.');
+                Session::flash('announcement_action_success', 'Announcement published successfully.');
             } else {
-                Session::flash('flash_error', 'Failed to publish announcement: ' . $insert->body());
+                Session::flash('announcement_action_error', 'Failed to publish announcement: ' . $insert->body());
             }
             return redirect()->route('admin.index', ['section' => 'announcements']);
         }
@@ -363,7 +364,7 @@ class AdminController extends Controller
             $category = trim($request->input('announcement_category', ''));
 
             if ($title === '' || $body === '') {
-                Session::flash('flash_error', 'Please provide both a title and message.');
+                Session::flash('announcement_action_error', 'Please provide both a title and message.');
                 return redirect()->route('admin.index', ['section' => 'announcements']);
             }
 
@@ -392,7 +393,7 @@ class AdminController extends Controller
             }
 
             $upd = $this->sb()->patch($this->sbUrl('announcements', ['id' => 'eq.' . $id]), $patch);
-            Session::flash($upd->successful() ? 'flash_success' : 'flash_error',
+            Session::flash($upd->successful() ? 'announcement_action_success' : 'announcement_action_error',
                 $upd->successful() ? 'Announcement updated.' : 'Update failed: ' . $upd->body());
             return redirect()->route('admin.index', ['section' => 'announcements']);
         }
@@ -402,7 +403,7 @@ class AdminController extends Controller
             $id   = (int) $request->input('announcement_id');
             $show = $request->input('show_on_home') === '1';
             $upd  = $this->sb()->patch($this->sbUrl('announcements', ['id' => 'eq.' . $id]), ['show_on_home' => $show]);
-            Session::flash($upd->successful() ? 'flash_success' : 'flash_error',
+            Session::flash($upd->successful() ? 'announcement_action_success' : 'announcement_action_error',
                 $upd->successful() ? 'Announcement visibility updated.' : 'Update failed: ' . $upd->body());
             return redirect()->route('admin.index', ['section' => 'announcements']);
         }
@@ -417,7 +418,7 @@ class AdminController extends Controller
                 if (file_exists($full)) @unlink($full);
             }
             $del = $this->sb()->delete($this->sbUrl('announcements', ['id' => 'eq.' . $id]));
-            Session::flash($del->successful() ? 'flash_success' : 'flash_error',
+            Session::flash($del->successful() ? 'announcement_action_success' : 'announcement_action_error',
                 $del->successful() ? 'Announcement deleted successfully.' : 'Delete failed: ' . $del->body());
             return redirect()->route('admin.index', ['section' => 'announcements']);
         }
@@ -431,7 +432,7 @@ class AdminController extends Controller
     $customer = $custRes->successful() ? ($custRes->json()[0] ?? null) : null;
 
     if (!$customer) {
-        Session::flash('flash_error', 'Customer not found.');
+        Session::flash('customer_action_error', 'Customer not found.');
         return redirect()->route('admin.index', ['section' => 'customers']);
     }
 
@@ -444,7 +445,7 @@ class AdminController extends Controller
 $emailSent = false;
 
 if (empty($customer['email'])) {
-    Session::flash('flash_error', 'Customer status updated, but no email was sent because this customer has no email address.');
+    Session::flash('customer_action_error', 'Customer status updated, but no email was sent because this customer has no email address.');
 } else {
     try {
        $subject = $status === 'disabled'
@@ -463,15 +464,15 @@ Mail::send('emails.customer-status', [
 
         $emailSent = true;
     } catch (\Throwable $e) {
-        Session::flash('flash_error', 'Customer status updated, but email failed: ' . $e->getMessage());
+        Session::flash('customer_action_error', 'Customer status updated, but email failed: ' . $e->getMessage());
         \Illuminate\Support\Facades\Log::error('Customer status email failed: ' . $e->getMessage());
     }
 }
 
 if ($emailSent) {
-    Session::flash('flash_success', 'Customer status updated and email sent to ' . $customer['email'] . '.');
-} elseif (!session('flash_error')) {
-    Session::flash('flash_success', 'Customer status updated.');
+    Session::flash('customer_action_success', 'Customer status updated and email sent to ' . $customer['email'] . '.');
+} elseif (!session('customer_action_error')) {
+    Session::flash('customer_action_success', 'Customer status updated.');
 }
     return redirect()->route('admin.index', ['section' => 'customers']);
 }
@@ -483,7 +484,7 @@ if ($action === 'reset_password') {
     $customer = $custRes->successful() ? ($custRes->json()[0] ?? null) : null;
 
     if (!$customer || empty($customer['email'])) {
-        Session::flash('flash_error', 'Customer email not found.');
+        Session::flash('customer_action_error', 'Customer email not found.');
         return redirect()->route('admin.index', ['section' => 'customers']);
     }
 
@@ -515,8 +516,25 @@ if ($action === 'reset_password') {
         'last_password_reset_at'  => now()->toISOString(),
     ]);
 
-    Session::flash('flash_success', 'Password reset email sent.');
+    Session::flash('customer_action_success', 'Password reset email sent.');
     return redirect()->route('admin.index', ['section' => 'customers']);
+}
+
+if ($action === 'purge_expired_pending') {
+    $today = now()->toDateString();
+
+    $response = $this->sb()->delete($this->sbUrl('reservations', [
+        'status'           => 'eq.pending',
+        'reservation_date' => 'lt.' . $today,
+    ]));
+
+    if ($response->successful()) {
+        Session::flash('purge_expired_success', 'Expired pending reservations have been removed.');
+    } else {
+        Session::flash('purge_expired_error', 'Failed to remove expired reservations: ' . $response->body());
+    }
+
+    return redirect()->route('admin.index', ['section' => 'reservations']);
 }
 
 if ($action === 'delete_customer') {
@@ -526,7 +544,7 @@ if ($action === 'delete_customer') {
     $customer = $custRes->successful() ? ($custRes->json()[0] ?? null) : null;
 
     if (!$customer) {
-        Session::flash('flash_error', 'Customer not found.');
+        Session::flash('customer_action_error', 'Customer not found.');
         return redirect()->route('admin.index', ['section' => 'customers']);
     }
 
@@ -534,14 +552,14 @@ if ($action === 'delete_customer') {
     $hasReservations = $resRes->successful() && !empty($resRes->json());
 
     if ($hasReservations) {
-        Session::flash('flash_error', 'This customer cannot be deleted because they have reservation records.');
+        Session::flash('customer_action_error', 'This customer cannot be deleted because they have reservation records.');
         return redirect()->route('admin.index', ['section' => 'customers']);
     }
 
     $this->sb()->delete($this->sbUrl('customer_password_resets', ['customer_id' => 'eq.' . $id]));
     $this->sb()->delete($this->sbUrl('customers', ['id' => 'eq.' . $id]));
 
-    Session::flash('flash_success', 'Customer profile deleted successfully.');
+    Session::flash('customer_action_success', 'Customer profile deleted successfully.');
     return redirect()->route('admin.index', ['section' => 'customers']);
 }
 
@@ -622,7 +640,7 @@ try {
             'Authorization' => 'Bearer ' . $key,
         ])
         ->get($url . '/rest/v1/reservations', [
-            'select' => '*',
+            'select' => '*,reservation_attachments(*)',
             'order' => 'created_at.desc',
         ]);
 
@@ -639,7 +657,7 @@ try {
         $r['email'] = $r['email'] ?? ($details['email'] ?? null);
         $r['phone'] = $r['phone'] ?? ($details['phone'] ?? null);
         $r['notes'] = $r['notes'] ?? ($details['notes'] ?? null);
-        $r['attachments'] = [];
+        $r['attachments'] = $r['reservation_attachments'] ?? [];
 
         return $r;
     }, $reservations);
@@ -699,6 +717,9 @@ unset($customer);
         // Event type filter
         $reservationFilterType = strtolower(trim((string)$request->input('event_type', 'all')));
         if (!in_array($reservationFilterType, ['all','baptism','wedding','funeral'])) $reservationFilterType = 'all';
+
+        $reservationSort = $request->input('sort', 'latest');
+        if (!in_array($reservationSort, ['latest', 'oldest'])) $reservationSort = 'latest';
         if ($reservationFilterType !== 'all') {
             $filteredReservations = array_values(array_filter($filteredReservations, fn($r) =>
                 strtolower($r['event_type'] ?? '') === $reservationFilterType
@@ -714,29 +735,21 @@ unset($customer);
             ));
         }
 
-        $hasActiveFilter = $reservationFilterRange !== 'all' || $reservationFilterType !== 'all' || $cancelFilterActive;
+        $hasActiveFilter = $reservationFilterRange !== 'all' || $reservationFilterType !== 'all' || $cancelFilterActive || $reservationSort !== 'latest';
 
         $grouped         = $this->groupByStatus($reservations);
         $filteredGrouped = $this->groupByStatus($filteredReservations);
 
         $today = date('Y-m-d');
 
-        // Sort pending: soonest upcoming first
-        usort($filteredGrouped['pending'], function ($a, $b) {
-            $da = $a['preferred_date'] ?? $a['reservation_date'] ?? '9999-12-31';
-            $db = $b['preferred_date'] ?? $b['reservation_date'] ?? '9999-12-31';
-            return strcmp($da, $db);
-        });
-
-        // Sort approved: upcoming first, then past (most recent past first)
-        usort($filteredGrouped['approved'], function ($a, $b) use ($today) {
-            $da = $a['preferred_date'] ?? $a['reservation_date'] ?? '9999-12-31';
-            $db = $b['preferred_date'] ?? $b['reservation_date'] ?? '9999-12-31';
-            $aFuture = $da >= $today;
-            $bFuture = $db >= $today;
-            if ($aFuture !== $bFuture) return $aFuture ? -1 : 1; // upcoming before past
-            return $aFuture ? strcmp($da, $db) : strcmp($db, $da); // upcoming: asc; past: desc
-        });
+        // Sort all groups by submission date
+        foreach (['pending', 'approved', 'declined'] as $sk) {
+            usort($filteredGrouped[$sk], function ($a, $b) use ($reservationSort) {
+                $da = $a['created_at'] ?? '';
+                $db = $b['created_at'] ?? '';
+                return $reservationSort === 'oldest' ? strcmp($da, $db) : strcmp($db, $da);
+            });
+        }
 
         $summaryTotals = [
             
@@ -771,6 +784,13 @@ foreach ($reservations as $r) {
 
         $reservationCountSummary = sprintf('%d of %d reservations', $filteredTotals['total'], $summaryTotals['total']);
         $reservationHeaderTotals = $section === 'reservations' ? $filteredTotals : $summaryTotals;
+
+        // ── Priests ────────────────────────────────────────────────────────
+        $priests = [];
+        try {
+            $priestResp = $this->sb()->get($this->sbUrl('priests', ['select' => '*', 'order' => 'name.asc']));
+            if ($priestResp->successful()) $priests = $priestResp->json() ?? [];
+        } catch (\Exception $e) {}
 
         // Schedule
         $today        = new DateTimeImmutable('today');
@@ -843,7 +863,12 @@ foreach ($reservations as $r) {
 
         $scheduleCalendarJson = [];
 
-foreach ($scheduleReservations as $r) {
+        $scheduleCalendarReservations = array_values(array_filter($reservations, function ($r) {
+            $status = strtolower((string)($r['status'] ?? ''));
+            return $status === 'approved' || $status === 'pending';
+        }));
+
+foreach ($scheduleCalendarReservations as $r) {
     $date = $r['preferred_date'] ?? $r['reservation_date'] ?? null;
 
     if (!$date) {
@@ -854,6 +879,50 @@ foreach ($scheduleReservations as $r) {
     $reservationDate = new DateTimeImmutable($dateKey);
     $isDone = $reservationDate < $today;
 
+    $rStatus = strtolower((string)($r['status'] ?? 'pending'));
+    $rDaysUntil = (int) ceil(($reservationDate->getTimestamp() - $today->getTimestamp()) / 86400);
+    $rIsUrgent = $rStatus === 'pending' && $rDaysUntil >= 0 && $rDaysUntil <= 7;
+
+    $rOfficiantId = (int)($r['officiant_id'] ?? 0);
+    $rOfficiantName = '';
+    foreach ($priests as $p) {
+        if ((int)($p['id'] ?? 0) === $rOfficiantId) {
+            $rOfficiantName = ($p['title'] ?? 'Fr.') . ' ' . ($p['name'] ?? '');
+            break;
+        }
+    }
+
+    $rAttachments = collect($r['attachments'] ?? [])->map(function ($a) {
+        $path = $a['file_url'] ?? '';
+        $file = $path ? preg_replace('/^\d+_[a-zA-Z0-9]+_/', '', basename(parse_url($path, PHP_URL_PATH))) : '';
+        return ['label' => $a['label'] ?? 'Attachment', 'file' => $file, 'path' => $path];
+    })->values()->all();
+
+    $rDetails = $r['details'] ?? [];
+    if (is_string($rDetails)) $rDetails = json_decode($rDetails, true) ?? [];
+
+    try {
+        $rDateFormatted = (new DateTimeImmutable((string) $date))->format('M j, Y');
+    } catch (\Exception $e) {
+        $rDateFormatted = (string) $date;
+    }
+
+    $rTimeRaw = trim((string)($r['preferred_time'] ?? $r['reservation_time'] ?? ''));
+    $rTimeFormatted = '—';
+    if ($rTimeRaw !== '') {
+        $tParts = preg_split('/\s*-\s*/', $rTimeRaw);
+        if (count($tParts) >= 2) {
+            $fmtPart = function ($v) {
+                $ts = strtotime(trim($v));
+                return $ts !== false ? date('g:i A', $ts) : trim($v);
+            };
+            $rTimeFormatted = $fmtPart($tParts[0]) . ' – ' . $fmtPart($tParts[1]);
+        } else {
+            $ts = strtotime($rTimeRaw);
+            $rTimeFormatted = $ts !== false ? date('g:i A', $ts) : $rTimeRaw;
+        }
+    }
+
     $scheduleCalendarJson[$dateKey][] = [
         'id' => $r['id'] ?? null,
         'name' => $r['name'] ?? $r['details']['name'] ?? 'No name provided',
@@ -862,8 +931,29 @@ foreach ($scheduleReservations as $r) {
         'eventType' => $r['event_type'] ?? 'Unspecified',
         'time' => $r['preferred_time'] ?? $r['reservation_time'] ?? '—',
         'date' => $dateKey,
-        'status' => strtolower((string)($r['status'] ?? 'pending')),
+        'status' => $rStatus,
         'statusLabel' => $isDone ? 'Done' : 'Upcoming',
+        'detail' => [
+            'id'                => $r['id'] ?? null,
+            'name'              => $r['name'] ?? $r['details']['name'] ?? 'No name provided',
+            'email'             => $r['email'] ?? $r['details']['email'] ?? '',
+            'phone'             => $r['phone'] ?? $r['details']['phone'] ?? '',
+            'status'            => $rStatus,
+            'event_type'        => $r['event_type'] ?? '',
+            'date'              => $rDateFormatted,
+            'date_day'          => $reservationDate->format('l'),
+            'time'              => $rTimeFormatted,
+            'officiant'         => $rOfficiantName,
+            'notes'             => $r['notes'] ?? '',
+            'admin_note'        => $r['admin_note'] ?? '',
+            'is_urgent'         => $rIsUrgent,
+            'is_one_day_before' => $reservationDate <= $today->modify('+1 day'),
+            'created_at'        => $r['created_at'] ?? '',
+            'attachments'       => $rAttachments,
+            'baptism'           => $rDetails['baptism'] ?? null,
+            'wedding'           => $rDetails['wedding'] ?? null,
+            'funeral'           => $rDetails['funeral'] ?? null,
+        ],
     ];
 }
 
@@ -1046,10 +1136,7 @@ Monthly breakdown: {$monthlyBreakdown}";
         // ── Donations (all, for the donations section) ─────────────────────
         $allDonationsRaw = [];
         try {
-            $donResp = \Illuminate\Support\Facades\Http::withHeaders([
-                'apikey'        => config('services.supabase.key'),
-                'Authorization' => 'Bearer ' . config('services.supabase.key'),
-            ])->get(config('services.supabase.url') . '/rest/v1/donations', [
+            $donResp = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
                 'select' => '*',
                 'order'  => 'donation_date.desc,created_at.desc',
             ]);
@@ -1122,13 +1209,6 @@ Monthly breakdown: {$monthlyBreakdown}";
             ];
         }
 
-        // ── Priests ────────────────────────────────────────────────────────
-        $priests = [];
-        try {
-            $priestResp = $this->sb()->get($this->sbUrl('priests', ['select' => '*', 'order' => 'name.asc']));
-            if ($priestResp->successful()) $priests = $priestResp->json() ?? [];
-        } catch (\Exception $e) {}
-
         // Officiant workload: count approved reservations per priest
         $officiantWorkload = [];
         foreach ($priests as $p) {
@@ -1196,7 +1276,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'summaryTotals', 'filteredTotals',
             'reservationCountSummary', 'reservationHeaderTotals',
             'reservationFilterRange', 'reservationFilterDate', 'reservationFilterType',
-            'reservationFilterDesc', 'hasActiveFilter',
+            'reservationFilterDesc', 'hasActiveFilter', 'reservationSort',
             'cancelFilterActive', 'cancelRequestCount',
             'announcements', 'announcementCount', 'visibleAnnouncementCount',
             'recentReservations', 'recentAnnouncements',
@@ -1237,10 +1317,7 @@ Monthly breakdown: {$monthlyBreakdown}";
         ]);
 
         // DUPLICATE ENTRY CHECK: same donor + same amount + same date
-        $dupCheck = \Illuminate\Support\Facades\Http::withHeaders([
-            'apikey'        => config('services.supabase.key'),
-            'Authorization' => 'Bearer ' . config('services.supabase.key'),
-        ])->get(config('services.supabase.url') . '/rest/v1/donations', [
+        $dupCheck = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
             'select'        => 'id,receipt_number',
             'donor_name'    => 'eq.' . $validated['donor_name'],
             'amount'        => 'eq.' . $validated['amount'],
@@ -1251,17 +1328,14 @@ Monthly breakdown: {$monthlyBreakdown}";
         if ($dupCheck->successful() && !empty($dupCheck->json())) {
             $existing = $dupCheck->json()[0];
             $receipt  = $existing['receipt_number'] ?? 'unknown';
-            Session::flash('flash_error',
+            Session::flash('donation_action_error',
                 "A donation from \"{$validated['donor_name']}\" for the same amount on this date already exists (Receipt #{$receipt}). Please verify before saving again.");
             return redirect()->route('admin.index', ['section' => 'donations']);
         }
 
         // Auto-generate receipt number: RCP-{YEAR}-{sequential}
         $year = (int) substr($validated['donation_date'], 0, 4);
-        $countResp = \Illuminate\Support\Facades\Http::withHeaders([
-            'apikey'        => config('services.supabase.key'),
-            'Authorization' => 'Bearer ' . config('services.supabase.key'),
-        ])->get(config('services.supabase.url') . '/rest/v1/donations', [
+        $countResp = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
             'select'        => 'id',
             'donation_date' => 'gte.' . $year . '-01-01',
             'donation_date' => 'lte.' . $year . '-12-31',
@@ -1269,18 +1343,16 @@ Monthly breakdown: {$monthlyBreakdown}";
         $countSoFar = ($countResp->successful()) ? count($countResp->json() ?? []) : 0;
         $validated['receipt_number'] = 'RCP-' . $year . '-' . str_pad($countSoFar + 1, 4, '0', STR_PAD_LEFT);
 
-        $response = \Illuminate\Support\Facades\Http::withHeaders([
-            'apikey'        => config('services.supabase.key'),
-            'Authorization' => 'Bearer ' . config('services.supabase.key'),
-            'Content-Type'  => 'application/json',
-            'Prefer'        => 'return=minimal',
-        ])->post(config('services.supabase.url') . '/rest/v1/donations', $validated);
+        $response = $this->sb()->withHeaders(['Prefer' => 'return=minimal'])
+            ->post(config('services.supabase.url') . '/rest/v1/donations', $validated);
 
         if ($response->failed()) {
-            return back()->withErrors(['donation' => 'Failed to save donation: ' . $response->body()]);
+            Session::flash('donation_action_error', 'Failed to save donation: ' . $response->body());
+            return redirect()->route('admin.index', ['section' => 'donations']);
         }
 
-        return redirect()->route('admin.index', ['section' => 'donations'])->with('success', 'Donation recorded. Receipt #' . $validated['receipt_number']);
+        return redirect()->route('admin.index', ['section' => 'donations'])
+            ->with('donation_action_success', 'Donation recorded. Receipt #' . $validated['receipt_number']);
     }
 
     public function deleteDonation(string $id)
@@ -1289,12 +1361,10 @@ Monthly breakdown: {$monthlyBreakdown}";
             return redirect()->route('admin.index');
         }
 
-        \Illuminate\Support\Facades\Http::withHeaders([
-            'apikey'        => config('services.supabase.key'),
-            'Authorization' => 'Bearer ' . config('services.supabase.key'),
-        ])->delete(config('services.supabase.url') . '/rest/v1/donations?id=eq.' . $id);
+        $this->sb()->delete(config('services.supabase.url') . '/rest/v1/donations?id=eq.' . $id);
 
-        return redirect()->route('admin.index', ['section' => 'donations'])->with('success', 'Donation record deleted.');
+        return redirect()->route('admin.index', ['section' => 'donations'])
+            ->with('donation_action_success', 'Donation record deleted.');
     }
 
     // ── Private helpers ───────────────────────────────────────────────
@@ -1334,7 +1404,7 @@ Monthly breakdown: {$monthlyBreakdown}";
                 ->post($this->sbUrl('event_attendance'), $payload);
         }
 
-        return redirect()->route('admin.index', ['section' => 'reports'])->with('success', 'Attendance logged successfully.');
+        return redirect()->route('admin.index', ['section' => 'reports'])->with('attendance_action_success', 'Attendance logged successfully.');
     }
 
     public function storePriest(Request $request)
@@ -1353,7 +1423,7 @@ Monthly breakdown: {$monthlyBreakdown}";
                 'active'     => true,
                 'created_at' => now()->toISOString(),
             ]);
-        Session::flash($resp->successful() ? 'flash_success' : 'flash_error',
+        Session::flash($resp->successful() ? 'priest_action_success' : 'priest_action_error',
             $resp->successful() ? 'Priest added to the roster.' : 'Failed to add priest: ' . $resp->body());
         return redirect()->route('admin.index', ['section' => 'reports', 'show_priest_manager' => '1']);
     }
@@ -1364,7 +1434,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             return redirect()->route('admin.index')->with('flash_error', 'Unauthorized.');
         }
         $resp = $this->sb()->delete($this->sbUrl('priests', ['id' => 'eq.' . (int)$id]));
-        Session::flash($resp->successful() ? 'flash_success' : 'flash_error',
+        Session::flash($resp->successful() ? 'priest_action_success' : 'priest_action_error',
             $resp->successful() ? 'Priest removed from the roster.' : 'Failed to remove priest.');
         return redirect()->route('admin.index', ['section' => 'reports', 'show_priest_manager' => '1']);
     }
@@ -1425,8 +1495,11 @@ Monthly breakdown: {$monthlyBreakdown}";
                 'officiant_id' => $officiantId ? (int)$officiantId : null,
                 'updated_at'   => now()->toISOString(),
             ]);
-        Session::flash($resp->successful() ? 'flash_success' : 'flash_error',
-            $resp->successful() ? 'Officiant assigned successfully.' : 'Failed to assign officiant: ' . $resp->body());
+        if ($resp->successful()) {
+            Session::flash($officiantId ? 'offi_assigned' : 'offi_removed', true);
+        } else {
+            Session::flash('flash_error', 'Failed to assign officiant: ' . $resp->body());
+        }
         return redirect()->route('admin.index', ['section' => 'reservations']);
     }
 
@@ -1442,7 +1515,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'reservationCountSummary' => '0 reservations',
             'reservationHeaderTotals' => $zero,
             'reservationFilterRange' => 'all', 'reservationFilterDate' => null, 'reservationFilterType' => 'all',
-            'reservationFilterDesc' => 'Showing all reservations.', 'hasActiveFilter' => false,
+            'reservationFilterDesc' => 'Showing all reservations.', 'hasActiveFilter' => false, 'reservationSort' => 'latest',
             'cancelFilterActive' => false, 'cancelRequestCount' => 0,
             'announcements' => [], 'announcementCount' => 0, 'visibleAnnouncementCount' => 0,
             'recentReservations' => [], 'recentAnnouncements' => [],

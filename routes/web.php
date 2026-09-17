@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ReservationWebhookController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ContactController;
@@ -44,6 +45,9 @@ Route::post('/reservation', [ReservationController::class, 'store'])
 
 Route::get('/reservation_view/{id}', [ReservationController::class, 'show'])
     ->name('reservation.view');
+
+Route::post('/webhooks/supabase/reservation-submitted', [ReservationWebhookController::class, 'notify'])
+    ->name('webhooks.reservation-submitted');
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
     ->name('password.request');

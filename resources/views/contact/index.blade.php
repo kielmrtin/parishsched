@@ -37,7 +37,7 @@
         /* ---- HERO BANNER ---- */
         .contact-hero {
             position: relative;
-            background: url('{{ asset('img/banner/bradcam3.jpg') }}') center center / cover no-repeat;
+            background: url('{{ asset('img/banner/inquire.png') }}') center 65% / cover no-repeat;
             overflow: hidden;
             padding: 80px 24px 96px;
             text-align: center;
@@ -217,8 +217,8 @@
         }
 
         .contact_form .form-control:focus {
-            border-color: #2e69ff;
-            box-shadow: 0 0 0 0.2rem rgba(46, 105, 255, 0.12);
+            border-color: #dc2626;
+            box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.12);
         }
 
         .contact-highlight-grid {
@@ -293,6 +293,37 @@
                 padding: 1.8rem;
             }
         }
+
+        /* Dark modal alert (matches the login/register confirmation modal) */
+        .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+        .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
+        @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+        .ps-cross{width:18px;height:18px;flex-shrink:0}
+        .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
+        .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+        .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em;white-space:nowrap}
+        .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+        .ps-glow{position:absolute;width:280px;height:280px;top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite}
+        @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+        .ps-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-float 4s ease-in infinite;opacity:0}
+        @keyframes ps-float{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.45}100%{opacity:0;transform:translateY(-200px) scale(1.1)}}
+        .ps-hdr-particle{position:absolute;border-radius:50%;pointer-events:none;animation:ps-hfloat 4s ease-in infinite;opacity:0}
+        @keyframes ps-hfloat{0%{opacity:0;transform:translateY(0) scale(0)}15%{opacity:.6}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
+        .ps-icon{position:relative;width:82px;height:82px;margin-bottom:24px;z-index:2}
+        .ps-ring{position:absolute;inset:-5px;border-radius:50%;animation:ps-spin 3s linear infinite}
+        @keyframes ps-spin{to{transform:rotate(360deg)}}
+        .ps-inner{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:ps-ipop .5s .15s cubic-bezier(.34,1.56,.64,1) both;backdrop-filter:blur(8px)}
+        @keyframes ps-ipop{from{transform:scale(0)}to{transform:scale(1)}}
+        .ps-inner svg{width:38px;height:38px}
+        .ps-warn{stroke-width:2.6;stroke-linecap:round;fill:none;stroke-dasharray:80;stroke-dashoffset:80;animation:ps-draw .6s .45s ease forwards}
+        @keyframes ps-draw{to{stroke-dashoffset:0}}
+        .ps-title{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:9px;z-index:2;animation:ps-up .4s .5s both}
+        .ps-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:26px;z-index:2;animation:ps-up .4s .6s both}
+        @keyframes ps-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
+        .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
+        .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
     </style>
 </head>
 
@@ -354,14 +385,6 @@
                         <button type="submit" class="boxed-btn3">
                             <i class="fa fa-send"></i> Send Message
                         </button>
-
-                        <div id="contact-success" class="alert alert-success mt-4 d-none" role="alert" tabindex="-1">
-                            Thank you for reaching out! Our parish staff will respond as soon as possible.
-                        </div>
-
-                        <div id="contact-error" class="alert alert-danger mt-4 d-none" role="alert" tabindex="-1">
-                            We could not send your message. Please try again later or contact us by phone.
-                        </div>
                     </form>
                 </div>
 
@@ -455,17 +478,79 @@
 <script src="{{ asset('js/main.js') }}"></script>
 
 <script>
+function showContactAlert(type, title, text) {
+    const cfg = {
+        success: { glow: 'rgba(34,197,94,.13)', ring: 'rgba(34,197,94,.5),rgba(134,239,172,.3)', inner: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.3)', stroke: '#4ade80', b: ['#4ade8066','#4ade8059','rgba(255,255,255,.18)'], h: ['rgba(255,255,255,.25)','#4ade8066','#4ade804d'] },
+        error:   { glow: 'rgba(220,38,38,.13)', ring: 'rgba(220,38,38,.5),rgba(252,165,165,.3)', inner: 'rgba(220,38,38,.1)', border: 'rgba(220,38,38,.3)', stroke: '#f87171', b: ['#f8717166','#f8717159','rgba(255,255,255,.18)'], h: ['rgba(255,255,255,.25)','#f8717166','#f871714d'] },
+    };
+    const nc = cfg[type] || cfg.error;
+
+    document.getElementById('contact-ps-overlay')?.remove();
+
+    const iconSvg = type === 'success'
+        ? `<polyline class="ps-warn" style="stroke:${nc.stroke};fill:none" points="10,22 18,30 32,14"/>`
+        : `<line class="ps-warn" style="stroke:${nc.stroke}" x1="13" y1="13" x2="29" y2="29"/><line class="ps-warn" style="stroke:${nc.stroke}" x1="29" y1="13" x2="13" y2="29"/>`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ps-overlay';
+    overlay.id = 'contact-ps-overlay';
+    overlay.innerHTML = `
+        <div class="ps-modal">
+            <div class="ps-hdr" id="contact-ps-hdr">
+                <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+                <span class="ps-parish">St. John the Baptist Parish</span>
+                <span class="ps-dot"></span>
+                <span class="ps-loc">Tiaong, Quezon</span>
+            </div>
+            <div class="ps-body" id="contact-ps-body">
+                <div class="ps-glow" style="background:radial-gradient(circle,${nc.glow} 0%,transparent 70%)"></div>
+                <div class="ps-icon">
+                    <div class="ps-ring" style="background:conic-gradient(${nc.ring},transparent 58%)"></div>
+                    <div class="ps-inner" style="background:${nc.inner};border:1.5px solid ${nc.border}">
+                        <svg viewBox="0 0 42 42">${iconSvg}</svg>
+                    </div>
+                </div>
+                <h2 class="ps-title">${title}</h2>
+                <p class="ps-sub">${text}</p>
+                <div class="ps-btns">
+                    <button type="button" class="ps-btn-solo" style="box-shadow:none">OK</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function spawnDots(el, cols, count, cls) {
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            const s = Math.random() * 6 + 4;
+            p.className = cls;
+            p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+            el.appendChild(p);
+        }
+    }
+    spawnDots(document.getElementById('contact-ps-hdr'), nc.h, 10, 'ps-hdr-particle');
+    spawnDots(document.getElementById('contact-ps-body'), nc.b, 20, 'ps-particle');
+
+    overlay.querySelector('.ps-btn-solo').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+}
+
 (function ($) {
     'use strict';
 
     $(document).ready(function () {
         const form = $('#contact-form');
-        const success = $('#contact-success');
-        const error = $('#contact-error');
 
         if (!form.length) {
             return;
         }
+
+        // The shared theme bundle's ajax-form.js also binds a submit handler
+        // to this same form id, which double-submits the message and clears
+        // the fields before this handler's dark modal alert can show — drop
+        // it so only this page's own handler (below) runs.
+        form.off('submit');
 
         const submitButton = form.find('button[type="submit"]');
         const originalButtonHtml = submitButton.html();
@@ -479,9 +564,6 @@
                 formElement.reportValidity();
                 return;
             }
-
-            success.addClass('d-none');
-            error.addClass('d-none');
 
             submitButton
                 .prop('disabled', true)
@@ -499,16 +581,9 @@
             .done(function (response) {
                 if (response && response.success) {
                     formElement.reset();
-
-                    success
-                        .text(response.message || 'Thank you for reaching out! Our parish staff will respond as soon as possible.')
-                        .removeClass('d-none')
-                        .focus();
+                    showContactAlert('success', 'Message Sent', response.message || 'Thank you for reaching out! Our parish staff will respond as soon as possible.');
                 } else {
-                    error
-                        .text(response.message || 'An unexpected error occurred. Please try again later.')
-                        .removeClass('d-none')
-                        .focus();
+                    showContactAlert('error', 'Error', response.message || 'An unexpected error occurred. Please try again later.');
                 }
             })
             .fail(function (jqXHR) {
@@ -518,7 +593,7 @@
                     message = jqXHR.responseJSON.message;
                 }
 
-                error.text(message).removeClass('d-none').focus();
+                showContactAlert('error', 'Error', message);
             })
             .always(function () {
                 submitButton.prop('disabled', false).html(originalButtonHtml);

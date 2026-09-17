@@ -1,6 +1,6 @@
 .schedule_intro {
     position: relative;
-    background: url('/img/banner/schedule-hero.jpg') center center / cover no-repeat;
+    background: url('/img/banner/sched_main.png') center 35% / cover no-repeat;
     color: #ffffff;
     overflow: hidden;
     padding: 120px 0 80px;
@@ -153,13 +153,16 @@
     border: none;
     background: transparent;
     color: #4a5568;
+    min-height: 48px;
     padding: 10px 20px;
     border-radius: 999px;
     font-weight: 600;
     font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    white-space: nowrap;
     transition: all .25s ease;
     cursor: pointer;
 }
@@ -167,6 +170,7 @@
 .filter_btn .filter_icon {
     width: 28px;
     height: 28px;
+    min-width: 28px;
     border-radius: 50%;
     background: rgba(220,38,38,.1);
     display: flex;
@@ -175,6 +179,19 @@
     color: #dc2626;
     font-size: 0.8rem;
     transition: all .25s ease;
+}
+
+.filter_btn[data-filter="wedding"] .filter_icon {
+    background: rgba(242,109,155,.16);
+    color: #a03060;
+}
+.filter_btn[data-filter="baptism"] .filter_icon {
+    background: rgba(22,163,74,.15);
+    color: #15803d;
+}
+.filter_btn[data-filter="funeral"] .filter_icon {
+    background: rgba(100,116,139,.14);
+    color: #475569;
 }
 
 .filter_btn:hover {

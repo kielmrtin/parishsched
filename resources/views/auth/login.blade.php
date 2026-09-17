@@ -264,25 +264,55 @@
         .auth-remember {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-family: 'Raleway', sans-serif;
             font-size: .8rem;
             color: #64748b;
             cursor: pointer;
             user-select: none;
+            line-height: 1;
         }
 
-        .auth-remember input { accent-color: #dc2626; }
+        .auth-remember input[type="checkbox"] {
+            accent-color: #3b82f6;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin: 0;
+            vertical-align: middle;
+        }
+
+        .auth-remember input[type="checkbox"]:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
 
         .auth-forgot {
             font-family: 'Raleway', sans-serif;
             font-size: .8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #dc2626;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: background .15s, color .15s;
         }
-
-        .auth-forgot:hover { text-decoration: underline; color: #b91c1c; }
+        .auth-forgot::after {
+            content: '→';
+            font-size: .75rem;
+            transition: transform .15s;
+            display: inline-block;
+        }
+        .auth-forgot:hover {
+            background: rgba(220,38,38,.08);
+            color: #b91c1c;
+            text-decoration: none;
+        }
+        .auth-forgot:hover::after { transform: translateX(3px); }
 
         .auth-submit {
             display: block;
@@ -324,9 +354,9 @@
     @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
     .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
     .ps-cross{width:18px;height:18px;flex-shrink:0}
-    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+    .ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
     .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
-    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
+    .ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em;white-space:nowrap}
     .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
     .ps-glow{position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(245,158,11,.13) 0%,transparent 70%);top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite}
     @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
@@ -346,45 +376,61 @@
     .ps-sub{font-size:.86rem;color:rgba(255,255,255,.45);line-height:1.68;max-width:270px;margin-bottom:26px;z-index:2;animation:ps-up .4s .6s both}
     @keyframes ps-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
-    .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#009DFF;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
-    .ps-btn-solo:hover{background:#0088e0;transform:translateY(-1px)}
+    .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
+    .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
     </style>
 </head>
 
 <body class="auth-body">
 @if(session('auth_notification'))
-@php $notif = session('auth_notification'); @endphp
+@php
+  $notif  = session('auth_notification');
+  $nType  = $notif['icon'] ?? 'warning';
+  $nCfg   = [
+    'success' => ['glow'=>'rgba(34,197,94,.13)',  'ring'=>'rgba(34,197,94,.5),rgba(134,239,172,.3)',   'inner'=>'rgba(34,197,94,.1)',  'border'=>'rgba(34,197,94,.3)',  'stroke'=>'#4ade80', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#4ade8066','h3'=>'#4ade804d','b1'=>'#4ade8066','b2'=>'#4ade8059','b3'=>'rgba(255,255,255,.18)'],
+    'error'   => ['glow'=>'rgba(220,38,38,.13)',  'ring'=>'rgba(220,38,38,.5),rgba(252,165,165,.3)',   'inner'=>'rgba(220,38,38,.1)',  'border'=>'rgba(220,38,38,.3)',  'stroke'=>'#f87171', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#f8717166','h3'=>'#f871714d','b1'=>'#f8717166','b2'=>'#f8717159','b3'=>'rgba(255,255,255,.18)'],
+    'warning' => ['glow'=>'rgba(245,158,11,.13)', 'ring'=>'rgba(245,158,11,.5),rgba(253,211,100,.3)', 'inner'=>'rgba(245,158,11,.1)', 'border'=>'rgba(245,158,11,.3)', 'stroke'=>'#fbbf24', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#fbbf2466','h3'=>'#fbbf244d','b1'=>'#fbbf2466','b2'=>'#fbbf2459','b3'=>'rgba(255,255,255,.18)'],
+  ];
+  $nc = $nCfg[$nType] ?? $nCfg['warning'];
+@endphp
 <div class="ps-overlay" id="ps-overlay">
   <div class="ps-modal">
     <div class="ps-hdr" id="ps-hdr-lr">
-      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
       <span class="ps-parish">St. John the Baptist Parish</span>
       <span class="ps-dot"></span>
       <span class="ps-loc">Tiaong, Quezon</span>
     </div>
     <div class="ps-body" id="ps-body-lr">
-      <div class="ps-glow"></div>
+      <div class="ps-glow" style="background:radial-gradient(circle,{{ $nc['glow'] }} 0%,transparent 70%)"></div>
       <div class="ps-icon">
-        <div class="ps-ring"></div>
-        <div class="ps-inner">
+        <div class="ps-ring" style="background:conic-gradient({{ $nc['ring'] }},transparent 58%)"></div>
+        <div class="ps-inner" style="background:{{ $nc['inner'] }};border:1.5px solid {{ $nc['border'] }}">
           <svg viewBox="0 0 42 42">
-            <line class="ps-warn" x1="21" y1="10" x2="21" y2="24"/>
-            <circle class="ps-warn" cx="21" cy="31" r="1.5" fill="#fbbf24" stroke="none" style="animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:0;animation:ps-up .3s .9s both"/>
+            @if($nType === 'success')
+              <polyline class="ps-warn" style="stroke:{{ $nc['stroke'] }};fill:none" points="10,22 18,30 32,14"/>
+            @elseif($nType === 'error')
+              <line class="ps-warn" style="stroke:{{ $nc['stroke'] }}" x1="13" y1="13" x2="29" y2="29"/>
+              <line class="ps-warn" style="stroke:{{ $nc['stroke'] }}" x1="29" y1="13" x2="13" y2="29"/>
+            @else
+              <line class="ps-warn" x1="21" y1="10" x2="21" y2="24"/>
+              <circle class="ps-warn" cx="21" cy="31" r="1.5" fill="#fbbf24" stroke="none" style="animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:0;animation:ps-up .3s .9s both"/>
+            @endif
           </svg>
         </div>
       </div>
       <h2 class="ps-title">{{ $notif['title'] }}</h2>
       <p class="ps-sub">{{ $notif['text'] }}</p>
       <div class="ps-btns">
-        <button class="ps-btn-solo" onclick="document.getElementById('ps-overlay').remove()">OK</button>
+        <button class="ps-btn-solo" style="box-shadow:none" onclick="document.getElementById('ps-overlay').remove()">OK</button>
       </div>
     </div>
   </div>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const colors = ['rgba(245,158,11,.4)','rgba(253,211,100,.35)','rgba(255,255,255,.18)'];
-  const hColors = ['rgba(255,255,255,.25)','rgba(245,158,11,.4)','rgba(253,211,100,.3)'];
+  const colors  = ['{{ $nc['b1'] }}','{{ $nc['b2'] }}','{{ $nc['b3'] }}'];
+  const hColors = ['{{ $nc['h1'] }}','{{ $nc['h2'] }}','{{ $nc['h3'] }}'];
   function spawnDots(el, cols, count, cls) {
     for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
@@ -401,6 +447,50 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+@endif
+
+@if(request()->query('reset_token'))
+<div class="ps-overlay" id="ps-reset-overlay">
+  <div class="ps-modal" style="max-width:400px">
+    <div class="ps-hdr">
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span class="ps-parish">St. John the Baptist Parish</span>
+      <span class="ps-dot"></span>
+      <span class="ps-loc">Tiaong, Quezon</span>
+    </div>
+    <div style="padding:32px 28px 28px;background:#fff;border-bottom-left-radius:22px;border-bottom-right-radius:22px">
+      <h2 style="font-size:1.25rem;font-weight:900;color:#0f172a;letter-spacing:-.02em;margin:0 0 6px">Set New Password</h2>
+      <p style="font-size:.82rem;color:#94a3b8;margin:0 0 22px;line-height:1.6">Enter and confirm your new password below.</p>
+      <form method="POST" action="{{ route('password.update') }}">
+        @csrf
+        <input type="hidden" name="token" value="{{ request()->query('reset_token') }}">
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:7px">New Password</label>
+          <div style="position:relative">
+            <i class="fa fa-lock" style="position:absolute;top:50%;left:13px;transform:translateY(-50%);color:#cbd5e1;font-size:.85rem;pointer-events:none"></i>
+            <input type="password" name="password" required minlength="8" placeholder="Min. 8 characters"
+              style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;color:#0f172a;font-size:.88rem;font-family:'Raleway',system-ui,sans-serif;outline:none;transition:border-color .2s,box-shadow .2s"
+              onfocus="this.style.borderColor='#dc2626';this.style.boxShadow='0 0 0 3px rgba(220,38,38,.1)'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+          </div>
+        </div>
+        <div style="margin-bottom:22px">
+          <label style="display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:7px">Confirm Password</label>
+          <div style="position:relative">
+            <i class="fa fa-lock" style="position:absolute;top:50%;left:13px;transform:translateY(-50%);color:#cbd5e1;font-size:.85rem;pointer-events:none"></i>
+            <input type="password" name="confirm_password" required minlength="8" placeholder="Repeat password"
+              style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;color:#0f172a;font-size:.88rem;font-family:'Raleway',system-ui,sans-serif;outline:none;transition:border-color .2s,box-shadow .2s"
+              onfocus="this.style.borderColor='#dc2626';this.style.boxShadow='0 0 0 3px rgba(220,38,38,.1)'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+          </div>
+        </div>
+        <button type="submit"
+          style="width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;transition:background .15s"
+          onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+          Update Password
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 @endif
 
     @include('partials.header')

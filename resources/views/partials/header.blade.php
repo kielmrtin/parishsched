@@ -1,4 +1,8 @@
 <header>
+    <style>
+        .home-header .myres-icon-btn { color:#fff !important; border-color:#fff !important; }
+        .home-header .myres-icon-btn:hover { background:rgba(255,255,255,.15) !important; }
+    </style>
     <div class="header-area {{ request()->is('/') || request()->is('about') ? 'home-header' : '' }} {{ request()->is('login') || request()->is('register') ? 'auth-header' : '' }}">
         <div id="sticky-header" class="main-header-area">
             <div class="container-fluid p-0">
@@ -68,7 +72,7 @@
                 Reserve Now
             </a>
 
-            <a href="{{ route('reservation.my') }}" title="My Reservations" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:2px solid #dc2626;border-radius:6px;color:#dc2626;font-size:1rem;margin-left:8px;text-decoration:none;transition:background .2s,color .2s;" onmouseover="this.style.background='#dc2626';this.style.color='#fff';" onmouseout="this.style.background='transparent';this.style.color='#dc2626';">
+            <a href="{{ route('reservation.my') }}" title="My Reservations" class="myres-icon-btn" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:2px solid #dc2626;border-radius:6px;color:#dc2626;font-size:1rem;margin-left:8px;text-decoration:none;transition:background .2s,color .2s;" onmouseover="this.style.background='rgba(220,38,38,.1)';" onmouseout="this.style.background='transparent';">
                 <i class="fa fa-calendar-check-o"></i>
             </a>
         </div>

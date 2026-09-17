@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l *)",
+      "Bash(node --check *)",
+      "Bash(php artisan serve *)",
+      "Bash(lsof -ti:8123 -sTCP:LISTEN 2>/dev/null | xargs -r kill; echo stopped)",
+      "Bash(lsof -ti:*)",
+      "Bash(node /tmp/claude-1000/-home-snoopi-church-web/*)",
+      "Bash(curl *)",
+      "Bash(python3 -m http.server *)",
+      "Bash(pkill -f *)"
+    ]
+  }
+}

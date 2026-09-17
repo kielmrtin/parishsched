@@ -30,9 +30,9 @@
 @keyframes ps-pop{from{opacity:0;transform:scale(.88) translateY(28px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .ps-hdr{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 24px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
 .ps-cross{width:18px;height:18px;flex-shrink:0}
-.ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.ps-parish{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
 .ps-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
-.ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em}
+.ps-loc{font-size:.68rem;color:rgba(255,255,255,.32);letter-spacing:.04em;white-space:nowrap}
 .ps-body{padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
 .ps-glow{position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(220,38,38,.13) 0%,transparent 70%);top:-70px;left:50%;transform:translateX(-50%);pointer-events:none;animation:ps-pulse 3s ease-in-out infinite}
 @keyframes ps-pulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
@@ -64,21 +64,37 @@
 
 <body>
 @if(session('auth_notification'))
-@php $notif = session('auth_notification'); $isLogin = str_contains($notif['title'] ?? '', 'Login'); @endphp
+@php
+  $notif  = session('auth_notification');
+  $isLogin = str_contains($notif['title'] ?? '', 'Login');
+  $nType  = $notif['icon'] ?? 'error';
+  $nCfg   = [
+    'success' => ['glow'=>'rgba(34,197,94,.13)',  'ring'=>'rgba(34,197,94,.5),rgba(134,239,172,.3)',  'inner'=>'rgba(34,197,94,.1)',  'border'=>'rgba(34,197,94,.3)',  'stroke'=>'#4ade80', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#4ade8066','h3'=>'#4ade804d','b1'=>'#4ade8066','b2'=>'#4ade8059','b3'=>'rgba(255,255,255,.18)'],
+    'error'   => ['glow'=>'rgba(220,38,38,.13)',  'ring'=>'rgba(220,38,38,.5),rgba(252,165,165,.3)',  'inner'=>'rgba(220,38,38,.1)',  'border'=>'rgba(220,38,38,.3)',  'stroke'=>'#f87171', 'h1'=>'rgba(255,255,255,.25)','h2'=>'#f8717166','h3'=>'#f871714d','b1'=>'#f8717166','b2'=>'#f8717159','b3'=>'rgba(255,255,255,.18)'],
+  ];
+  $nc = $nCfg[$nType] ?? $nCfg['error'];
+@endphp
 <div class="ps-overlay" id="ps-overlay">
   <div class="ps-modal">
     <div class="ps-hdr" id="ps-hdr">
-      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
       <span class="ps-parish">St. John the Baptist Parish</span>
       <span class="ps-dot"></span>
       <span class="ps-loc">Tiaong, Quezon</span>
     </div>
     <div class="ps-body" id="ps-body">
-      <div class="ps-glow"></div>
+      <div class="ps-glow" style="background:radial-gradient(circle,{{ $nc['glow'] }} 0%,transparent 70%)"></div>
       <div class="ps-icon">
-        <div class="ps-ring"></div>
-        <div class="ps-inner">
-          <svg viewBox="0 0 42 42"><polyline class="ps-chk" points="9,22 17,30 33,12"/></svg>
+        <div class="ps-ring" style="background:conic-gradient({{ $nc['ring'] }},transparent 58%)"></div>
+        <div class="ps-inner" style="background:{{ $nc['inner'] }};border:1.5px solid {{ $nc['border'] }}">
+          <svg viewBox="0 0 42 42">
+            @if($nType === 'success')
+              <polyline class="ps-chk" style="stroke:{{ $nc['stroke'] }}" points="9,22 17,30 33,12"/>
+            @else
+              <line class="ps-chk" style="stroke:{{ $nc['stroke'] }}" x1="13" y1="13" x2="29" y2="29"/>
+              <line class="ps-chk" style="stroke:{{ $nc['stroke'] }}" x1="29" y1="13" x2="13" y2="29"/>
+            @endif
+          </svg>
         </div>
       </div>
       <h2 class="ps-title">{{ $notif['title'] }}</h2>
@@ -99,8 +115,8 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const colors = ['#dc2626','#fca5a5','rgba(255,255,255,.2)','rgba(34,197,94,.4)'];
-  const hColors = ['rgba(255,255,255,.25)','#fca5a5','#dc2626'];
+  const colors = ['{{ $nc['b1'] }}','{{ $nc['b2'] }}','{{ $nc['b3'] }}'];
+  const hColors = ['{{ $nc['h1'] }}','{{ $nc['h2'] }}','{{ $nc['h3'] }}'];
   function spawnDots(el, cols, count) {
     for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
