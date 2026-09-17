@@ -1959,6 +1959,71 @@ function adminStatusBadge(string $status): string {
     </script>
     @endif
 
+    @if(session('status_update_success') || session('status_update_error'))
+    @php
+        $statusIsError = (bool) session('status_update_error');
+        $statusTitle   = $statusIsError ? 'Update Failed' : 'Reservation Updated';
+        $statusText    = session($statusIsError ? 'status_update_error' : 'status_update_success');
+        $statusGlow    = $statusIsError ? 'rgba(220,38,38,.13)' : 'rgba(34,197,94,.13)';
+        $statusRing    = $statusIsError ? 'rgba(220,38,38,.5),rgba(252,165,165,.3)' : 'rgba(34,197,94,.5),rgba(134,239,172,.3)';
+        $statusInner   = $statusIsError ? 'rgba(220,38,38,.1)' : 'rgba(34,197,94,.1)';
+        $statusBorder  = $statusIsError ? 'rgba(220,38,38,.3)' : 'rgba(34,197,94,.3)';
+        $statusStroke  = $statusIsError ? '#f87171' : '#4ade80';
+    @endphp
+    <div class="ps-overlay" id="ps-overlay-status">
+        <div class="ps-modal">
+            <div class="ps-hdr" id="ps-hdr-status">
+                <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+                <span class="ps-parish">St. John the Baptist Parish</span>
+                <span class="ps-dot"></span>
+                <span class="ps-loc">Tiaong, Quezon</span>
+            </div>
+            <div class="ps-body" id="ps-body-status">
+                <div class="ps-glow" style="background:radial-gradient(circle,{{ $statusGlow }} 0%,transparent 70%)"></div>
+                <div class="ps-icon">
+                    <div class="ps-ring" style="background:conic-gradient({{ $statusRing }},transparent 58%)"></div>
+                    <div class="ps-inner" style="background:{{ $statusInner }};border:1.5px solid {{ $statusBorder }}">
+                        <svg viewBox="0 0 42 42">
+                            @if($statusIsError)
+                                <line class="ps-warn" style="stroke:{{ $statusStroke }}" x1="13" y1="13" x2="29" y2="29"/>
+                                <line class="ps-warn" style="stroke:{{ $statusStroke }}" x1="29" y1="13" x2="13" y2="29"/>
+                            @else
+                                <polyline class="ps-warn" style="stroke:{{ $statusStroke }};fill:none" points="10,22 18,30 32,14"/>
+                            @endif
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="ps-title">{{ $statusTitle }}</h2>
+                <p class="ps-sub">{{ $statusText }}</p>
+                <div class="ps-btns">
+                    <button type="button" class="ps-btn-solo" onclick="document.getElementById('ps-overlay-status').remove()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const colors  = ['{{ $statusIsError ? "#f8717166" : "#4ade8066" }}','{{ $statusIsError ? "#f8717159" : "#4ade8059" }}','rgba(255,255,255,.18)'];
+        const hColors = ['rgba(255,255,255,.25)','{{ $statusIsError ? "#f8717166" : "#4ade8066" }}','{{ $statusIsError ? "#f871714d" : "#4ade804d" }}'];
+        function spawnDots(el, cols, count, cls) {
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                const s = Math.random()*6+4;
+                p.className = cls;
+                p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+                el.appendChild(p);
+            }
+        }
+        const hdr = document.getElementById('ps-hdr-status');
+        const bdy = document.getElementById('ps-body-status');
+        if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
+        if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
+        const overlay = document.getElementById('ps-overlay-status');
+        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+    });
+    </script>
+    @endif
+
     <main class="admin-main">
         <header class="main-header">
             <div>

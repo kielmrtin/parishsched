@@ -110,7 +110,7 @@ class AdminController extends Controller
                 if ($reservation) {
                     // Require an officiant before approving
                     if ($status === 'approved' && empty($reservation['officiant_id'])) {
-                        Session::flash('flash_error', 'Please assign a priest before approving this reservation.');
+                        Session::flash('status_update_error', 'Please assign a priest before approving this reservation.');
                         return redirect()->route('admin.index', ['section' => 'reservations']);
                     }
 
@@ -194,9 +194,13 @@ class AdminController extends Controller
                     //     );
                     // }
                 }
-                Session::flash('flash_success', 'Reservation status updated successfully.');
+                Session::flash('status_update_success', match ($status) {
+                    'approved' => 'Reservation approved successfully.',
+                    'declined' => 'Reservation declined successfully.',
+                    default    => 'Reservation status updated successfully.',
+                });
             } catch (\Throwable $e) {
-                Session::flash('flash_error', $e->getMessage());
+                Session::flash('status_update_error', $e->getMessage());
             }
             return redirect()->route('admin.index', ['section' => 'reservations']);
         }
