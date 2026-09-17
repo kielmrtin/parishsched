@@ -108,7 +108,8 @@ class ReservationController extends Controller
         if ($request->hasFile($field)) {
           $file = $request->file($field);
 
-$fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+$folder = strtolower($validated['event_type']);
+$fileName = $folder . '/' . time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
 
 $bucket = 'reservation-attachments';
 
