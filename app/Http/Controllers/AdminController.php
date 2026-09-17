@@ -221,7 +221,7 @@ class AdminController extends Controller
             ]);
 
             if ($patch->failed()) {
-                Session::flash('flash_error', 'Failed to approve cancellation: ' . $patch->body());
+                Session::flash('approve_cancellation_error', 'Failed to approve cancellation: ' . $patch->body());
                 return redirect()->route('admin.index', ['section' => 'reservations']);
             }
 
@@ -254,7 +254,7 @@ class AdminController extends Controller
                 }
             }
 
-            Session::flash('flash_success', 'Cancellation approved and customer notified.');
+            Session::flash('approve_cancellation_success', 'Cancellation approved and customer notified.');
             return redirect()->route('admin.index', ['section' => 'reservations']);
         }
 

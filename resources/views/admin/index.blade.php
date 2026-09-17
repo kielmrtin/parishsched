@@ -1894,6 +1894,71 @@ function adminStatusBadge(string $status): string {
     </script>
     @endif
 
+    @if(session('approve_cancellation_success') || session('approve_cancellation_error'))
+    @php
+        $apCancelIsError = (bool) session('approve_cancellation_error');
+        $apCancelTitle   = $apCancelIsError ? 'Approval Failed' : 'Cancellation Approved';
+        $apCancelText    = session($apCancelIsError ? 'approve_cancellation_error' : 'approve_cancellation_success');
+        $apCancelGlow    = $apCancelIsError ? 'rgba(220,38,38,.13)' : 'rgba(34,197,94,.13)';
+        $apCancelRing    = $apCancelIsError ? 'rgba(220,38,38,.5),rgba(252,165,165,.3)' : 'rgba(34,197,94,.5),rgba(134,239,172,.3)';
+        $apCancelInner   = $apCancelIsError ? 'rgba(220,38,38,.1)' : 'rgba(34,197,94,.1)';
+        $apCancelBorder  = $apCancelIsError ? 'rgba(220,38,38,.3)' : 'rgba(34,197,94,.3)';
+        $apCancelStroke  = $apCancelIsError ? '#f87171' : '#4ade80';
+    @endphp
+    <div class="ps-overlay" id="ps-overlay-approve-cancel">
+        <div class="ps-modal">
+            <div class="ps-hdr" id="ps-hdr-approve-cancel">
+                <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+                <span class="ps-parish">St. John the Baptist Parish</span>
+                <span class="ps-dot"></span>
+                <span class="ps-loc">Tiaong, Quezon</span>
+            </div>
+            <div class="ps-body" id="ps-body-approve-cancel">
+                <div class="ps-glow" style="background:radial-gradient(circle,{{ $apCancelGlow }} 0%,transparent 70%)"></div>
+                <div class="ps-icon">
+                    <div class="ps-ring" style="background:conic-gradient({{ $apCancelRing }},transparent 58%)"></div>
+                    <div class="ps-inner" style="background:{{ $apCancelInner }};border:1.5px solid {{ $apCancelBorder }}">
+                        <svg viewBox="0 0 42 42">
+                            @if($apCancelIsError)
+                                <line class="ps-warn" style="stroke:{{ $apCancelStroke }}" x1="13" y1="13" x2="29" y2="29"/>
+                                <line class="ps-warn" style="stroke:{{ $apCancelStroke }}" x1="29" y1="13" x2="13" y2="29"/>
+                            @else
+                                <polyline class="ps-warn" style="stroke:{{ $apCancelStroke }};fill:none" points="10,22 18,30 32,14"/>
+                            @endif
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="ps-title">{{ $apCancelTitle }}</h2>
+                <p class="ps-sub">{{ $apCancelText }}</p>
+                <div class="ps-btns">
+                    <button type="button" class="ps-btn-solo" onclick="document.getElementById('ps-overlay-approve-cancel').remove()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const colors  = ['{{ $apCancelIsError ? "#f8717166" : "#4ade8066" }}','{{ $apCancelIsError ? "#f8717159" : "#4ade8059" }}','rgba(255,255,255,.18)'];
+        const hColors = ['rgba(255,255,255,.25)','{{ $apCancelIsError ? "#f8717166" : "#4ade8066" }}','{{ $apCancelIsError ? "#f871714d" : "#4ade804d" }}'];
+        function spawnDots(el, cols, count, cls) {
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                const s = Math.random()*6+4;
+                p.className = cls;
+                p.style.cssText = `width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-delay:${Math.random()*4}s;animation-duration:${2.5+Math.random()*2}s;`;
+                el.appendChild(p);
+            }
+        }
+        const hdr = document.getElementById('ps-hdr-approve-cancel');
+        const bdy = document.getElementById('ps-body-approve-cancel');
+        if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
+        if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
+        const overlay = document.getElementById('ps-overlay-approve-cancel');
+        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+    });
+    </script>
+    @endif
+
     @if(session('purge_expired_success') || session('purge_expired_error'))
     @php
         $purgeIsError = (bool) session('purge_expired_error');
