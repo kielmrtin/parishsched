@@ -24,7 +24,7 @@
                     <td style="background:#111111;padding:0;border-radius:14px;overflow:hidden;">
 
                         <!-- HERO (radius on a div, not the td — some mail clients ignore border-radius on table cells) -->
-                        <div class="email-hero" style="padding:22px 24px;background:linear-gradient(135deg,#4f46e5 0%,#6366f1 50%,#818cf8 100%);color:#ffffff;border-radius:14px 14px 0 0;">
+                        <div class="email-hero" style="padding:22px 24px;background:linear-gradient(135deg,#b91c1c 0%,#dc2626 50%,#f87171 100%);color:#ffffff;border-radius:14px 14px 0 0;">
 
                             <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;opacity:.85;">
                                 Security Notice
@@ -34,7 +34,7 @@
                                 Reset your password
                             </h1>
 
-                            <p style="margin:10px 0 0;font-size:12.5px;line-height:1.55;color:#eef2ff;">
+                            <p style="margin:10px 0 0;font-size:12.5px;line-height:1.55;color:#fee2e2;">
                                 @if(!empty($by_admin))
                                     The parish administrator has requested a password reset for your account.
                                 @else
@@ -43,7 +43,7 @@
                             </p>
 
                             <div style="margin-top:14px;">
-                                <span style="display:inline-block;padding:5px 13px;border-radius:999px;background:rgba(129,140,248,.25);color:#ffffff;font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;">
+                                <span style="display:inline-block;padding:5px 13px;border-radius:999px;background:rgba(248,113,113,.25);color:#ffffff;font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;">
                                     Action Required
                                 </span>
                             </div>
@@ -67,7 +67,7 @@
                             <!-- CTA Button -->
                             <div style="text-align:center;margin:0 0 20px;">
                                 <a href="{{ $reset_url }}"
-                                   style="display:inline-block;padding:11px 24px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;font-size:12.5px;font-weight:700;text-decoration:none;border-radius:9px;letter-spacing:.3px;">
+                                   style="display:inline-block;padding:11px 24px;background:linear-gradient(135deg,#b91c1c,#dc2626);color:#ffffff;font-size:12.5px;font-weight:700;text-decoration:none;border-radius:9px;letter-spacing:.3px;">
                                     Reset My Password
                                 </a>
                             </div>
@@ -85,7 +85,7 @@
                                 <div style="color:#64748b;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;margin-bottom:6px;">
                                     Or copy this link
                                 </div>
-                                <div style="color:#818cf8;font-size:10.5px;word-break:break-all;line-height:1.5;">
+                                <div style="color:#f87171;font-size:10.5px;word-break:break-all;line-height:1.5;">
                                     {{ $reset_url }}
                                 </div>
                             </div>

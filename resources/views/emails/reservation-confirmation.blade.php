@@ -43,7 +43,7 @@
                     <td style="background:#111111;padding:0;border-radius:14px;overflow:hidden;">
 
                         <!-- HERO -->
-                        <div class="email-hero" style="padding:22px 24px; background:linear-gradient(135deg,#5b4df5 0%,#5d6df7 45%,#4aa3ff 100%); color:#ffffff; border-radius:14px 14px 0 0;">
+                        <div class="email-hero" style="padding:22px 24px; background:linear-gradient(135deg,#15803d 0%,#16a34a 45%,#4ade80 100%); color:#ffffff; border-radius:14px 14px 0 0;">
 
                             <div style="font-size:9px; letter-spacing:2.5px; text-transform:uppercase; font-weight:700; opacity:.85;">
                                 Reservation Received
@@ -53,12 +53,12 @@
                                 Your reservation request was submitted
                             </h1>
 
-                            <p style="margin:10px 0 0; font-size:12.5px; line-height:1.55; color:#eef2ff;">
+                            <p style="margin:10px 0 0; font-size:12.5px; line-height:1.55; color:#dcfce7;">
                                 Please wait for parish confirmation. We will notify you once your request has been reviewed.
                             </p>
 
                             <div style="margin-top:14px;">
-                                <span style="display:inline-block; padding:5px 13px; border-radius:999px; background:rgba(49,46,129,.45); color:#ffffff; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700;">
+                                <span style="display:inline-block; padding:5px 13px; border-radius:999px; background:rgba(22,101,52,.45); color:#ffffff; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700;">
                                     {{ $data['event_type'] ?? 'Reservation' }}
                                 </span>
                             </div>
@@ -76,7 +76,7 @@
                             </p>
 
                             <div style="margin-bottom:16px;">
-                                <span style="display:inline-block; padding:6px 14px; border-radius:999px; background:#263042; color:#c4b5fd; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:800;">
+                                <span style="display:inline-block; padding:6px 14px; border-radius:999px; background:#0f2f1c; color:#4ade80; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:800;">
                                     Pending Review
                                 </span>
                             </div>
@@ -84,10 +84,10 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
                                 <tr>
                                     <td class="stack-column" style="padding:0 6px 10px 0;">
-                                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#1f2937; border-radius:10px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#14532d; border-radius:10px;">
                                             <tr>
                                                 <td style="padding:12px 15px;">
-                                                    <div style="font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#c4b5fd; font-weight:800;">
+                                                    <div style="font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#86efac; font-weight:800;">
                                                         Reservation Date
                                                     </div>
                                                     <div style="margin-top:6px; font-size:15px; font-weight:800; color:#ffffff;">
@@ -99,10 +99,10 @@
                                     </td>
 
                                     <td class="stack-column" style="padding:0 0 10px 6px;">
-                                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#17303a; border-radius:10px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f2f1c; border-radius:10px;">
                                             <tr>
                                                 <td style="padding:12px 15px;">
-                                                    <div style="font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#7dd3fc; font-weight:800;">
+                                                    <div style="font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#4ade80; font-weight:800;">
                                                         Preferred Time
                                                     </div>
                                                     <div style="margin-top:6px; font-size:15px; font-weight:800; color:#ffffff;">

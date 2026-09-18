@@ -26,7 +26,7 @@
                     <td style="background:#111111;padding:0;border-radius:14px;overflow:hidden;">
 
                         <!-- HERO -->
-                        <div class="email-hero" style="padding:22px 24px;background:linear-gradient(135deg,#b45309 0%,#d97706 50%,#fbbf24 100%);color:#ffffff;border-radius:14px 14px 0 0;">
+                        <div class="email-hero" style="padding:22px 24px;background:linear-gradient(135deg,#b91c1c 0%,#dc2626 50%,#f87171 100%);color:#ffffff;border-radius:14px 14px 0 0;">
 
                             <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;opacity:.85;">
                                 Action Required
@@ -36,7 +36,7 @@
                                 Cancellation Request
                             </h1>
 
-                            <p style="margin:10px 0 0;font-size:12.5px;line-height:1.55;color:#fff8e1;">
+                            <p style="margin:10px 0 0;font-size:12.5px;line-height:1.55;color:#fecaca;">
                                 A customer has requested to cancel their reservation. Please review and respond in the admin panel.
                             </p>
 
@@ -55,8 +55,8 @@
                             </p>
 
                             <!-- Status highlight -->
-                            <div style="background:#2f1f0a;border-radius:10px;padding:12px 16px;margin-bottom:14px;">
-                                <div style="font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;color:#fbbf24;font-weight:800;">
+                            <div style="background:#2f0f0f;border-radius:10px;padding:12px 16px;margin-bottom:14px;">
+                                <div style="font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;color:#f87171;font-weight:800;">
                                     Request Status
                                 </div>
                                 <div style="margin-top:6px;font-size:15px;font-weight:800;color:#ffffff;">
