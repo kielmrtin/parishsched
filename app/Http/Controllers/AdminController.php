@@ -194,6 +194,7 @@ class AdminController extends Controller
                     //     );
                     // }
                 }
+                Session::flash('status_update_type', $status);
                 Session::flash('status_update_success', match ($status) {
                     'approved' => 'Reservation approved successfully.',
                     'declined' => 'Reservation declined successfully.',
