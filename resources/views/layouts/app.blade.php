@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'St. John the Baptist Parish')</title>
     <link rel="icon" href="{{ asset('img/favicon.png') }}">
+    <meta name="description" content="@yield('description', 'St. John the Baptist Parish in Tiaong, Quezon — schedule Masses and reserve baptisms, weddings, and funerals online.')">
+    <meta property="og:title" content="@yield('title', 'St. John the Baptist Parish')">
+    <meta property="og:description" content="@yield('description', 'St. John the Baptist Parish in Tiaong, Quezon — schedule Masses and reserve baptisms, weddings, and funerals online.')">
+    <meta property="og:image" content="{{ asset('img/cover.png') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
     @if(request()->routeIs('home'))
     <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
     @endif
