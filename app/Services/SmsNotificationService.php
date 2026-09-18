@@ -28,7 +28,7 @@ class SmsNotificationService
 
     public function send(?string $phone, string $message): bool
     {
-        if (!filter_var(env('SMS_NOTIFICATIONS_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var(config('services.iprog_sms.enabled'), FILTER_VALIDATE_BOOLEAN)) {
             Log::info('SMS notifications disabled via SMS_NOTIFICATIONS_ENABLED; skipping send.', [
                 'phone' => $phone,
             ]);
@@ -47,8 +47,8 @@ class SmsNotificationService
 
         try {
             $response = Http::timeout(15)
-                ->post(env('IPROG_SMS_API_URL'), [
-                    'api_token' => env('IPROG_SMS_API_TOKEN'),
+                ->post(config('services.iprog_sms.url'), [
+                    'api_token' => config('services.iprog_sms.token'),
                     'message' => trim($message),
                     'phone_number' => $phone,
                 ]);

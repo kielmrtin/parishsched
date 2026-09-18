@@ -45,4 +45,10 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'iprog_sms' => [
+        'url' => env('IPROG_SMS_API_URL'),
+        'token' => env('IPROG_SMS_API_TOKEN'),
+        'enabled' => env('SMS_NOTIFICATIONS_ENABLED', true),
+    ],
+
 ];

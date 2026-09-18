@@ -20,10 +20,10 @@ Route::get('/schedule', function () {
 })->name('schedule');
 
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [CustomerAuthController::class, 'login']);
+Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:5,1');
 
 Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [CustomerAuthController::class, 'register']);
+Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:5,1');
 
 Route::get('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
@@ -40,7 +40,7 @@ Route::post('/reservation/{id}/cancel-request', [ReservationController::class, '
     ->name('reservation.cancel');
 
 Route::post('/reservation', [ReservationController::class, 'store'])
-    ->middleware(['customer.auth', 'customer.status'])
+    ->middleware(['customer.auth', 'customer.status', 'throttle:10,1'])
     ->name('reservation.store');
 
 Route::get('/reservation_view/{id}', [ReservationController::class, 'show'])
@@ -53,12 +53,14 @@ Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
     ->name('password.request');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])
+    ->middleware('throttle:5,1')
     ->name('password.email');
 
 Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])
     ->name('password.reset');
 
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
+    ->middleware('throttle:5,1')
     ->name('password.update');
 
 Route::get('/contact', function () {
@@ -66,9 +68,11 @@ Route::get('/contact', function () {
 })->name('contact');
 
 Route::post('/contact/send', [ContactController::class, 'send'])
+    ->middleware('throttle:10,1')
     ->name('contact.send');
 
-Route::post('/api/mobile-contact', [ContactController::class, 'mobileSend']);
+Route::post('/api/mobile-contact', [ContactController::class, 'mobileSend'])
+    ->middleware('throttle:10,1');
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 Route::post('/admin', [AdminController::class, 'handle'])->name('admin.handle');
@@ -81,4 +85,5 @@ Route::delete('/admin/priests/{id}', [AdminController::class, 'deletePriest'])->
 Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assignOfficiant'])->name('admin.reservations.officiant');
 
 Route::post('/send-register-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendRegisterOtp'])
+    ->middleware('throttle:3,1')
     ->name('register.sendOtp');
