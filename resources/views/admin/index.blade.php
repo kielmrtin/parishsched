@@ -1633,7 +1633,7 @@ input[type="number"] { -moz-appearance:textfield; }
                 if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
                 if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
                 const overlay = document.getElementById('ps-overlay-adm-login');
-                if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+                if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
             });
             </script>
             @endif
@@ -1839,7 +1839,7 @@ function adminStatusBadge(string $status): string {
         if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
         if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
         const overlay = document.getElementById('ps-overlay-adm-welcome');
-        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+        if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -1889,7 +1889,7 @@ function adminStatusBadge(string $status): string {
         if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
         if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
         const overlay = document.getElementById('ps-overlay-deny-success');
-        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+        if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -1954,7 +1954,7 @@ function adminStatusBadge(string $status): string {
         if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
         if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
         const overlay = document.getElementById('ps-overlay-approve-cancel');
-        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+        if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -2019,7 +2019,7 @@ function adminStatusBadge(string $status): string {
         if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
         if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
         const overlay = document.getElementById('ps-overlay-purge');
-        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+        if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -2084,7 +2084,7 @@ function adminStatusBadge(string $status): string {
         if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
         if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
         const overlay = document.getElementById('ps-overlay-status');
-        if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+        if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -2447,7 +2447,7 @@ function adminStatusBadge(string $status): string {
 
                 {{-- Purge confirm modal --}}
                 <div id="purge-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;"
-                     onclick="if(event.target===this)this.style.display='none'">
+                    >
                     <div style="background:#0f172a;border-radius:22px;max-width:420px;width:92%;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:purge-pop .2s cubic-bezier(.34,1.56,.64,1);font-family:'Raleway',system-ui,sans-serif;">
                         <style>@keyframes purge-pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}</style>
 
@@ -2785,7 +2785,7 @@ function adminStatusBadge(string $status): string {
                                             onclick="openDenyModal({{ $r['id'] }})">Deny</button>
                                     </div>
                                 </div>
-                                <div class="dcm-overlay" id="deny-overlay-{{ $r['id'] }}" onclick="if(event.target===this) closeDenyModal({{ $r['id'] }})">
+                                <div class="dcm-overlay" id="deny-overlay-{{ $r['id'] }}">
                                     <div class="dcm-modal">
                                         <div class="adm-cfm-hdr">
                                             <svg class="adm-cfm-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
@@ -3673,7 +3673,7 @@ function adminStatusBadge(string $status): string {
 </section>
 
 {{-- Attendance modal --}}
-<div class="dcm-overlay" id="attendanceModal" onclick="if(event.target===this) closeAttModal()">
+<div class="dcm-overlay" id="attendanceModal">
     <div class="dcm-modal">
         <div class="ps-hdr">
             <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
@@ -5517,7 +5517,7 @@ makeAdmMiniCalendar('donToCal', {!! $donationTo ? "'" . $donationTo . "'" : 'nul
             @endphp
 
             {{-- Disable modal --}}
-            <div class="dcm-overlay" id="disable-overlay-{{ $c['id'] }}" onclick="if(event.target===this) closeDisableModal({{ $c['id'] }})">
+            <div class="dcm-overlay" id="disable-overlay-{{ $c['id'] }}">
                 <div class="dcm-modal">
                     <div class="adm-cfm-hdr">
                         <svg class="adm-cfm-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
@@ -5557,7 +5557,7 @@ makeAdmMiniCalendar('donToCal', {!! $donationTo ? "'" . $donationTo . "'" : 'nul
             </div>
 
             {{-- Profile modal --}}
-            <div class="dcm-overlay" id="profile-overlay-{{ $c['id'] }}" onclick="if(event.target===this) closeProfileModal({{ $c['id'] }})">
+            <div class="dcm-overlay" id="profile-overlay-{{ $c['id'] }}">
                 <div class="dcm-modal dcm-modal-lg">
                     <div class="ps-hdr">
                         <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
@@ -6260,7 +6260,7 @@ function printReceiptNow() {
                 </div>
 
                 {{-- Edit Announcement Modal --}}
-                <div class="dcm-overlay" id="annEditModal" onclick="if(event.target===this) annCloseEdit()">
+                <div class="dcm-overlay" id="annEditModal">
                     <div class="dcm-modal dcm-modal-lg">
                         <div class="ps-hdr">
                             <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>

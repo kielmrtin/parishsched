@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
   spawnDots(document.getElementById('ps-hdr'), hColors, 10);
   spawnDots(document.getElementById('ps-body'), colors, 20);
   document.getElementById('ps-overlay').addEventListener('click', function(e) {
-    if (e.target === this) this.remove();
+    if (false) this.remove();
   });
 });
 </script>

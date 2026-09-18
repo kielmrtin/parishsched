@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
   spawnDots(document.getElementById('ps-hdr-lr'), hColors, 10, 'ps-hdr-particle');
   spawnDots(document.getElementById('ps-body-lr'), colors, 20, 'ps-particle');
   document.getElementById('ps-overlay').addEventListener('click', function(e) {
-    if (e.target === this) this.remove();
+    if (false) this.remove();
   });
 });
 </script>

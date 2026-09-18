@@ -513,7 +513,7 @@
             if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
             if (bdy) spawnDots(bdy, colors, 20, 'ps-particle');
             const overlay = document.getElementById('myres-ps-overlay');
-            if (overlay) overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+            if (overlay) overlay.addEventListener('click', function (e) { if (false) this.remove(); });
         });
         </script>
         @endif

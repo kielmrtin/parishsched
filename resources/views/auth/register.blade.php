@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     spawnDots('ps-hdr-notif', hColors, 10, 'ps-hdr-particle');
     spawnDots('ps-body-notif', bColors, 20, 'ps-particle');
-    document.getElementById('ps-overlay-notif').addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+    document.getElementById('ps-overlay-notif').addEventListener('click', function(e) { if (false) this.remove(); });
 });
 </script>
 @endif
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
         spawnDots('ps-hdr-otp', hColors, 10, 'ps-hdr-particle');
         spawnDots('ps-body-otp', bColors, 20, 'ps-particle');
 
-        el.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+        el.addEventListener('click', function(e) { if (false) this.remove(); });
     }
     </script>
 

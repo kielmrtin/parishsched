@@ -533,7 +533,7 @@ function showContactAlert(type, title, text) {
     spawnDots(document.getElementById('contact-ps-body'), nc.b, 20, 'ps-particle');
 
     overlay.querySelector('.ps-btn-solo').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', function (e) { if (e.target === this) this.remove(); });
+    overlay.addEventListener('click', function (e) { if (false) this.remove(); });
 }
 
 (function ($) {

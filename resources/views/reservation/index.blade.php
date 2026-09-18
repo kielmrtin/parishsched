@@ -688,7 +688,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
       if (hdr) spawnDots(hdr, hColors, 10, 'ps-hdr-particle');
       if (bdy) spawnDots(bdy, gColors, 22, 'ps-particle');
       const overlay = document.getElementById('ps-res-overlay');
-      if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+      if (overlay) overlay.addEventListener('click', function(e) { if (false) this.remove(); });
     });
     </script>
     @endif
@@ -746,7 +746,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
       if (hdr) spawnDots(hdr, hColors, 10);
       if (bdy) spawnDots(bdy, colors, 20);
       const overlay = document.getElementById('ps-overlay');
-      if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+      if (overlay) overlay.addEventListener('click', function(e) { if (false) this.remove(); });
     });
     </script>
     @endif
