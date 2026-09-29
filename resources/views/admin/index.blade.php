@@ -264,7 +264,7 @@
         .res-tab-btn.active-pending  { background:#FFD700; border-color:#FFD700; color:#fff; }
         .res-tab-btn.active-approved { background:#16a34a; border-color:#16a34a; color:#fff; }
         .res-tab-btn.active-declined { background:#dc2626; border-color:#dc2626; color:#fff; }
-        .res-tab-btn.active-past     { background:#64748b; border-color:#64748b; color:#fff; }
+        .res-tab-btn.active-past     { background:#dc2626; border-color:#dc2626; color:#fff; }
         .res-tab-count { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:.65rem; font-weight:800; background:#fff; color:#dc2626; }
         .res-tab-btn:not([class*="active"]) .res-tab-count { background:#fff; color:#dc2626; }
         /* ── Reservation card – horizontal light layout ── */
