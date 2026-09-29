@@ -182,17 +182,16 @@ class AdminController extends Controller
                         }
                     }
 
-                    // SMS_DISABLED — re-enable when SMS is restored
-                    // if (!empty($phone)) {
-                    //     app(\App\Services\SmsNotificationService::class)->send(
-                    //         $phone,
-                    //         match ($status) {
-                    //             'approved' => "Good news {$name}! Your reservation has been APPROVED.",
-                    //             'declined' => "Hello {$name}, your reservation was DECLINED. Please contact the parish.",
-                    //             default    => "Hello {$name}, your reservation status is now {$status}.",
-                    //         }
-                    //     );
-                    // }
+                    if (!empty($phone)) {
+                        app(\App\Services\SmsNotificationService::class)->send(
+                            $phone,
+                            match ($status) {
+                                'approved' => "Good news {$name}! Your reservation has been APPROVED.",
+                                'declined' => "Hello {$name}, your reservation was DECLINED. Please contact the parish.",
+                                default    => "Hello {$name}, your reservation status is now {$status}.",
+                            }
+                        );
+                    }
                 }
                 Session::flash('status_update_type', $status);
                 Session::flash('status_update_success', match ($status) {
@@ -592,7 +591,7 @@ $customerStatus = trim((string) $request->input('customer_status', 'all'));
 
 try {
     $url = rtrim(config('services.supabase.url'), '/');
-    $key = config('services.supabase.key');
+    $key = config('services.supabase.service_role_key');
 
     $query = [
         'select' => '*',

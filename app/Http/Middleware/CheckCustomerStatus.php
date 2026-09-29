@@ -18,8 +18,8 @@ class CheckCustomerStatus
 
         try {
             $response = Http::withHeaders([
-                'apikey'        => config('services.supabase.key'),
-                'Authorization' => 'Bearer ' . config('services.supabase.key'),
+                'apikey'        => config('services.supabase.service_role_key'),
+                'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
             ])->get(config('services.supabase.url') . '/rest/v1/customers', [
                 'id'     => 'eq.' . $customerId,
                 'select' => 'id,status',
