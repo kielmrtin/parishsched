@@ -2606,6 +2606,15 @@ function adminStatusBadge(string $status): string {
                     $approvedCount = count($filteredGrouped['approved'] ?? []);
                     $declinedCount = count($filteredGrouped['declined'] ?? []);
                     $totalCount    = $pendingCount + $approvedCount + $declinedCount;
+
+                    $pastCount = 0;
+                    foreach (['pending', 'approved', 'declined'] as $__sk) {
+                        foreach ($filteredGrouped[$__sk] ?? [] as $__r) {
+                            $__evDate = $__r['preferred_date'] ?? $__r['reservation_date'] ?? null;
+                            if ($__evDate && $__evDate < date('Y-m-d')) $pastCount++;
+                        }
+                    }
+                    $upcomingCount = $totalCount - $pastCount;
                 @endphp
                 @if($totalCount === 0)
                     <p class="empty-block">
@@ -2638,6 +2647,19 @@ function adminStatusBadge(string $status): string {
                         @endif
                     </div>
 
+                    {{-- Upcoming / Past toggle — keeps completed events from cluttering the active queue --}}
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                        <button class="res-tab-btn active-approved" id="res-time-upcoming" onclick="resTimeFilter('upcoming',this)">
+                            Upcoming <span class="res-tab-count">{{ $upcomingCount }}</span>
+                        </button>
+                        <button class="res-tab-btn" id="res-time-past" onclick="resTimeFilter('past',this)">
+                            Past <span class="res-tab-count">{{ $pastCount }}</span>
+                        </button>
+                        <button class="res-tab-btn" id="res-time-alltime" onclick="resTimeFilter('all',this)">
+                            All dates
+                        </button>
+                    </div>
+
                     {{-- Flat card list (all statuses) --}}
                     <div id="res-cards-container">
                     @foreach(['pending','approved','declined'] as $statusKey)
@@ -2665,7 +2687,7 @@ function adminStatusBadge(string $status): string {
                             }
                         }
                     @endphp
-                        <div class="reservation-card" data-status="{{ $statusKey }}" data-cancel="{{ !empty($r['cancellation_requested']) ? '1' : '0' }}">
+                        <div class="reservation-card" data-status="{{ $statusKey }}" data-cancel="{{ !empty($r['cancellation_requested']) ? '1' : '0' }}" data-is-past="{{ $isPastEvent ? '1' : '0' }}">
                             <div class="rcard-stripe rcard-stripe-{{ $statusKey }}"></div>
 
                             {{-- IDENTITY COLUMN --}}
@@ -4522,21 +4544,46 @@ function priestConfirmDelete(formId, name) {
     });
 }
 
+let resStatusFilter = 'all';
+let resTimeFilterState = 'upcoming';
+
 function resTabFilter(status, btn) {
-    // Update active tab
-    document.querySelectorAll('.res-tab-btn').forEach(b => {
+    resStatusFilter = status;
+    document.querySelectorAll('.res-tab-bar .res-tab-btn').forEach(b => {
         b.classList.remove('active-all','active-pending','active-approved','active-declined');
     });
     btn.classList.add('active-' + status);
+    applyReservationFilters();
+}
 
-    // Show/hide cards
+function resTimeFilter(range, btn) {
+    resTimeFilterState = range;
+    ['res-time-upcoming', 'res-time-past', 'res-time-alltime'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active-approved');
+    });
+    btn.classList.add('active-approved');
+    applyReservationFilters();
+}
+
+function applyReservationFilters() {
     document.querySelectorAll('#res-cards-container .reservation-card').forEach(card => {
-        if (status === 'all' || card.dataset.status === status) {
+        const statusMatch = resStatusFilter === 'all' || card.dataset.status === resStatusFilter;
+        const isPast = card.dataset.isPast === '1';
+        const timeMatch = resTimeFilterState === 'all'
+            || (resTimeFilterState === 'upcoming' && !isPast)
+            || (resTimeFilterState === 'past' && isPast);
+
+        if (statusMatch && timeMatch) {
             card.classList.remove('res-card-hidden');
         } else {
             card.classList.add('res-card-hidden');
         }
     });
+}
+
+if (document.getElementById('res-cards-container')) {
+    applyReservationFilters();
 }
 
 function toggleCancelView(btn) {
