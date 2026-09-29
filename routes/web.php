@@ -87,3 +87,10 @@ Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assi
 Route::post('/send-register-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendRegisterOtp'])
     ->middleware('throttle:3,1')
     ->name('register.sendOtp');
+
+// Same handlers as above, reachable without a session/CSRF token for the
+// Flutter app (mirrors the api/mobile-contact pattern).
+Route::post('/api/mobile-send-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendRegisterOtp'])
+    ->middleware('throttle:3,1');
+Route::post('/api/mobile-verify-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'verifyRegisterOtp'])
+    ->middleware('throttle:10,1');

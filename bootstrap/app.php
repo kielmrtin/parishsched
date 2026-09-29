@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->validateCsrfTokens(except: [
         'webhooks/supabase/reservation-submitted',
         'api/mobile-contact',
+        'api/mobile-send-otp',
+        'api/mobile-verify-otp',
     ]);
 })
 

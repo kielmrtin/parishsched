@@ -160,6 +160,46 @@ public function login(Request $request)
         return view('auth.register');
     }
 
+    /**
+     * JSON-only counterpart to the OTP check inside register() (see below),
+     * for the Flutter app: verifies the code and marks it used, but does not
+     * create an account — the app does its own Supabase Auth signUp/customers
+     * insert afterward, same as it always has.
+     */
+    public function verifyRegisterOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string|max:20',
+            'otp_code' => 'required|string|size:6',
+        ]);
+
+        $otpResponse = $this->supabaseAdmin()->get(config('services.supabase.url') . '/rest/v1/customer_otps', [
+            'phone'       => 'eq.' . $request->phone,
+            'otp_code'    => 'eq.' . $request->otp_code,
+            'purpose'     => 'eq.registration',
+            'verified_at' => 'is.null',
+            'expires_at'  => 'gt.' . now()->toISOString(),
+            'select'      => 'id',
+            'order'       => 'created_at.desc',
+            'limit'       => 1,
+        ]);
+        $validOtp = $otpResponse->successful() ? ($otpResponse->json()[0] ?? null) : null;
+
+        if (!$validOtp) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Invalid or expired code. Please try again.',
+            ], 422);
+        }
+
+        $this->supabaseAdmin()->patch(config('services.supabase.url') . '/rest/v1/customer_otps?id=eq.' . $validOtp['id'], [
+            'verified_at' => now()->toISOString(),
+        ]);
+
+        return response()->json(['success' => true, 'valid' => true]);
+    }
+
     public function register(Request $request)
 {
     $request->validate([
