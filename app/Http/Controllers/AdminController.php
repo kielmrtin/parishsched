@@ -589,6 +589,7 @@ $customers = [];
 $customerSearch = trim((string) $request->input('customer_search', ''));
 $customerStatus = trim((string) $request->input('customer_status', 'all'));
 
+if ($section === 'customers') {
 try {
     $url = rtrim(config('services.supabase.url'), '/');
     $key = config('services.supabase.service_role_key');
@@ -630,6 +631,7 @@ try {
 
 } catch (\Throwable) {
     $customers = [];
+}
 }
 
         // ===================== RESERVATIONS =====================
@@ -791,10 +793,12 @@ foreach ($reservations as $r) {
 
         // ── Priests ────────────────────────────────────────────────────────
         $priests = [];
+        if (in_array($section, ['reservations', 'schedule', 'reports'], true)) {
         try {
             $priestResp = $this->sb()->get($this->sbUrl('priests', ['select' => '*', 'order' => 'name.asc']));
             if ($priestResp->successful()) $priests = $priestResp->json() ?? [];
         } catch (\Exception $e) {}
+        }
 
         // Schedule
         $today        = new DateTimeImmutable('today');
@@ -962,6 +966,8 @@ foreach ($scheduleCalendarReservations as $r) {
 }
 
         // Announcements
+        $announcements = [];
+        if (in_array($section, ['overview', 'announcements'], true)) {
        try {
     $url = rtrim(config('services.supabase.url'), '/');
     $key = config('services.supabase.key');
@@ -982,6 +988,7 @@ foreach ($scheduleCalendarReservations as $r) {
 } catch (\Throwable) {
     $announcements = [];
 }
+        }
         $announcementCount        = count($announcements);
         $visibleAnnouncementCount = count(array_filter($announcements, fn($a) => (int)($a->show_on_home ?? 0) === 1));
 
@@ -1139,6 +1146,7 @@ Monthly breakdown: {$monthlyBreakdown}";
 
         // ── Donations (all, for the donations section) ─────────────────────
         $allDonationsRaw = [];
+        if (in_array($section, ['donations', 'reports'], true)) {
         try {
             $donResp = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
                 'select' => '*',
@@ -1148,6 +1156,7 @@ Monthly breakdown: {$monthlyBreakdown}";
                 $allDonationsRaw = $donResp->json() ?? [];
             }
         } catch (\Throwable) {}
+        }
 
         // Donations section filters
         $donationSearch  = trim((string)$request->input('donation_search', ''));
@@ -1235,10 +1244,12 @@ Monthly breakdown: {$monthlyBreakdown}";
 
         // ── Event Attendance ───────────────────────────────────────────────
         $attendanceRaw = [];
+        if ($section === 'reports') {
         try {
             $attResp = $this->sb()->get($this->sbUrl('event_attendance', ['select' => '*', 'order' => 'recorded_at.desc']));
             if ($attResp->successful()) $attendanceRaw = $attResp->json() ?? [];
         } catch (\Exception $e) {}
+        }
 
         // Lookup: reservation_id => attendance row
         $attendanceLookup = [];
