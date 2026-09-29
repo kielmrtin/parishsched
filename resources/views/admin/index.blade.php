@@ -264,6 +264,7 @@
         .res-tab-btn.active-pending  { background:#FFD700; border-color:#FFD700; color:#fff; }
         .res-tab-btn.active-approved { background:#16a34a; border-color:#16a34a; color:#fff; }
         .res-tab-btn.active-declined { background:#dc2626; border-color:#dc2626; color:#fff; }
+        .res-tab-btn.active-past     { background:#64748b; border-color:#64748b; color:#fff; }
         .res-tab-count { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:.65rem; font-weight:800; background:#fff; color:#dc2626; }
         .res-tab-btn:not([class*="active"]) .res-tab-count { background:#fff; color:#dc2626; }
         /* ── Reservation card – horizontal light layout ── */
@@ -2602,21 +2603,29 @@ function adminStatusBadge(string $status): string {
                 </div>
 
                 @php
-                    $pendingCount  = count($filteredGrouped['pending']  ?? []);
-                    $approvedCount = count($filteredGrouped['approved'] ?? []);
-                    $declinedCount = count($filteredGrouped['declined'] ?? []);
-                    $totalCount    = $pendingCount + $approvedCount + $declinedCount;
+                    $__isPast = function ($r) {
+                        $d = $r['preferred_date'] ?? $r['reservation_date'] ?? null;
+                        return $d && $d < date('Y-m-d');
+                    };
 
                     $pastCount = 0;
+                    $pendingCount = $approvedCount = $declinedCount = 0;
                     foreach (['pending', 'approved', 'declined'] as $__sk) {
                         foreach ($filteredGrouped[$__sk] ?? [] as $__r) {
-                            $__evDate = $__r['preferred_date'] ?? $__r['reservation_date'] ?? null;
-                            if ($__evDate && $__evDate < date('Y-m-d')) $pastCount++;
+                            if ($__isPast($__r)) {
+                                $pastCount++;
+                            } elseif ($__sk === 'pending') {
+                                $pendingCount++;
+                            } elseif ($__sk === 'approved') {
+                                $approvedCount++;
+                            } else {
+                                $declinedCount++;
+                            }
                         }
                     }
-                    $upcomingCount = $totalCount - $pastCount;
+                    $totalCount = $pendingCount + $approvedCount + $declinedCount;
                 @endphp
-                @if($totalCount === 0)
+                @if($totalCount === 0 && $pastCount === 0)
                     <p class="empty-block">
                         {{ $summaryTotals['total'] === 0 ? 'No reservations have been submitted yet.' : 'No reservations match the selected filters.' }}
                     </p>
@@ -2636,6 +2645,9 @@ function adminStatusBadge(string $status): string {
                             <button class="res-tab-btn" onclick="resTabFilter('declined',this)">
                                 Declined <span class="res-tab-count">{{ $declinedCount }}</span>
                             </button>
+                            <button class="res-tab-btn" onclick="resTabFilter('past',this)">
+                                Past <span class="res-tab-count">{{ $pastCount }}</span>
+                            </button>
                         </div>
                         @if($cancelRequestCount > 0)
                         <button type="button" id="view-cancel-btn" onclick="toggleCancelView(this)"
@@ -2645,19 +2657,6 @@ function adminStatusBadge(string $status): string {
                             <span style="background:#fff;color:#dc2626;border-radius:999px;font-size:.65rem;font-weight:800;padding:0 6px;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;">{{ $cancelRequestCount }}</span>
                         </button>
                         @endif
-                    </div>
-
-                    {{-- Upcoming / Past toggle — keeps completed events from cluttering the active queue --}}
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-                        <button class="res-tab-btn active-approved" id="res-time-upcoming" onclick="resTimeFilter('upcoming',this)">
-                            Upcoming <span class="res-tab-count">{{ $upcomingCount }}</span>
-                        </button>
-                        <button class="res-tab-btn" id="res-time-past" onclick="resTimeFilter('past',this)">
-                            Past <span class="res-tab-count">{{ $pastCount }}</span>
-                        </button>
-                        <button class="res-tab-btn" id="res-time-alltime" onclick="resTimeFilter('all',this)">
-                            All dates
-                        </button>
                     </div>
 
                     {{-- Flat card list (all statuses) --}}
@@ -4544,46 +4543,33 @@ function priestConfirmDelete(formId, name) {
     });
 }
 
-let resStatusFilter = 'all';
-let resTimeFilterState = 'upcoming';
-
 function resTabFilter(status, btn) {
-    resStatusFilter = status;
+    // Update active tab
     document.querySelectorAll('.res-tab-bar .res-tab-btn').forEach(b => {
-        b.classList.remove('active-all','active-pending','active-approved','active-declined');
+        b.classList.remove('active-all','active-pending','active-approved','active-declined','active-past');
     });
     btn.classList.add('active-' + status);
-    applyReservationFilters();
-}
 
-function resTimeFilter(range, btn) {
-    resTimeFilterState = range;
-    ['res-time-upcoming', 'res-time-past', 'res-time-alltime'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('active-approved');
-    });
-    btn.classList.add('active-approved');
-    applyReservationFilters();
-}
-
-function applyReservationFilters() {
+    // Show/hide cards. "past" is its own bucket (any status, event date already passed);
+    // every other tab excludes past events so completed reservations don't clutter the active queue.
     document.querySelectorAll('#res-cards-container .reservation-card').forEach(card => {
-        const statusMatch = resStatusFilter === 'all' || card.dataset.status === resStatusFilter;
         const isPast = card.dataset.isPast === '1';
-        const timeMatch = resTimeFilterState === 'all'
-            || (resTimeFilterState === 'upcoming' && !isPast)
-            || (resTimeFilterState === 'past' && isPast);
-
-        if (statusMatch && timeMatch) {
-            card.classList.remove('res-card-hidden');
+        let show;
+        if (status === 'past') {
+            show = isPast;
+        } else if (status === 'all') {
+            show = !isPast;
         } else {
-            card.classList.add('res-card-hidden');
+            show = !isPast && card.dataset.status === status;
         }
+        card.classList.toggle('res-card-hidden', !show);
     });
 }
 
 if (document.getElementById('res-cards-container')) {
-    applyReservationFilters();
+    document.querySelectorAll('#res-cards-container .reservation-card').forEach(card => {
+        card.classList.toggle('res-card-hidden', card.dataset.isPast === '1');
+    });
 }
 
 function toggleCancelView(btn) {
