@@ -1163,6 +1163,69 @@
   color: #fff !important;
 }
 
+/* App download section (home page, below the announcements) */
+.app_download_area {
+  background: #fdf3f0;
+  padding: 70px 0;
+}
+
+.app_download_badge {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+}
+
+.app_download_title {
+  font-size: clamp(1.6rem, 1.2vw + 1.4rem, 2.1rem);
+  margin-bottom: 12px;
+  color: #1a2a4a;
+}
+
+.app_download_subtitle {
+  color: #5b6472;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 46ch;
+}
+
+.app_download_btn.boxed-btn3 {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 20px 45px rgba(220, 38, 38, 0.25);
+}
+.app_download_btn.boxed-btn3:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #fff !important;
+}
+
+.app_download_note {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #8a93a3;
+  max-width: 34ch;
+}
+
+@media (max-width: 991.98px) {
+  .app_download_area .col-lg-5 {
+    text-align: left !important;
+    margin-top: 24px;
+  }
+  .app_download_subtitle,
+  .app_download_note {
+    max-width: none;
+  }
+}
+
 /* Discover Our Story + line-buttons — red on hover */
 .about_area .line-button:hover,
 .line-button:hover {

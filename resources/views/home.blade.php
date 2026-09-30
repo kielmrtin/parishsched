@@ -364,6 +364,31 @@ function annCardToggle(btn, id) {
         </div>
     </div>
 </section>
+
+<section class="app_download_area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="app_download_badge">Take the parish with you</span>
+                <h3 class="app_download_title">Get the ParishSched app</h3>
+                <p class="app_download_subtitle">
+                    Book sacraments, check the worship schedule, and stay close to the parish right from
+                    your phone. Available for Android.
+                </p>
+            </div>
+            <div class="col-lg-5 text-lg-right">
+                <a href="{{ asset('downloads/ParishSched.apk') }}" class="boxed-btn3 app_download_btn" download>
+                    <i class="fa fa-download"></i> Download for Android
+                </a>
+                <p class="app_download_note">
+                    After downloading, open the file to install. Your phone may ask you to allow
+                    installs from this source the first time &mdash; this is normal for apps
+                    installed outside the Play Store.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
 <!-- events_preview_end -->
 
 @endsection
