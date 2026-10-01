@@ -1150,7 +1150,7 @@
 /* Hero primary button — smooth hover via filter instead of swapping the
    gradient background, since two different gradients can't cross-fade
    smoothly with a CSS transition (it just snaps). */
-.hero_btn--primary:hover {
+.hero_btn--primary.boxed-btn3:hover {
   background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
   filter: brightness(0.88);
   color: #fff !important;
