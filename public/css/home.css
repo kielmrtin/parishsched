@@ -96,6 +96,7 @@
   padding: 14px 28px;
   font-weight: 600;
   text-transform: uppercase;
+  transition: filter 0.25s ease;
   letter-spacing: 0.08em;
   font-size: 0.95rem;
   display: inline-flex;
@@ -1146,9 +1147,11 @@
   color: #fca5a5 !important;
 }
 
-/* Hero primary button — fix hover to stay red */
+/* Hero primary button — smooth hover via filter instead of swapping the
+   gradient background, since two different gradients can't cross-fade
+   smoothly with a CSS transition (it just snaps). */
 .hero_btn--primary:hover {
-  background: linear-gradient(135deg, #b91c1c, #991b1b) !important;
+  filter: brightness(0.88);
   color: #fff !important;
 }
 
