@@ -290,7 +290,7 @@
             </div>
             <div class="col-lg-5">
                 <div class="app_download_cta">
-                    <img src="{{ asset('img/parishsched-app-icon.png') }}" alt="ParishSched app icon" class="app_download_icon">
+                    <img src="{{ asset('img/parishsched-app-icon.png') }}?v={{ file_exists(public_path('img/parishsched-app-icon.png')) ? filemtime(public_path('img/parishsched-app-icon.png')) : 1 }}" alt="ParishSched app icon" class="app_download_icon">
                     <div class="app_download_cta_text">
                         <a href="{{ asset('downloads/ParishSched.apk') }}" class="boxed-btn3 cta_btn app_download_btn" download>
                             <i class="fa fa-download"></i> Download for Android
