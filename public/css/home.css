@@ -1151,6 +1151,7 @@
    gradient background, since two different gradients can't cross-fade
    smoothly with a CSS transition (it just snaps). */
 .hero_btn--primary:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
   filter: brightness(0.88);
   color: #fff !important;
 }
