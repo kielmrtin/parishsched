@@ -674,7 +674,7 @@
 }
 
 .cta_btn {
-  box-shadow: 0 20px 45px rgba(220, 38, 38, 0.35);
+  box-shadow: none;
 }
 
 .cta_link {
@@ -1207,7 +1207,6 @@
   height: 56px;
   border-radius: 14px;
   flex-shrink: 0;
-  box-shadow: 0 12px 26px rgba(220, 38, 38, 0.25);
 }
 
 .app_download_cta_text {
