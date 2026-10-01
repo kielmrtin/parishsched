@@ -2418,3 +2418,14 @@ body.reservation-page .main-header-area,
         transform: none !important;
     }
 }
+
+/* ── Sticky footer: keeps the footer flush with the bottom of the viewport
+   on short pages instead of leaving a white gap below it ── */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.parish_footer {
+    margin-top: auto;
+}
