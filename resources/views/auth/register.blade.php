@@ -402,6 +402,16 @@
     .ps-btns{display:flex;gap:10px;width:100%;z-index:2;animation:ps-up .4s .7s both;justify-content:center}
     .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
     .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
+
+    @media (max-width: 768px) {
+        .auth-photo-side { display: none; }
+        .auth-form-side {
+            padding: 32px 20px;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .auth-inner { max-width: 100%; }
+    }
     </style>
 </head>
 

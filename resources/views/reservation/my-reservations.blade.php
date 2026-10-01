@@ -383,6 +383,10 @@
         @media (max-width: 576px) {
             .res-card { padding: 1.2rem 1.1rem; }
             .myres-hero h1 { font-size: 1.6rem; }
+            .res-step-label { font-size: .62rem; white-space: normal; }
+            .res-step-dot { width: 18px; height: 18px; }
+            .res-step-line { margin: 0 4px; min-width: 10px; }
+            .res-stepper { gap: 0; }
         }
 
         /* Dark modal alert (matches the login/register confirmation modal) */

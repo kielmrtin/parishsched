@@ -820,6 +820,18 @@
     transition: box-shadow 400ms ease;
 }
 
+@media (max-width: 991.98px) {
+    .schedule-page .main-header-area {
+        padding: 14px 24px !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .schedule-page .main-header-area {
+        padding: 10px 12px !important;
+    }
+}
+
 .schedule-page .main-header-area .row {
     min-height: 88px;
     align-items: center !important;

@@ -2222,3 +2222,13 @@ body.reservation-page .main-header-area,
     border-color: #b91c1c !important;
     color: #fff !important;
 }
+
+/* boxed-btn3 — shrink padding/letter-spacing on phones so long labels
+   (e.g. "DOWNLOAD FOR ANDROID") don't force horizontal overflow */
+@media (max-width: 575.98px) {
+    .boxed-btn3 {
+        padding: 14px 22px;
+        letter-spacing: 1.5px;
+        font-size: 12px;
+    }
+}

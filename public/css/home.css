@@ -1213,6 +1213,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+}
+
+.app_download_btn.boxed-btn3 {
+  white-space: normal;
+  max-width: 100%;
 }
 
 .app_download_note {
