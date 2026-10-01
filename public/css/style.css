@@ -2258,3 +2258,19 @@ body.reservation-page .main-header-area,
     }
 }
 
+
+/* ── Mobile header: solid background + guaranteed-visible dark hamburger icon ──
+   slicknav's icon bars default to white (#ffffff), built for the old
+   transparent-over-hero look. Now that mobile shows nav links directly and
+   the header is solid, the icon must be dark on every page. Matching the
+   plugin's own selector exactly, with !important, avoids any ambiguity
+   about which rule wins. */
+@media (max-width: 991.98px) {
+    .home-header .main-header-area {
+        background: #ffffff !important;
+        box-shadow: 0 1px 0 rgba(15, 23, 42, .06);
+    }
+    .slicknav_menu .slicknav_icon-bar {
+        background-color: #1a2a4a !important;
+    }
+}

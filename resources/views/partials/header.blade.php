@@ -35,9 +35,8 @@
                         <div class="logo-img">
                             <a href="{{ route('home') }}">
                                 <img src="{{ asset('img/about/about_1.jpg') }}"
-                                     height="60"
                                      alt="St. John the Baptist Parish logo"
-                                     style="border-radius: 50px;">
+                                     style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: block;">
                             </a>
                         </div>
                     </div>
@@ -101,13 +100,49 @@
                         </div>
                     </div>
 
-                    <!-- MOBILE MENU -->
+                    <!-- MOBILE MENU (account/login access) -->
                     <div class="col-6 d-lg-none d-flex justify-content-end">
                         <div class="mobile_menu d-block d-lg-none"></div>
                     </div>
 
                 </div>
+
+                <!-- MOBILE PRIMARY NAV (always visible, no tap required) -->
+                <div class="mobile-primary-nav d-lg-none">
+                    <a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                    <a class="{{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a>
+                    <a class="{{ request()->is('schedule') ? 'active' : '' }}" href="{{ url('/schedule') }}">Schedule</a>
+                    <a class="{{ request()->is('contact') ? 'active' : '' }}" href="{{ url('/contact') }}">Inquire</a>
+                </div>
             </div>
         </div>
     </div>
 </header>
+
+<style>
+    .mobile-primary-nav {
+        display: none;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px 22px;
+        padding: 14px 16px 16px;
+        background: #ffffff;
+    }
+    .mobile-primary-nav a {
+        color: #1a2a4a;
+        font-size: 14.5px;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 4px 2px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+    }
+    .mobile-primary-nav a.active {
+        color: #dc2626;
+        border-bottom-color: #dc2626;
+    }
+    @media (max-width: 991.98px) {
+        .mobile-primary-nav { display: flex; }
+    }
+</style>
