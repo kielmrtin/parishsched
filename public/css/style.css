@@ -2232,3 +2232,22 @@ body.reservation-page .main-header-area,
         font-size: 12px;
     }
 }
+
+/* ── Mobile header padding fix ──
+   .main-header-area / .home-header .main-header-area carry an unguarded
+   150px side-padding !important rule meant for desktop; without this it
+   also applies on phones, squeezing the logo and hamburger icon. */
+@media (max-width: 575.98px) {
+    .main-header-area,
+    .home-header .main-header-area,
+    body.auth-body .main-header-area {
+        padding: 12px 16px !important;
+    }
+}
+
+/* ── Modern rounded buttons on mobile (matches approved mobile redesign) ── */
+@media (max-width: 575.98px) {
+    .boxed-btn3 {
+        border-radius: 12px;
+    }
+}
