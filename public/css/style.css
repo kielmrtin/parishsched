@@ -2444,3 +2444,10 @@ body.reservation-page .main-header-area,
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* ── Mobile-only: hide the auto-injected scrollUp "^" button ── */
+@media (max-width: 991.98px) {
+    #scrollUp {
+        display: none !important;
+    }
+}
