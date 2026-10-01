@@ -1141,7 +1141,7 @@
 }
 
 /* Hero secondary button — red accent on hover */
-.hero_btn--secondary:hover {
+.hero_btn--secondary.boxed-btn3:hover {
   background: rgba(220, 38, 38, 0.15) !important;
   border-color: #dc2626 !important;
   color: #fca5a5 !important;
