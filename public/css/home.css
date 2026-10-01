@@ -115,8 +115,11 @@
 }
 
 .hero_btn:hover {
-  transform: translateY(-2px);
   color: #ffffff;
+}
+
+.hero_btn--primary:hover {
+  border: none !important;
 }
 
 .parish_info_strip {
