@@ -179,8 +179,8 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/schedule.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/reservation-overrides.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/schedule.css') }}?v={{ file_exists(public_path('css/schedule.css')) ? filemtime(public_path('css/schedule.css')) : 1 }}">
+    <link rel="stylesheet" href="{{ asset('css/reservation-overrides.css') }}?v={{ file_exists(public_path('css/reservation-overrides.css')) ? filemtime(public_path('css/reservation-overrides.css')) : 1 }}">
 </head>
 
 <body class="reservation-page schedule-page">
@@ -751,7 +751,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
     </script>
     @endif
 
-    <script src="{{ asset('js/reservations.js') }}"></script>
+    <script src="{{ asset('js/reservations.js') }}?v={{ file_exists(public_path('js/reservations.js')) ? filemtime(public_path('js/reservations.js')) : 1 }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         var panel    = document.getElementById('reservationDayModal');

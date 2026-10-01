@@ -15,7 +15,7 @@
     <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
     @endif
     @stack('preloads')
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1 }}">
 
     <!-- CSS -->
 <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -28,8 +28,8 @@
 <link rel="stylesheet" href="{{ asset('css/gijgo.css') }}">
 <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
 <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<link rel="stylesheet" href="{{ asset('css/home.css') }}">
+<link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1 }}">
+<link rel="stylesheet" href="{{ asset('css/home.css') }}?v={{ file_exists(public_path('css/home.css')) ? filemtime(public_path('css/home.css')) : 1 }}">
 <style>
 .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
 .ps-modal{width:100%;max-width:440px;background:#0f172a;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:ps-pop .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;font-family:'Raleway',system-ui,sans-serif}
