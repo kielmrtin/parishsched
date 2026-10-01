@@ -2503,6 +2503,7 @@ body.reservation-page .main-header-area,
     .auth-heading,
     .auth-sub,
     .auth-form,
+    .auth-switch,
     .auth-photo-top {
         animation: ps-text-slide-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
@@ -2515,6 +2516,7 @@ body.reservation-page .main-header-area,
     .auth-heading { animation-delay: 0.16s; }
     .auth-sub { animation-delay: 0.22s; }
     .auth-form { animation-delay: 0.28s; }
+    .auth-switch { animation-delay: 0.34s; }
 
     /* Schedule — Style A: fade */
     .schedule_intro_kicker,
