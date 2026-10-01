@@ -2464,3 +2464,33 @@ body.reservation-page .main-header-area,
         z-index: 1;
     }
 }
+
+/* ── Desktop-only: page transition animation (Slide + Fade) ──
+   Uses the browser's native View Transitions API (Chrome/Edge 126+), which
+   animates between full page navigations on a traditional multi-page site
+   without needing to intercept link clicks in JS. Unsupported browsers
+   simply navigate normally — this is a pure progressive enhancement.
+   Scoped to desktop widths only via the @media wrapper. */
+@media (min-width: 992px) {
+    @view-transition {
+        navigation: auto;
+    }
+
+    ::view-transition-old(root) {
+        animation: ps-slide-fade-out 0.35s ease forwards;
+    }
+
+    ::view-transition-new(root) {
+        animation: ps-slide-fade-in 0.35s ease forwards;
+    }
+
+    @keyframes ps-slide-fade-in {
+        from { opacity: 0; transform: translateX(28px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes ps-slide-fade-out {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(-28px); }
+    }
+}
