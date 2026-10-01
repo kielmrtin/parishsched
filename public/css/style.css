@@ -2465,32 +2465,62 @@ body.reservation-page .main-header-area,
     }
 }
 
-/* ── Desktop-only: page transition animation (Slide + Fade) ──
-   Uses the browser's native View Transitions API (Chrome/Edge 126+), which
-   animates between full page navigations on a traditional multi-page site
-   without needing to intercept link clicks in JS. Unsupported browsers
-   simply navigate normally — this is a pure progressive enhancement.
-   Scoped to desktop widths only via the @media wrapper. */
+/* ── Desktop-only: per-page text entrance animations ──
+   Instead of animating the whole page on navigation (which needed the
+   Chrome-only View Transitions API), this animates just the hero text on
+   each page when it loads — works in every browser, no special API needed.
+   Style A = fade, Style B = slide + fade. */
 @media (min-width: 992px) {
-    @view-transition {
-        navigation: auto;
+    @keyframes ps-text-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-
-    ::view-transition-old(root) {
-        animation: ps-slide-fade-out 0.35s ease forwards;
-    }
-
-    ::view-transition-new(root) {
-        animation: ps-slide-fade-in 0.35s ease forwards;
-    }
-
-    @keyframes ps-slide-fade-in {
+    @keyframes ps-text-slide-fade-in {
         from { opacity: 0; transform: translateX(28px); }
         to { opacity: 1; transform: translateX(0); }
     }
 
-    @keyframes ps-slide-fade-out {
-        from { opacity: 1; transform: translateX(0); }
-        to { opacity: 0; transform: translateX(-28px); }
+    /* Home — Style A: fade */
+    .hero_text .hero_kicker,
+    .hero_text h1,
+    .hero_text p,
+    .hero_text .hero-actions,
+    .hero_text .hero_actions {
+        animation: ps-text-fade-in 0.5s ease both;
     }
+    .hero_text h1 { animation-delay: 0.08s; }
+    .hero_text p { animation-delay: 0.16s; }
+    .hero_text .hero-actions,
+    .hero_text .hero_actions { animation-delay: 0.24s; }
+
+    /* About — Style B: slide + fade */
+    .about-hero .eyebrow,
+    .about-hero h1,
+    .about-hero p,
+    .about-hero .hero-actions {
+        animation: ps-text-slide-fade-in 0.5s ease both;
+    }
+    .about-hero h1 { animation-delay: 0.08s; }
+    .about-hero p { animation-delay: 0.16s; }
+    .about-hero .hero-actions { animation-delay: 0.24s; }
+
+    /* Schedule — Style A: fade */
+    .schedule_intro_kicker,
+    .schedule_intro_title,
+    .schedule_intro_sub,
+    .schedule_intro_stats {
+        animation: ps-text-fade-in 0.5s ease both;
+    }
+    .schedule_intro_title { animation-delay: 0.08s; }
+    .schedule_intro_sub { animation-delay: 0.16s; }
+    .schedule_intro_stats { animation-delay: 0.24s; }
+
+    /* Inquire/Contact — Style A: fade */
+    .contact-hero-eyebrow,
+    .contact-hero-inner h1,
+    .contact-hero-sub {
+        animation: ps-text-fade-in 0.5s ease both;
+    }
+    .contact-hero-inner h1 { animation-delay: 0.08s; }
+    .contact-hero-sub { animation-delay: 0.16s; }
 }
