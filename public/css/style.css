@@ -2552,3 +2552,18 @@ a, button, .boxed-btn3, .cta_btn, .hero_btn, .ann_card,
                 transform 0.25s ease,
                 filter 0.25s ease;
 }
+
+/* ── Header Login/Create Account buttons — match the red theme + smooth
+   brightness hover used everywhere else, instead of the old blue/white
+   inversion left over from the original template ── */
+.book_btn .boxed-btn3 {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #fff !important;
+}
+.book_btn .boxed-btn3:hover {
+    filter: brightness(0.88);
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #fff !important;
+}

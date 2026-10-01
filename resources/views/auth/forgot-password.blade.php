@@ -243,13 +243,12 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(220,38,38,.3);
-            transition: background .2s, transform .15s;
+            transition: filter .25s ease;
             margin-bottom: 20px;
         }
 
         .auth-submit:hover {
-            background: #b91c1c;
-            transform: translateY(-1px);
+            filter: brightness(0.88);
         }
 
         .auth-back {

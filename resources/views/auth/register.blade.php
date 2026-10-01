@@ -318,10 +318,10 @@
             font-weight: 700;
             white-space: nowrap;
             cursor: pointer;
-            transition: background .2s, transform .15s;
+            transition: filter .25s ease;
         }
 
-        #sendOtpBtn:hover:not(:disabled) { background: #b91c1c; transform: translateY(-1px); }
+        #sendOtpBtn:hover:not(:disabled) { filter: brightness(0.88); }
         #sendOtpBtn:disabled { background: #94a3b8; cursor: not-allowed; }
 
         #otpCountdown {
@@ -345,14 +345,13 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(220,38,38,.3);
-            transition: background .2s, transform .15s;
+            transition: filter .25s ease;
             margin-top: 6px;
             margin-bottom: 12px;
         }
 
         .auth-submit:hover:not(:disabled) {
-            background: #b91c1c;
-            transform: translateY(-1px);
+            filter: brightness(0.88);
         }
 
         .auth-submit:disabled {
