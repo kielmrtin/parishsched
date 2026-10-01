@@ -278,7 +278,20 @@
                 min-height: 100vh;
             }
             .auth-inner { max-width: 100%; }
+            .auth-mobile-back {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: .85rem;
+                font-weight: 700;
+                color: #475569;
+                text-decoration: none;
+                margin-bottom: 18px;
+                align-self: flex-start;
+            }
+            .auth-mobile-back:hover { color: #dc2626; text-decoration: none; }
         }
+        .auth-mobile-back { display: none; }
     </style>
 </head>
 
@@ -310,6 +323,10 @@
         <!-- RIGHT PANEL -->
         <div class="auth-form-side">
             <div class="auth-inner">
+
+                <a href="{{ url('/login') }}" class="auth-mobile-back">
+                    <i class="fa fa-arrow-left"></i> Back
+                </a>
 
                 <div class="auth-brand">
                     <img class="parish-logo" src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo">

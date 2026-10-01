@@ -2419,13 +2419,28 @@ body.reservation-page .main-header-area,
     }
 }
 
-/* ── Sticky footer: keeps the footer flush with the bottom of the viewport
-   on short pages instead of leaving a white gap below it ── */
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+/* ── Mobile-only: sticky footer, overscroll color fix, page fade-in,
+   and tap feedback. All scoped to mobile — desktop is untouched. ── */
+@media (max-width: 991.98px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        animation: pageFadeIn 0.3s ease;
+    }
+    .parish_footer {
+        margin-top: auto;
+    }
+    html {
+        background-color: #321e6d;
+    }
+    a:active,
+    button:active,
+    .boxed-btn3:active {
+        transform: scale(0.97);
+    }
 }
-.parish_footer {
-    margin-top: auto;
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
