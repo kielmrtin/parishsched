@@ -1112,17 +1112,6 @@
 }
 
 
-/* Login / Create Account buttons on home hero */
-.home-header .book_btn .boxed-btn3 {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-}
-.home-header .book_btn .boxed-btn3:hover {
-  background: #fff !important;
-  color: #dc2626 !important;
-  border-color: #dc2626 !important;
-}
-
 /* ── Red overrides: remaining blue elements ── */
 
 /* Owl carousel prev/next arrows — red on hover only */
