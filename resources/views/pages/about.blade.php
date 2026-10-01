@@ -390,12 +390,18 @@
                 gap: 12px;
             }
 
+            .about-heritage .image-stack {
+                margin-bottom: 56px;
+            }
+
             .image-stack .stacked-img {
-                position: relative;
-                bottom: -20px;
-                left: 0;
-                width: 70%;
-                margin: 20px auto 0;
+                position: absolute;
+                bottom: -32px;
+                left: 16px;
+                width: 42%;
+                max-width: 180px;
+                border-width: 6px;
+                margin: 0;
                 display: block;
             }
         }

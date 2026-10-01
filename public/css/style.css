@@ -2397,3 +2397,24 @@ body.reservation-page .main-header-area,
         line-height: 1.4 !important;
     }
 }
+
+/* ── Mobile-only: hide footer Facebook icon (desktop keeps it) ── */
+@media (max-width: 991.98px) {
+    .footer_social {
+        display: none !important;
+    }
+}
+
+/* ── Mobile-only: disable hover-triggered motion/transition glitches ──
+   Touch devices shouldn't carry hover animations at all; this also covers
+   testing via desktop-browser mobile emulation, where a real mouse can
+   still trigger :hover and expose jumpy transitions. Colors/backgrounds
+   on hover are left alone (harmless); only motion is neutralized. */
+@media (max-width: 991.98px) {
+    * {
+        transition: none !important;
+    }
+    *:hover {
+        transform: none !important;
+    }
+}
