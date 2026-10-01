@@ -1203,11 +1203,11 @@
 }
 
 .app_download_icon {
-  width: 68px;
-  height: 68px;
-  border-radius: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   flex-shrink: 0;
-  box-shadow: 0 16px 36px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 12px 26px rgba(220, 38, 38, 0.25);
 }
 
 .app_download_cta_text {
