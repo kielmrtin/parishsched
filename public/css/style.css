@@ -2476,7 +2476,7 @@ body.reservation-page .main-header-area,
         to { opacity: 1; }
     }
     @keyframes ps-text-slide-fade-in {
-        from { opacity: 0; transform: translateX(28px); }
+        from { opacity: 0; transform: translateX(20px); }
         to { opacity: 1; transform: translateX(0); }
     }
 
@@ -2497,12 +2497,24 @@ body.reservation-page .main-header-area,
     .about-hero .eyebrow,
     .about-hero h1,
     .about-hero p,
-    .about-hero .hero-actions {
-        animation: ps-text-slide-fade-in 0.5s ease both;
+    .about-hero .hero-actions,
+    .auth-brand,
+    .auth-tabs,
+    .auth-heading,
+    .auth-sub,
+    .auth-form,
+    .auth-photo-top {
+        animation: ps-text-slide-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .about-hero h1 { animation-delay: 0.08s; }
     .about-hero p { animation-delay: 0.16s; }
     .about-hero .hero-actions { animation-delay: 0.24s; }
+
+    /* Login/Register/Forgot-password — Style B: slide + fade */
+    .auth-tabs { animation-delay: 0.08s; }
+    .auth-heading { animation-delay: 0.16s; }
+    .auth-sub { animation-delay: 0.22s; }
+    .auth-form { animation-delay: 0.28s; }
 
     /* Schedule — Style A: fade */
     .schedule_intro_kicker,
