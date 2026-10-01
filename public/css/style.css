@@ -2274,3 +2274,44 @@ body.reservation-page .main-header-area,
         background-color: #1a2a4a !important;
     }
 }
+
+/* ── Modern mobile dropdown menu (replaces dated slicknav defaults) ── */
+@media (max-width: 991.98px) {
+    .slicknav_btn {
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        margin: 0 !important;
+        padding: 8px !important;
+        background: transparent !important;
+    }
+    .mobile_menu {
+        display: flex;
+        align-items: center;
+    }
+    .slicknav_nav {
+        background: #ffffff !important;
+        border: none !important;
+        border-radius: 18px !important;
+        padding: 10px !important;
+        margin-top: 10px !important;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, .18);
+    }
+    .slicknav_nav .slicknav_row,
+    .slicknav_nav a {
+        margin: 3px 4px !important;
+        padding: 14px 18px !important;
+        border-radius: 12px !important;
+        font-size: 15.5px !important;
+        font-weight: 600 !important;
+        color: #1a2a4a !important;
+        text-transform: none !important;
+        letter-spacing: 0;
+    }
+    .slicknav_nav .slicknav_row:hover,
+    .slicknav_nav a:hover,
+    .slicknav_nav a.active {
+        background: rgba(220, 38, 38, .08) !important;
+        color: #dc2626 !important;
+    }
+}

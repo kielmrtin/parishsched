@@ -106,43 +106,7 @@
                     </div>
 
                 </div>
-
-                <!-- MOBILE PRIMARY NAV (always visible, no tap required) -->
-                <div class="mobile-primary-nav d-lg-none">
-                    <a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
-                    <a class="{{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a>
-                    <a class="{{ request()->is('schedule') ? 'active' : '' }}" href="{{ url('/schedule') }}">Schedule</a>
-                    <a class="{{ request()->is('contact') ? 'active' : '' }}" href="{{ url('/contact') }}">Inquire</a>
-                </div>
             </div>
         </div>
     </div>
 </header>
-
-<style>
-    .mobile-primary-nav {
-        display: none;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 10px 22px;
-        padding: 14px 16px 16px;
-        background: #ffffff;
-    }
-    .mobile-primary-nav a {
-        color: #1a2a4a;
-        font-size: 14.5px;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 4px 2px;
-        border-bottom: 2px solid transparent;
-        white-space: nowrap;
-    }
-    .mobile-primary-nav a.active {
-        color: #dc2626;
-        border-bottom-color: #dc2626;
-    }
-    @media (max-width: 991.98px) {
-        .mobile-primary-nav { display: flex; }
-    }
-</style>
