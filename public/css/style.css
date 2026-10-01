@@ -2364,3 +2364,35 @@ body.reservation-page .main-header-area,
         max-width: calc(100vw - 32px) !important;
     }
 }
+
+/* ── Shorter mobile header, no scroll-triggered jump, smaller dropdown ──
+   The header's "sticky" state (added by JS past 400px scroll) used to carry
+   different padding/position than its normal state, causing a visible jump.
+   Forcing both states to resolve identically, with position:sticky, removes
+   the jump and keeps the header pinned while scrolling — on every page,
+   not just home, since schedule/contact/reservation/auth all share this
+   same header markup. */
+@media (max-width: 991.98px) {
+    .main-header-area,
+    .home-header .main-header-area,
+    .home-header .main-header-area.sticky,
+    .schedule-page .main-header-area,
+    body.auth-body .main-header-area {
+        position: sticky !important;
+        top: 0 !important;
+        padding: 8px 14px !important;
+        background: #ffffff !important;
+    }
+    .main-header-area .row,
+    .schedule-page .main-header-area .row {
+        min-height: 52px !important;
+    }
+    .slicknav_nav {
+        width: 220px !important;
+    }
+    .slicknav_nav .slicknav_row,
+    .slicknav_nav a {
+        padding: 11px 14px !important;
+        font-size: 14.5px !important;
+    }
+}
