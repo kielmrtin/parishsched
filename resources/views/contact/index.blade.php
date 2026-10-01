@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="{{ asset('css/gijgo.css') }}">
     <link rel="stylesheet" href="{{ asset('css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1 }}">
     <link rel="stylesheet" href="{{ asset('css/schedule.css') }}?v={{ file_exists(public_path('css/schedule.css')) ? filemtime(public_path('css/schedule.css')) : 1 }}">
     <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
 
