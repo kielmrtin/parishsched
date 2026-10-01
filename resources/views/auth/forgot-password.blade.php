@@ -324,10 +324,6 @@
         <div class="auth-form-side">
             <div class="auth-inner">
 
-                <a href="{{ url('/login') }}" class="auth-mobile-back">
-                    <i class="fa fa-arrow-left"></i> Back
-                </a>
-
                 <div class="auth-brand">
                     <img class="parish-logo" src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo">
                     <div class="auth-brand-name">St. John the Baptist Parish</div>

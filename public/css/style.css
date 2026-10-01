@@ -2451,3 +2451,16 @@ body.reservation-page .main-header-area,
         display: none !important;
     }
 }
+
+/* ── Mobile-only: ensure the header/hamburger always renders above the
+   auth page's hero/form content, regardless of stacking context ── */
+@media (max-width: 991.98px) {
+    body.auth-body .main-header-area {
+        z-index: 10000 !important;
+        position: relative !important;
+    }
+    .auth-split {
+        position: relative;
+        z-index: 1;
+    }
+}
