@@ -269,6 +269,16 @@
 
         .boxed-btn3 { background: #dc2626 !important; border-color: #dc2626 !important; }
         .boxed-btn3:hover { background: #fff !important; color: #dc2626 !important; border-color: #dc2626 !important; }
+
+        @media (max-width: 768px) {
+            .auth-photo-side { display: none; }
+            .auth-form-side {
+                padding: 32px 20px;
+                align-items: center;
+                min-height: 100vh;
+            }
+            .auth-inner { max-width: 100%; }
+        }
     </style>
 </head>
 
