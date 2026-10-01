@@ -1165,7 +1165,7 @@
 
 /* App download section (home page, below the announcements) */
 .app_download_area {
-  background: #fdf3f0;
+  background: linear-gradient(145deg, rgba(233, 239, 255, 0.55), rgba(255, 255, 255, 0.95));
   padding: 70px 0;
 }
 
@@ -1173,8 +1173,8 @@
   display: inline-block;
   padding: 6px 18px;
   border-radius: 999px;
-  background: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
+  background: rgba(65, 105, 225, 0.12);
+  color: #1a2a4a;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: 600;
@@ -1197,14 +1197,14 @@
 }
 
 .app_download_btn.boxed-btn3 {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-  box-shadow: 0 20px 45px rgba(220, 38, 38, 0.25);
+  background: #009DFF !important;
+  border-color: #009DFF !important;
+  box-shadow: 0 20px 45px rgba(0, 157, 255, 0.25);
 }
 .app_download_btn.boxed-btn3:hover {
-  background: #b91c1c !important;
-  border-color: #b91c1c !important;
-  color: #fff !important;
+  background: #fff !important;
+  color: #009DFF !important;
+  border: 1px solid #009DFF !important;
 }
 
 .app_download_note {
