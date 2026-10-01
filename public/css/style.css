@@ -2233,9 +2233,9 @@ body.reservation-page .main-header-area,
    (e.g. "DOWNLOAD FOR ANDROID") don't force horizontal overflow */
 @media (max-width: 575.98px) {
     .boxed-btn3 {
-        padding: 14px 22px;
-        letter-spacing: 1.5px;
-        font-size: 12px;
+        padding: 15px 24px;
+        letter-spacing: 1.8px;
+        font-size: 13px;
     }
 }
 
@@ -2380,19 +2380,20 @@ body.reservation-page .main-header-area,
     body.auth-body .main-header-area {
         position: sticky !important;
         top: 0 !important;
-        padding: 8px 14px !important;
+        padding: 10px 16px !important;
         background: #ffffff !important;
     }
     .main-header-area .row,
     .schedule-page .main-header-area .row {
-        min-height: 52px !important;
+        min-height: 58px !important;
     }
     .slicknav_nav {
-        width: 220px !important;
+        width: 240px !important;
     }
     .slicknav_nav .slicknav_row,
     .slicknav_nav a {
-        padding: 11px 14px !important;
-        font-size: 14.5px !important;
+        padding: 14px 18px !important;
+        font-size: 15.5px !important;
+        line-height: 1.4 !important;
     }
 }
