@@ -954,7 +954,13 @@
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
+    line-height: 1;
     transition: all 0.3s ease;
+}
+
+.footer_social a i {
+    display: block;
+    line-height: 1;
 }
 
 .footer_social a:hover,

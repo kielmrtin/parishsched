@@ -17,6 +17,14 @@
                                     <li><a class="{{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a></li>
                                     <li><a class="{{ request()->is('schedule') ? 'active' : '' }}" href="{{ url('/schedule') }}">Schedule</a></li>
                                     <li><a class="{{ request()->is('contact') ? 'active' : '' }}" href="{{ url('/contact') }}">Inquire</a></li>
+                                    @if(session('customer_id'))
+                                        <li class="d-lg-none"><a href="{{ route('reservation.index') }}">Reserve Now</a></li>
+                                        <li class="d-lg-none"><a href="{{ route('reservation.my') }}">My Reservations</a></li>
+                                        <li class="d-lg-none"><a href="{{ route('logout') }}">Log out ({{ session('customer_name') }})</a></li>
+                                    @else
+                                        <li class="d-lg-none"><a href="{{ route('login') }}">Login</a></li>
+                                        <li class="d-lg-none"><a href="{{ route('register') }}">Create Account</a></li>
+                                    @endif
                                 </ul>
                             </nav>
                         </div>
