@@ -1237,8 +1237,7 @@
 
 @media (max-width: 575.98px) {
   .app_download_cta {
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
 }
 
