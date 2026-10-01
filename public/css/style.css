@@ -2538,3 +2538,17 @@ body.reservation-page .main-header-area,
     .contact-hero-inner h1 { animation-delay: 0.08s; }
     .contact-hero-sub { animation-delay: 0.16s; }
 }
+
+/* ── Smooth hover transitions, site-wide ──
+   Explicitly listing safe-to-animate properties (never bare `background`,
+   which can include a gradient — two different gradients can't cross-fade
+   smoothly and will just snap, as found on the hero button). */
+a, button, .boxed-btn3, .cta_btn, .hero_btn, .ann_card,
+.res-card, .schedule_card, .pillar_card, .stat-card {
+    transition: background-color 0.25s ease,
+                color 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease,
+                filter 0.25s ease;
+}
