@@ -680,6 +680,10 @@
   box-shadow: none;
 }
 
+.cta_link:hover {
+  color: #ffffff !important;
+}
+
 .cta_link {
   display: inline-flex;
   align-items: center;
