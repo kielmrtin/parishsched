@@ -1198,7 +1198,7 @@
 
 .app_download_cta {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
 }
 
@@ -1229,15 +1229,6 @@
   }
   .app_download_subtitle {
     max-width: none;
-  }
-  .app_download_cta {
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .app_download_cta {
-    align-items: center;
   }
 }
 
