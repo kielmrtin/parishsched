@@ -864,7 +864,7 @@
 
 /* Parish footer refresh */
 .parish_footer {
-    background: linear-gradient(135deg, #1a2a4a 0%, #0f172a 60%, #1a2a4a 100%);
+    background: linear-gradient(135deg, #321e6d 0%, #3f2c85 35%, #5936b0 100%);
     color: #f5f6ff;
     position: relative;
     overflow: hidden;
