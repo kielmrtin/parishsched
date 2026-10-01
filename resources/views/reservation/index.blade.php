@@ -640,7 +640,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <script src="{{ asset('js/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('js/plugins.js') }}"></script>
     <script src="{{ asset('js/gijgo.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
     @if(session('reservation_notifications'))
     @php $rnotif = session('reservation_notifications')[0] ?? []; @endphp
     <div class="ps-overlay" id="ps-res-overlay">

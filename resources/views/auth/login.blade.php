@@ -382,7 +382,7 @@
     @media (max-width: 768px) {
         .auth-photo-side { display: none; }
         .auth-form-side {
-            padding: 32px 20px;
+            padding: 100px 20px 32px;
             align-items: center;
             min-height: 100vh;
         }
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="{{ asset('js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
 
 </body>
 </html>
