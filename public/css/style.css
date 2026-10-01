@@ -2315,3 +2315,52 @@ body.reservation-page .main-header-area,
         color: #dc2626 !important;
     }
 }
+
+/* ── Mobile header: text brand instead of logo image, smaller hamburger,
+   and a dropdown that's reliably anchored below the button (not overlapping) ── */
+@media (max-width: 991.98px) {
+    .mobile-brand-row {
+        gap: 14px;
+    }
+    .mobile-brand-text {
+        font-family: 'Raleway', sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+        color: #1a2a4a !important;
+        text-decoration: none !important;
+        letter-spacing: -0.01em;
+    }
+
+    /* Establish a predictable positioning context for the dropdown,
+       instead of inheriting whatever ancestor happened to be positioned. */
+    .mobile_menu {
+        position: relative !important;
+    }
+    .slicknav_menu {
+        position: relative !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Smaller, cleanly centered hamburger button */
+    .slicknav_btn {
+        padding: 6px !important;
+    }
+    .slicknav_menu .slicknav_icon-bar {
+        width: 22px !important;
+        height: 2px !important;
+        margin: 4px 0 !important;
+    }
+
+    /* Dropdown anchored to the bottom-right of the button itself, so it can
+       never overlap it regardless of the button's actual rendered height. */
+    .slicknav_nav {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 0 !important;
+        margin: 8px 0 0 !important;
+        width: 260px !important;
+        max-width: calc(100vw - 32px) !important;
+    }
+}

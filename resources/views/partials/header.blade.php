@@ -30,8 +30,8 @@
                         </div>
                     </div>
 
-                    <!-- CENTER LOGO -->
-                    <div class="col-xl-2 col-lg-2 col-6 order-lg-2 d-flex align-items-center justify-content-center">
+                    <!-- CENTER LOGO (desktop only) -->
+                    <div class="col-xl-2 col-lg-2 d-none d-lg-flex order-lg-2 align-items-center justify-content-center">
                         <div class="logo-img">
                             <a href="{{ route('home') }}">
                                 <img src="{{ asset('img/about/about_1.jpg') }}"
@@ -100,8 +100,9 @@
                         </div>
                     </div>
 
-                    <!-- MOBILE MENU (account/login access) -->
-                    <div class="col-6 d-lg-none d-flex justify-content-end">
+                    <!-- MOBILE BRAND + MENU -->
+                    <div class="col-12 d-lg-none d-flex align-items-center justify-content-end mobile-brand-row">
+                        <a href="{{ route('home') }}" class="mobile-brand-text">ParishSched</a>
                         <div class="mobile_menu d-block d-lg-none"></div>
                     </div>
 

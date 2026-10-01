@@ -13,11 +13,6 @@
                             <span class="footer_contact_detail"><i class="fa fa-envelope"></i>
                                 <a href="mailto:stjohnbaptisttiaongparish@gmail.com">stjohnbaptisttiaongparish@gmail.com</a></span>
                         </p>
-                        <div class="footer_social">
-                            <a href="https://www.facebook.com/officialstjohnthebaptistparishtiaong/" target="_blank" rel="noopener" aria-label="Follow St. John the Baptist Parish on Facebook">
-                                <i class="fa fa-facebook-square"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-6">
