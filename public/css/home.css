@@ -119,10 +119,6 @@
   color: #ffffff;
 }
 
-.hero_btn--primary:hover {
-  border: none !important;
-}
-
 .parish_info_strip {
   margin-top: -70px;
   position: relative;
@@ -1140,20 +1136,21 @@
   color: #fca5a5 !important;
 }
 
-/* Hero secondary button — red accent on hover */
-.hero_btn--secondary.boxed-btn3:hover {
-  background: rgba(220, 38, 38, 0.15) !important;
-  border-color: #dc2626 !important;
-  color: #fca5a5 !important;
-}
-
-/* Hero primary button — smooth hover via filter instead of swapping the
-   gradient background, since two different gradients can't cross-fade
-   smoothly with a CSS transition (it just snaps). */
+/* Hero buttons keep their own colors on hover and only dim via filter,
+   so nothing here depends on beating the generic .boxed-btn3:hover rule
+   below on specificity or file order. */
 .hero_btn--primary.boxed-btn3:hover {
   background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-  filter: brightness(0.88);
+  border-color: transparent !important;
   color: #fff !important;
+  filter: brightness(0.88);
+}
+
+.hero_btn--secondary.boxed-btn3:hover {
+  background: rgba(15, 23, 42, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  filter: brightness(0.88);
 }
 
 /* Outline boxed-btn3 (white bg, blue text) — red on hover */
