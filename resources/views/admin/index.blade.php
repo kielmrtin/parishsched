@@ -1729,7 +1729,7 @@ function adminStatusBadge(string $status): string {
         'declined' => 'spill-declined',
     ];
     $cls = $map[$s] ?? 'spill-pending';
-    $label = ucfirst($s);
+    $label = e(ucfirst($s));
     return '<span class="status-pill '.$cls.'"><span class="spill-dot"></span>'.$label.'</span>';
 }
 @endphp
