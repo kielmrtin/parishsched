@@ -909,6 +909,33 @@ foreach ($scheduleCalendarReservations as $r) {
     $rDetails = $r['details'] ?? [];
     if (is_string($rDetails)) $rDetails = json_decode($rDetails, true) ?? [];
 
+    // Older bookings from the ParishSched mobile app saved these fields flat
+    // (details.child_name, details.bride_name, ...) instead of nested like the
+    // website does. Map them onto the nested shape the detail modal reads;
+    // full names go in *_first since the modal joins first/middle/last.
+    if (empty($rDetails['baptism']) && !empty($rDetails['child_name'])) {
+        $rDetails['baptism'] = [
+            'child_name'  => $rDetails['child_name'],
+            'child_dob'   => $rDetails['child_dob'] ?? '',
+            'father_name' => $rDetails['father_name'] ?? '',
+            'mother_name' => $rDetails['mother_name'] ?? '',
+        ];
+    }
+    if (empty($rDetails['wedding']) && (!empty($rDetails['groom_name']) || !empty($rDetails['bride_name']))) {
+        $rDetails['wedding'] = [
+            'groom_first'       => $rDetails['groom_name'] ?? '',
+            'bride_first'       => $rDetails['bride_name'] ?? '',
+            'seminar_date'      => $rDetails['seminar_date'] ?? '',
+            'sacrament_details' => $rDetails['sacrament_details'] ?? '',
+        ];
+    }
+    if (empty($rDetails['funeral']) && (!empty($rDetails['deceased_name']) || !empty($rDetails['marital_status']))) {
+        $rDetails['funeral'] = [
+            'deceased_first' => $rDetails['deceased_name'] ?? '',
+            'marital_status' => $rDetails['marital_status'] ?? '',
+        ];
+    }
+
     try {
         $rDateFormatted = (new DateTimeImmutable((string) $date))->format('M j, Y');
     } catch (\Exception $e) {
