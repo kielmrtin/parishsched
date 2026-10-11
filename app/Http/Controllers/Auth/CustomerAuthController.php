@@ -200,6 +200,97 @@ public function login(Request $request)
         return response()->json(['success' => true, 'valid' => true]);
     }
 
+    /**
+     * Lets a signed-in ParishSched app user permanently delete their account
+     * and personal data (Data Privacy Act right to erasure / MASVS-PRIVACY).
+     * The caller proves who they are with their own Supabase access token;
+     * everything else runs with the service-role key.
+     */
+    public function deleteMobileAccount(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Please sign in again.'], 401);
+        }
+
+        $url = rtrim(config('services.supabase.url'), '/');
+        $userResponse = Http::withHeaders([
+            'apikey' => config('services.supabase.key'),
+            'Authorization' => 'Bearer ' . $token,
+        ])->get($url . '/auth/v1/user');
+
+        $authId = $userResponse->successful() ? $userResponse->json('id') : null;
+        if (!$authId) {
+            return response()->json(['success' => false, 'message' => 'Please sign in again.'], 401);
+        }
+        $email = $userResponse->json('email');
+
+        $admin = $this->supabaseAdmin();
+        $customer = $admin->get($url . '/rest/v1/customers', [
+            'auth_id' => 'eq.' . $authId,
+            'select' => 'id,phone',
+            'limit' => 1,
+        ])->json()[0] ?? null;
+
+        $owners = [];
+        if ($customer) $owners[] = 'customer_id.eq.' . $customer['id'];
+        if ($email) $owners[] = 'email.eq."' . $email . '"';
+        $reservations = $owners ? ($admin->get($url . '/rest/v1/reservations', [
+            'select' => 'id,status,reservation_date',
+            'or' => '(' . implode(',', $owners) . ')',
+        ])->json() ?? []) : [];
+
+        // Don't silently drop ceremonies the parish is preparing for.
+        $today = now()->toDateString();
+        foreach ($reservations as $r) {
+            if (in_array(strtolower($r['status'] ?? ''), ['pending', 'approved', 'booked'], true)
+                && ($r['reservation_date'] ?? '') >= $today) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You still have upcoming reservations. Please cancel them (or contact the parish office) before deleting your account.',
+                ], 409);
+            }
+        }
+
+        $ids = array_column($reservations, 'id');
+        if ($ids) {
+            $idList = 'in.(' . implode(',', $ids) . ')';
+            $attachments = $admin->get($url . '/rest/v1/reservation_attachments', [
+                'select' => 'file_url',
+                'reservation_id' => $idList,
+            ])->json() ?? [];
+
+            $marker = '/storage/v1/object/public/reservation-attachments/';
+            $paths = [];
+            foreach ($attachments as $a) {
+                $pos = strpos($a['file_url'] ?? '', $marker);
+                if ($pos !== false) $paths[] = urldecode(substr($a['file_url'], $pos + strlen($marker)));
+            }
+            if ($paths) {
+                $admin->delete($url . '/storage/v1/object/reservation-attachments', ['prefixes' => $paths]);
+            }
+            $admin->delete($url . '/rest/v1/reservation_attachments?reservation_id=' . $idList);
+            $admin->delete($url . '/rest/v1/reservations?id=' . $idList);
+        }
+
+        if ($customer) {
+            if (!empty($customer['phone'])) {
+                $admin->delete($url . '/rest/v1/customer_otps?phone=eq.' . urlencode($customer['phone']));
+            }
+            $admin->delete($url . '/rest/v1/customers?id=eq.' . $customer['id']);
+        }
+
+        $deleted = $admin->delete($url . '/auth/v1/admin/users/' . $authId);
+        if (!$deleted->successful()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your data was removed, but the login could not be closed. Please contact the parish office.',
+            ], 500);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function register(Request $request)
 {
     $request->validate([

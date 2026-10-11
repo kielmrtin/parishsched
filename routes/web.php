@@ -94,3 +94,6 @@ Route::post('/api/mobile-send-otp', [\App\Http\Controllers\Auth\CustomerAuthCont
     ->middleware('throttle:3,1');
 Route::post('/api/mobile-verify-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'verifyRegisterOtp'])
     ->middleware('throttle:10,1');
+// App "Delete my account" (authenticated by the user's own Supabase token).
+Route::post('/api/mobile-delete-account', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'deleteMobileAccount'])
+    ->middleware('throttle:5,1');

@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         'api/mobile-contact',
         'api/mobile-send-otp',
         'api/mobile-verify-otp',
+        'api/mobile-delete-account',
     ]);
 })
 
