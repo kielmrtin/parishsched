@@ -45,30 +45,6 @@
             font-size: 10px;
             color: #94a3b8;
         }
-        .totals-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .totals-box {
-            flex: 1;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 8px 10px;
-            text-align: center;
-        }
-        .totals-box .num {
-            font-size: 15px;
-            font-weight: 700;
-            color: #1a2a4a;
-        }
-        .totals-box .lbl {
-            font-size: 8.5px;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            color: #94a3b8;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -136,15 +112,6 @@
         <div class="meta">
             Generated {{ $generatedAt }}
         </div>
-    </div>
-
-    <div class="totals-row">
-        <div class="totals-box"><div class="num">{{ $pdfTotals['baptism'] }}</div><div class="lbl">Baptisms</div></div>
-        <div class="totals-box"><div class="num">{{ $pdfTotals['wedding'] }}</div><div class="lbl">Weddings</div></div>
-        <div class="totals-box"><div class="num">{{ $pdfTotals['funeral'] }}</div><div class="lbl">Funerals</div></div>
-        <div class="totals-box"><div class="num">{{ $pdfTotals['approved'] }}</div><div class="lbl">Approved</div></div>
-        <div class="totals-box"><div class="num">{{ $pdfTotals['pending'] }}</div><div class="lbl">Pending</div></div>
-        <div class="totals-box"><div class="num">{{ $pdfTotals['declined'] }}</div><div class="lbl">Declined</div></div>
     </div>
 
     @if(count($reservations) === 0)
