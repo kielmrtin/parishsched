@@ -3279,14 +3279,21 @@ function adminStatusBadge(string $status): string {
 
         <div style="display:flex;flex-direction:column;gap:6px;margin-left:auto">
             <label style="font-size:11px;font-weight:700;color:transparent;letter-spacing:.07em">Export</label>
-            <button type="button" onclick="window.print()"
+            <a href="{{ route('admin.reports.exportPdf', [
+                    'report_from_month' => $reportFromMonth,
+                    'report_from_year'  => $reportFromYear,
+                    'report_to_month'   => $reportToMonth,
+                    'report_to_year'    => $reportToYear,
+                    'report_type'       => $reportType,
+                ]) }}"
                     style="padding:9px 20px;border-radius:12px;border:1.5px solid #d1d5db;
                            background:#fff;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;
-                           display:inline-flex;align-items:center;gap:8px;transition:all .2s ease"
+                           display:inline-flex;align-items:center;gap:8px;transition:all .2s ease;
+                           text-decoration:none"
                     onmouseover="this.style.background='rgba(220,38,38,0.08)'"
                     onmouseout="this.style.background='#fff'">
                 <i class="fa fa-download"></i> Export PDF
-            </button>
+            </a>
         </div>
     </form>
 

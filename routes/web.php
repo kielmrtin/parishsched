@@ -77,6 +77,7 @@ Route::post('/api/mobile-contact', [ContactController::class, 'mobileSend'])
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 Route::post('/admin', [AdminController::class, 'handle'])->name('admin.handle');
 Route::get('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+Route::get('/admin/reports/export-pdf', [AdminController::class, 'exportReportPdf'])->name('admin.reports.exportPdf');
 Route::post('/admin/donations', [AdminController::class, 'storeDonation'])->name('admin.donations.store');
 Route::delete('/admin/donations/{id}', [AdminController::class, 'deleteDonation'])->name('admin.donations.delete');
 Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');

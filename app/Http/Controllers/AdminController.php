@@ -1341,6 +1341,73 @@ Monthly breakdown: {$monthlyBreakdown}";
         ));
     }
 
+    // ── Reports export ───────────────────────────────────────────────
+
+    public function exportReportPdf(Request $request)
+    {
+        if (!$this->isLoggedIn()) {
+            return redirect()->route('admin.index');
+        }
+
+        $reportFromYear  = (int)($request->input('report_from_year',  now()->year));
+        $reportFromMonth = (int)($request->input('report_from_month', 1));
+        $reportToYear    = (int)($request->input('report_to_year',    now()->year));
+        $reportToMonth   = (int)($request->input('report_to_month',   now()->month));
+        $reportFromMonth = max(1, min(12, $reportFromMonth));
+        $reportToMonth   = max(1, min(12, $reportToMonth));
+        if ($reportFromYear * 100 + $reportFromMonth > $reportToYear * 100 + $reportToMonth) {
+            [$reportFromYear, $reportToYear]   = [$reportToYear,    $reportFromYear];
+            [$reportFromMonth, $reportToMonth] = [$reportToMonth,   $reportFromMonth];
+        }
+        $reportType = strtolower(trim((string)$request->input('report_type', 'all')));
+        if (!in_array($reportType, ['all', 'baptism', 'wedding', 'funeral'])) $reportType = 'all';
+
+        try {
+            $response = $this->sb()->timeout(8)->get($this->sbUrl('reservations', [
+                'select' => '*',
+                'order'  => 'reservation_date.asc',
+            ]));
+            $reservations = $response->successful() ? $response->json() : [];
+
+            $reservations = array_map(function ($r) {
+                $details = $r['details'] ?? [];
+                if (is_string($details)) {
+                    $details = json_decode($details, true) ?? [];
+                }
+                $r['name']  = $r['name']  ?? ($details['name']  ?? null);
+                $r['email'] = $r['email'] ?? ($details['email'] ?? null);
+                $r['phone'] = $r['phone'] ?? ($details['phone'] ?? null);
+                return $r;
+            }, $reservations);
+        } catch (\Throwable) {
+            $reservations = [];
+        }
+
+        $filtered = array_values(array_filter($reservations, function ($r) use ($reportFromYear, $reportFromMonth, $reportToYear, $reportToMonth, $reportType) {
+            $date = (string)($r['reservation_date'] ?? '');
+            if (strlen($date) < 7) return false;
+            $ym = (int) substr($date, 0, 4) * 100 + (int) substr($date, 5, 2);
+            if ($ym < $reportFromYear * 100 + $reportFromMonth || $ym > $reportToYear * 100 + $reportToMonth) return false;
+            if ($reportType !== 'all' && strtolower($r['event_type'] ?? '') !== $reportType) return false;
+            return true;
+        }));
+
+        $rptMonthsFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        $reportRangeLabel = $rptMonthsFull[$reportFromMonth - 1] . ' ' . $reportFromYear;
+        if ($reportFromYear !== $reportToYear || $reportFromMonth !== $reportToMonth) {
+            $reportRangeLabel .= ' – ' . $rptMonthsFull[$reportToMonth - 1] . ' ' . $reportToYear;
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports-pdf', [
+            'reservations'     => $filtered,
+            'reportRangeLabel' => $reportRangeLabel,
+            'reportType'       => $reportType,
+            'generatedAt'      => now()->format('F j, Y g:i A'),
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('parish-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
     // ── Donations ─────────────────────────────────────────────────────
 
     public function storeDonation(Request $request)
