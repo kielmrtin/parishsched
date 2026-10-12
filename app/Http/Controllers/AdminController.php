@@ -1398,12 +1398,25 @@ Monthly breakdown: {$monthlyBreakdown}";
             $reportRangeLabel .= ' – ' . $rptMonthsFull[$reportToMonth - 1] . ' ' . $reportToYear;
         }
 
+        $pdfTotals = [
+            'baptism'  => 0, 'wedding' => 0, 'funeral' => 0,
+            'approved' => 0, 'pending' => 0, 'declined' => 0, 'booked' => 0, 'cancelled' => 0,
+        ];
+        foreach ($filtered as $r) {
+            $type = strtolower($r['event_type'] ?? '');
+            if (array_key_exists($type, $pdfTotals)) $pdfTotals[$type]++;
+            $status = strtolower($r['status'] ?? 'pending');
+            if (array_key_exists($status, $pdfTotals)) $pdfTotals[$status]++;
+        }
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports-pdf', [
             'reservations'     => $filtered,
             'reportRangeLabel' => $reportRangeLabel,
             'reportType'       => $reportType,
             'generatedAt'      => now()->format('F j, Y g:i A'),
-        ])->setPaper('a4', 'landscape');
+            'pdfTotals'        => $pdfTotals,
+            'logoPath'         => public_path('img/about/about_1.jpg'),
+        ])->setPaper('a4', 'landscape')->setOption(['isPhpEnabled' => true]);
 
         return $pdf->download('parish-report-' . now()->format('Y-m-d') . '.pdf');
     }

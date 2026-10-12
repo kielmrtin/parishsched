@@ -18,8 +18,20 @@
             padding-bottom: 10px;
             margin-bottom: 14px;
         }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #dc2626;
+        }
         .header h1 {
-            font-size: 18px;
+            font-size: 17px;
             margin: 0 0 2px;
             color: #1a2a4a;
         }
@@ -31,6 +43,30 @@
         .header .meta {
             text-align: right;
             font-size: 10px;
+            color: #94a3b8;
+        }
+        .totals-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .totals-box {
+            flex: 1;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+        .totals-box .num {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a2a4a;
+        }
+        .totals-box .lbl {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
             color: #94a3b8;
         }
         table {
@@ -82,19 +118,33 @@
 </head>
 <body>
     <div class="header">
-        <div>
-            <h1>St. John the Baptist Parish — Reservation Report</h1>
-            <p class="sub">
-                Period: {{ $reportRangeLabel }}
-                @if($reportType !== 'all')
-                    &middot; Type: {{ ucfirst($reportType) }}
-                @endif
-                &middot; {{ count($reservations) }} record{{ count($reservations) === 1 ? '' : 's' }}
-            </p>
+        <div class="header-left">
+            @if(file_exists($logoPath))
+                <img class="header-logo" src="{{ $logoPath }}" alt="Parish Logo">
+            @endif
+            <div>
+                <h1>St. John the Baptist Parish — Reservation Report</h1>
+                <p class="sub">
+                    Period: {{ $reportRangeLabel }}
+                    @if($reportType !== 'all')
+                        &middot; Type: {{ ucfirst($reportType) }}
+                    @endif
+                    &middot; {{ count($reservations) }} record{{ count($reservations) === 1 ? '' : 's' }}
+                </p>
+            </div>
         </div>
         <div class="meta">
             Generated {{ $generatedAt }}
         </div>
+    </div>
+
+    <div class="totals-row">
+        <div class="totals-box"><div class="num">{{ $pdfTotals['baptism'] }}</div><div class="lbl">Baptisms</div></div>
+        <div class="totals-box"><div class="num">{{ $pdfTotals['wedding'] }}</div><div class="lbl">Weddings</div></div>
+        <div class="totals-box"><div class="num">{{ $pdfTotals['funeral'] }}</div><div class="lbl">Funerals</div></div>
+        <div class="totals-box"><div class="num">{{ $pdfTotals['approved'] }}</div><div class="lbl">Approved</div></div>
+        <div class="totals-box"><div class="num">{{ $pdfTotals['pending'] }}</div><div class="lbl">Pending</div></div>
+        <div class="totals-box"><div class="num">{{ $pdfTotals['declined'] }}</div><div class="lbl">Declined</div></div>
     </div>
 
     @if(count($reservations) === 0)
@@ -138,5 +188,17 @@
     <div class="footer-note">
         ParishSched &middot; St. John the Baptist Parish, Tiaong, Quezon &middot; Confidential — contains personal information, handle accordingly.
     </div>
+
+    <script type="text/php">
+        if (isset($pdf)) {
+            $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+            $font = $fontMetrics->getFont("Helvetica");
+            $size = 8;
+            $width = $fontMetrics->getTextWidth($text, $font, $size);
+            $x = $pdf->get_width() - $width - 32;
+            $y = $pdf->get_height() - 20;
+            $pdf->page_text($x, $y, $text, $font, $size, array(0.58, 0.64, 0.72));
+        }
+    </script>
 </body>
 </html>
