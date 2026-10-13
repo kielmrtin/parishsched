@@ -258,6 +258,15 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
 ]);
 
     if ($response->failed()) {
+        // The reservations_slot_guard trigger rejects a slot that was taken
+        // between our conflict check above and this insert.
+        $dbMessage = (string) ($response->json('message') ?? '');
+        if (str_starts_with($dbMessage, 'SLOT_CONFLICT:')) {
+            return back()->withInput()->withErrors([
+                'reservation' => trim(substr($dbMessage, strlen('SLOT_CONFLICT:'))),
+            ]);
+        }
+
         return back()->withInput()->withErrors([
             'reservation' => 'Reservation failed: ' . $response->body(),
         ]);
