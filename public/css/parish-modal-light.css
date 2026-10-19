@@ -178,3 +178,11 @@ html body .dcm-modal .cust-status-badge.disabled { background: #fef2f2; color: #
 
 /* Title letter-spacing a touch looser on white */
 html body .ps-title, html body .adm-cfm-title { letter-spacing: -.01em !important; }
+
+/* ── Page scroll lock while a modal is open (partials/modal-theme) ─────── */
+html.ps-scroll-lock,
+html.ps-scroll-lock body { overflow: hidden !important; }
+html.ps-scroll-lock body { padding-right: var(--ps-scrollbar-gap, 0px); }
+html.ps-scroll-lock .ps-overlay,
+html.ps-scroll-lock .dcm-overlay,
+html.ps-scroll-lock #rdm-modal { overscroll-behavior: contain; }
