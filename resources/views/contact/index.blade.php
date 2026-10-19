@@ -603,5 +603,6 @@ function showContactAlert(type, title, text) {
 })(jQuery);
 </script>
 
+@include('partials.help')
 </body>
 </html>

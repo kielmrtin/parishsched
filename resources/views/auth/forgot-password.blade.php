@@ -373,5 +373,6 @@
     <script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
 
+@include('partials.help')
 </body>
 </html>

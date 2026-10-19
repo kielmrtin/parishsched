@@ -256,5 +256,6 @@
 })();
 </script>
 
+@include('partials.help')
 </body>
 </html>

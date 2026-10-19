@@ -7446,5 +7446,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @endif
 
+@include('partials.help', ['section' => $section ?? null])
 </body>
 </html>

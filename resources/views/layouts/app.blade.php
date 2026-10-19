@@ -183,5 +183,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 @stack('scripts')
+@include('partials.help')
 </body>
 </html>

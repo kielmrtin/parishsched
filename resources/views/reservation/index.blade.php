@@ -1443,5 +1443,6 @@ foreach ($approvedReservationsJson as $dayGroup) {
         sync();
     })();
     </script>
+@include('partials.help')
 </body>
 </html>
