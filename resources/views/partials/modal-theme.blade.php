@@ -8,7 +8,7 @@
 //     is shown in its place and animated out.
 (function () {
     var SELECTOR = '.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #rdm-backdrop, #purge-confirm-overlay, #cancel-overlay-panel, #cancel-overlay-backdrop, .ps-help-overlay';
-    var LEAVE_MS = 220;
+    var LEAVE_MS = 260;
     var root = document.documentElement;
     var shown = new Map(); // element -> its display value while open
     var queued = false;

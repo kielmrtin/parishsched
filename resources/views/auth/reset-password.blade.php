@@ -157,5 +157,6 @@
 
 @include('partials.help')
 @include('partials.modal-theme')
+@include('partials.doves')
 </body>
 </html>

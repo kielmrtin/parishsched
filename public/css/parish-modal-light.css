@@ -210,14 +210,14 @@ html.ps-scroll-lock .dcm-overlay,
 html.ps-scroll-lock #rdm-modal { overscroll-behavior: contain; }
 
 /* ── Closing animation (partials/modal-theme shows a copy and fades it) ── */
-[data-ps-ghost] { opacity: 1; transition: opacity .22s ease; z-index: 100000 !important; }
+[data-ps-ghost] { opacity: 1; transition: opacity .26s ease-in; z-index: 100000 !important; }
 /* the entrance animations would hold the copy fully visible, so stop them:
    the card itself drops them, inner parts jump to their finished state */
 [data-ps-ghost], [data-ps-ghost] > * { animation: none !important; }
 [data-ps-ghost] > * * { animation-duration: 0s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
-[data-ps-ghost] > * { transition: transform .22s ease, opacity .22s ease; }
+[data-ps-ghost] > * { transition: transform .26s ease-in, opacity .26s ease-in; }
 [data-ps-ghost].ps-leaving { opacity: 0; }
-[data-ps-ghost].ps-leaving > * { transform: scale(.94) translateY(10px); opacity: 0; }
+[data-ps-ghost].ps-leaving > * { transform: scale(.96) translateY(10px); opacity: 0; }
 
 /* ── Slim scrollbars in every modal ────────────────────────────────────── */
 /* Covers the overlays themselves and anything that scrolls inside them. */
@@ -239,3 +239,22 @@ html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-co
 html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-overlay) *::-webkit-scrollbar-thumb:hover { background: #fca5a5; }
 html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-overlay)::-webkit-scrollbar-button,
 html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-overlay) *::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+/* ── Smooth opening for every alert and pop-up ─────────────────────────── */
+/* A soft fade-and-rise (no bounce); closing is handled by partials/modal-theme. */
+@keyframes ps-soft-in { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes ps-soft-fade { from { opacity: 0; } to { opacity: 1; } }
+html body .ps-modal,
+html body .adm-cfm-modal,
+html body .dcm-overlay.is-open .dcm-modal,
+html body #rdm-modal.is-open .rdm-panel,
+html body .ps-help-dialog { animation: ps-soft-in .42s cubic-bezier(.16,1,.3,1) both !important; }
+html body .ps-overlay,
+html body #adm-cfm-overlay.is-open,
+html body .dcm-overlay.is-open,
+html body .ps-help-overlay { animation: ps-soft-fade .3s ease both !important; }
+@media (prefers-reduced-motion: reduce) {
+    html body .ps-modal, html body .adm-cfm-modal, html body .dcm-overlay.is-open .dcm-modal,
+    html body #rdm-modal.is-open .rdm-panel, html body .ps-help-dialog,
+    html body .ps-overlay, html body #adm-cfm-overlay.is-open, html body .dcm-overlay.is-open, html body .ps-help-overlay { animation: none !important; }
+}
