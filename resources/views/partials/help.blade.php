@@ -51,8 +51,9 @@
     .ps-help-topic-body { overflow: hidden; }
     .ps-help-topic[open] summary::after { transform: rotate(90deg); color: #dc2626; }
     .ps-help-topic summary:hover { color: #dc2626; }
-    .ps-help-topic ol { margin: 0; padding: 0 14px 12px 34px; display: flex; flex-direction: column; gap: 6px; }
-    .ps-help-topic li { font-size: 12.5px; line-height: 1.55; color: #475569; }
+    .ps-help-topic ol { margin: 0; padding: 0 14px 12px 18px; display: flex; flex-direction: column; gap: 6px; }
+    .ps-help-topic li { position: relative; list-style: none; padding-left: 16px; font-size: 12.5px; line-height: 1.55; color: #475569; }
+    .ps-help-topic li::before { content: ''; position: absolute; left: 2px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: #dc2626; }
 
     .ps-help-footer { padding: 13px 22px; border-top: 1px solid #f1f5f9; flex-shrink: 0; display: flex; justify-content: flex-end; }
     .ps-help-close { padding: 10px 26px; border-radius: 999px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font: 700 .8rem 'Raleway', system-ui, sans-serif; cursor: pointer; }
