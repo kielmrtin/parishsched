@@ -155,9 +155,44 @@ public function login(Request $request)
     ]);
 }
 
+/**
+ * True when a customer profile already uses this email (case-insensitive).
+ * LIKE wildcards are escaped so the match stays exact.
+ */
+private function emailTaken(string $email): bool
+{
+    $pattern = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], trim($email));
+
+    $response = $this->supabaseAdmin()->get(config('services.supabase.url') . '/rest/v1/customers', [
+        'email'  => 'ilike.' . $pattern,
+        'select' => 'id',
+        'limit'  => 1,
+    ]);
+
+    return $response->successful() && !empty($response->json());
+}
+
     public function showRegister()
     {
         return view('auth.register');
+    }
+
+    /**
+     * Step 1 of the register form checks the email here before moving on,
+     * so a duplicate is caught before any OTP is sent.
+     */
+    public function checkRegisterEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email|max:255']);
+
+        if ($this->emailTaken($request->email)) {
+            return response()->json([
+                'available' => false,
+                'message'   => 'This email is already registered. Please sign in or use another email.',
+            ]);
+        }
+
+        return response()->json(['available' => true, 'message' => 'Email is available.']);
     }
 
     /**
@@ -302,6 +337,13 @@ public function login(Request $request)
     'address' => 'required|string|max:500',
 ]);
 
+// Check the email before touching the OTP, so a duplicate never uses up a code.
+if ($this->emailTaken($request->email)) {
+    return back()->withErrors([
+        'email' => 'An account with this email already exists. Please log in instead.',
+    ])->withInput();
+}
+
 $otpResponse = $this->supabaseAdmin()->get(config('services.supabase.url') . '/rest/v1/customer_otps', [
     'phone'       => 'eq.' . $request->phone,
     'otp_code'    => 'eq.' . $request->otp_code,
@@ -415,7 +457,16 @@ public function logout(Request $request)
 {
     $request->validate([
         'phone' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
     ]);
+
+    // The website sends the email along; the mobile app does not.
+    if ($request->filled('email') && $this->emailTaken($request->email)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This email is already registered. Please sign in or use another email.',
+        ], 422);
+    }
 
     $otp = (string) random_int(100000, 999999);
 

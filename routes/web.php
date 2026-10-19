@@ -85,6 +85,10 @@ Route::post('/admin/priests', [AdminController::class, 'storePriest'])->name('ad
 Route::delete('/admin/priests/{id}', [AdminController::class, 'deletePriest'])->name('admin.priests.delete');
 Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assignOfficiant'])->name('admin.reservations.officiant');
 
+Route::post('/register/check-email', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'checkRegisterEmail'])
+    ->middleware('throttle:20,1')
+    ->name('register.checkEmail');
+
 Route::post('/send-register-otp', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendRegisterOtp'])
     ->middleware('throttle:3,1')
     ->name('register.sendOtp');
