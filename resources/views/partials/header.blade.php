@@ -7,15 +7,17 @@
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         width: 38px; height: 38px; padding: 0 !important; border-radius: 6px;
         border: 2px solid currentColor; position: relative; top: 11px;
-        transition: background .2s, color .2s, border-color .2s;
+        transition: background .2s, color .5s ease, border-color .5s ease;   /* colour fades with the bar's .5s background */
     }
     #navigation > li.nav-give > a::before { display: none !important; }
     .nav-give-icon { width: 20px; height: 20px; flex-shrink: 0; transition: transform .2s ease; }
     #navigation > li.nav-give > a:hover .nav-give-icon { transform: translateY(-1px) scale(1.08); }
-    .nav-on-light #navigation > li.nav-give > a { color: #dc2626 !important; border-color: #dc2626; }
-    .nav-on-light #navigation > li.nav-give > a:hover { background: rgba(220,38,38,.1); }
-    .nav-on-dark #navigation > li.nav-give > a { color: #fff !important; border-color: #fff; }
-    .nav-on-dark #navigation > li.nav-give > a:hover { background: rgba(255,255,255,.15); }
+    /* red by default; white only while the bar is see-through over a dark photo.
+       Turning sticky switches it straight away so the red fades in with the white bar. */
+    #navigation > li.nav-give > a { color: #dc2626 !important; border-color: #dc2626; }
+    #navigation > li.nav-give > a:hover { background: rgba(220,38,38,.1); }
+    .nav-on-dark:not(.sticky) #navigation > li.nav-give > a { color: #fff !important; border-color: #fff; }
+    .nav-on-dark:not(.sticky) #navigation > li.nav-give > a:hover { background: rgba(255,255,255,.15); }
     .nav-give-text { display: none; }
     /* the phone menu (slicknav copy) shows the words next to the icon */
     .slicknav_nav .nav-give-text { display: inline; }
@@ -37,8 +39,8 @@
 </style>
 <header>
     <style>
-        .home-header .myres-icon-btn { color:#fff !important; border-color:#fff !important; }
-        .home-header .myres-icon-btn:hover { background:rgba(255,255,255,.15) !important; }
+        .home-header #sticky-header:not(.sticky) .myres-icon-btn { color:#fff !important; border-color:#fff !important; }
+        .home-header #sticky-header:not(.sticky) .myres-icon-btn:hover { background:rgba(255,255,255,.15) !important; }
     </style>
     <div class="header-area {{ request()->is('/') || request()->is('about') ? 'home-header' : '' }} {{ request()->is('login') || request()->is('register') ? 'auth-header' : '' }}">
         <div id="sticky-header" class="main-header-area">
@@ -117,7 +119,7 @@
                 Reserve Now
             </a>
 
-            <a href="{{ route('reservation.my') }}" title="My Reservations" class="myres-icon-btn" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:2px solid #dc2626;border-radius:6px;color:#dc2626;font-size:1rem;margin-left:8px;text-decoration:none;transition:background .2s,color .2s;" onmouseover="this.style.background='rgba(220,38,38,.1)';" onmouseout="this.style.background='transparent';">
+            <a href="{{ route('reservation.my') }}" title="My Reservations" class="myres-icon-btn" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:2px solid #dc2626;border-radius:6px;color:#dc2626;font-size:1rem;margin-left:8px;text-decoration:none;transition:background .2s,color .5s ease,border-color .5s ease;" onmouseover="this.style.background='rgba(220,38,38,.1)';" onmouseout="this.style.background='transparent';">
                 <i class="fa fa-calendar-check-o"></i>
             </a>
         </div>
