@@ -2513,7 +2513,7 @@ function adminStatusBadge(string $status): string {
                 {{-- Purge confirm modal --}}
                 <div id="purge-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;"
                     >
-                    <div style="background:#0f172a;border-radius:22px;max-width:420px;width:92%;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);animation:purge-pop .2s cubic-bezier(.34,1.56,.64,1);font-family:'Raleway',system-ui,sans-serif;">
+                    <div style="background:#fff;border-top:4px solid #dc2626;border-radius:22px;max-width:420px;width:92%;overflow:hidden;box-shadow:0 24px 60px rgba(15,23,42,.22),0 0 0 1px rgba(15,23,42,.06);animation:purge-pop .2s cubic-bezier(.34,1.56,.64,1);font-family:'Raleway',system-ui,sans-serif;">
                         <style>@keyframes purge-pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}</style>
 
                         {{-- Header --}}
@@ -2526,19 +2526,19 @@ function adminStatusBadge(string $status): string {
 
                         {{-- Title --}}
                         <div style="padding:18px 22px 0;display:flex;align-items:center;gap:12px;">
-                            <div style="width:38px;height:38px;border-radius:11px;background:rgba(220,38,38,.14);border:1.5px solid rgba(220,38,38,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f87171;">
+                            <div style="width:38px;height:38px;border-radius:11px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#dc2626;">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                             </div>
                             <div>
-                                <div style="font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#f87171;margin-bottom:3px;">Confirmation Required</div>
-                                <div style="font-size:1.05rem;font-weight:800;color:#fff;">Remove Expired Pending</div>
+                                <div style="font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#dc2626;margin-bottom:3px;">Confirmation Required</div>
+                                <div style="font-size:1.05rem;font-weight:800;color:#0f172a;">Remove Expired Pending</div>
                             </div>
                         </div>
 
                         {{-- Body --}}
                         <div style="padding:18px 22px 22px;">
-                            <p style="margin:0 0 8px;color:#f1f5f9;font-size:.9rem;font-weight:600;line-height:1.5;">All pending reservations with a past date will be permanently deleted.</p>
-                            <p style="margin:0 0 22px;color:rgba(255,255,255,.4);font-size:.8rem;line-height:1.65;">This action cannot be undone. Only reservations with <strong style="color:rgba(255,255,255,.6);">pending</strong> status and a date before today will be affected.</p>
+                            <p style="margin:0 0 8px;color:#0f172a;font-size:.9rem;font-weight:600;line-height:1.5;">All pending reservations with a past date will be permanently deleted.</p>
+                            <p style="margin:0 0 22px;color:#64748b;font-size:.8rem;line-height:1.65;">This action cannot be undone. Only reservations with <strong style="color:#334155;">pending</strong> status and a date before today will be affected.</p>
 
                             <div style="display:flex;gap:10px;justify-content:flex-end;">
                                 <button type="button" class="adm-cfm-cancel" style="flex:none;padding:9px 22px;"
@@ -3825,10 +3825,10 @@ function adminStatusBadge(string $status): string {
                 <input type="hidden" name="event_type"     id="attEventType">
 
                 <div>
-                    <div style="display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;color:#0f172a;font-weight:800;font-size:16px;">
                         <i class="fa fa-users"></i> <span id="attModalTitle">Log Attendance</span>
                     </div>
-                    <p style="margin:6px 0 0;color:rgba(255,255,255,.45);font-size:12px;" id="attModalSub"></p>
+                    <p style="margin:6px 0 0;color:#64748b;font-size:12px;" id="attModalSub"></p>
                 </div>
 
                 <div>
@@ -6559,10 +6559,10 @@ function printReceiptNow() {
 
                         <div class="dcm-scroll">
                             <div style="padding:22px 24px 0;">
-                                <div style="display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:16px;">
+                                <div style="display:flex;align-items:center;gap:8px;color:#0f172a;font-weight:800;font-size:16px;">
                                     <i class="fa fa-pencil"></i> Edit Announcement
                                 </div>
-                                <p style="margin:6px 0 0;color:rgba(255,255,255,.45);font-size:12px;">Changes will update immediately on the home page if set to Live.</p>
+                                <p style="margin:6px 0 0;color:#64748b;font-size:12px;">Changes will update immediately on the home page if set to Live.</p>
                             </div>
 
                             <form method="POST" action="{{ route('admin.handle') }}" enctype="multipart/form-data" style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px;">
@@ -6606,7 +6606,7 @@ function printReceiptNow() {
                                 <div>
                                     <label class="dcm-label">Replace image <span class="dcm-label-counter">optional — keeps current if blank</span></label>
                                     <div id="edit_ann_current_img" style="margin-bottom:8px;display:none;">
-                                        <img id="edit_ann_current_img_el" src="" alt="Current" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.15);">
+                                        <img id="edit_ann_current_img_el" src="" alt="Current" style="width:100%;max-height:120px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;">
                                     </div>
                                     <input type="file" name="announcement_image" accept="image/jpeg,image/png,image/gif,image/webp"
                                         class="ann-file-input"
@@ -7492,5 +7492,6 @@ document.addEventListener('DOMContentLoaded', function () {
 @endif
 
 @include('partials.help', ['section' => $section ?? null])
+@include('partials.modal-theme')
 </body>
 </html>

@@ -564,5 +564,6 @@
             @endif
         </div>
     </div>
+@include('partials.modal-theme')
 </body>
 </html>

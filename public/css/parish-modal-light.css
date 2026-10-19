@@ -1,0 +1,180 @@
+/*
+ * Parish modal — light theme (Option B: all white, thin red line).
+ * Loaded last on every page (partials/modal-theme), so it restyles every
+ * dark parish modal in one place: the alert modals (.ps-*), admin
+ * confirmations (.adm-cfm-*), admin form modals (.dcm-*), the reservation
+ * detail panel (.rdm-*) and the cancellation-requests panel (.cpanel-*).
+ * Some colors are set inline by the page scripts, hence the !important.
+ */
+
+/* ── Backdrops ─────────────────────────────────────────────────────────── */
+html body .ps-overlay,
+html body .dcm-overlay,
+html body #adm-cfm-overlay,
+html body #cancel-overlay-backdrop,
+html body #purge-confirm-overlay { background: rgba(15, 23, 42, .38) !important; backdrop-filter: blur(4px); }
+html body #rdm-backdrop { background: rgba(15, 23, 42, .38); }
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+html body .ps-modal,
+html body .adm-cfm-modal,
+html body .dcm-modal,
+html body .rdm-panel,
+html body #cancel-overlay-panel {
+    background: #fff !important;
+    border-top: 4px solid #dc2626;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, .22), 0 0 0 1px rgba(15, 23, 42, .06) !important;
+    color: #0f172a;
+}
+
+/* ── Header: parish name with a red cross ──────────────────────────────── */
+html body .ps-hdr,
+html body .adm-cfm-hdr,
+html body .cpanel-header { background: #fff !important; border-bottom: 1px solid #f1f5f9 !important; }
+html body .ps-parish,
+html body .adm-cfm-parish { color: #0f172a !important; }
+html body .ps-dot,
+html body .adm-cfm-dot { background: #cbd5e1 !important; }
+html body .ps-loc,
+html body .adm-cfm-loc { color: #94a3b8 !important; }
+html body .ps-cross path,
+html body .adm-cfm-cross path,
+html body .ps-modal .ps-hdr svg path,
+html body .dcm-modal .ps-hdr svg path { stroke: #dc2626 !important; }
+
+/* Decorations that only suit the dark version */
+html body .ps-glow, html body .ps-particle, html body .ps-hdr-particle, html body .ps-ring,
+html body .adm-cfm-glow, html body .adm-cfm-ring, html body .adm-cfm-particle { display: none !important; }
+
+/* ── Icon circle ───────────────────────────────────────────────────────── */
+html body .ps-inner,
+html body .adm-cfm-inner { background: #fef2f2 !important; border: 0 !important; backdrop-filter: none !important; }
+html body .ps-inner--green,
+html body .adm-cfm-modal.is-success .adm-cfm-inner { background: #f0fdf4 !important; }
+html body .ps-chk, html body .ps-stroke, html body .ps-warn, html body .adm-cfm-chk { stroke: #dc2626 !important; }
+html body .ps-chk--green, html body .adm-cfm-modal.is-success .adm-cfm-chk { stroke: #16a34a !important; }
+/* Script-set tints and strokes: green / red / amber */
+html body .ps-inner[style*="34,197,94"] { background: #f0fdf4 !important; }
+html body .ps-inner[style*="245,158,11"] { background: #fffbeb !important; }
+html body .ps-modal svg [style*="4ade80"], html body .ps-modal svg [style*="86efac"] { stroke: #16a34a !important; }
+html body .ps-modal svg [style*="f87171"], html body .ps-modal svg [style*="fca5a5"] { stroke: #dc2626 !important; }
+html body .ps-modal svg [style*="fbbf24"] { stroke: #d97706 !important; }
+html body .ps-modal [fill="#fbbf24"] { fill: #d97706 !important; }
+
+/* ── Text ──────────────────────────────────────────────────────────────── */
+html body .ps-title, html body .adm-cfm-title, html body .cpanel-title { color: #0f172a !important; }
+html body .ps-sub, html body .adm-cfm-sub { color: #64748b !important; }
+html body .ps-chip { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #334155 !important; backdrop-filter: none !important; }
+html body .ps-badge { background: #fffbeb !important; border-color: #fde68a !important; color: #b45309 !important; }
+html body .ps-divider { background: #f1f5f9 !important; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+html body .ps-btn-solo, html body .ps-btn-prim, html body .adm-cfm-ok { box-shadow: 0 6px 16px rgba(220, 38, 38, .22) !important; }
+html body .ps-btn-out,
+html body .adm-cfm-cancel,
+html body .rdm-close-btn {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+html body .ps-btn-out:hover, html body .adm-cfm-cancel:hover, html body .rdm-close-btn:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+html body .dcm-close-btn, html body .cpanel-close { background: #f1f5f9 !important; border: 0 !important; color: #64748b !important; }
+html body .dcm-close-btn:hover, html body .cpanel-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
+
+/* ── Admin form modals ─────────────────────────────────────────────────── */
+html body .dcm-label { color: #64748b !important; }
+html body .dcm-modal .dcm-label-counter { color: #94a3b8 !important; }
+html body .dcm-textarea,
+html body .dcm-modal .dcm-form-input,
+html body .dcm-modal .dcm-textarea,
+html body .dcm-modal .dcm-toggle-row,
+html body .dcm-modal .adm-csl-btn {
+    background: #f8fafc !important;
+    border: 1.5px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+html body .dcm-textarea::placeholder,
+html body .dcm-modal .dcm-form-input::placeholder,
+html body .dcm-modal .dcm-textarea::placeholder { color: #94a3b8 !important; }
+html body .dcm-textarea:focus,
+html body .dcm-modal .dcm-form-input:focus,
+html body .dcm-modal .dcm-textarea:focus { border-color: #dc2626 !important; background: #fff !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, .1); }
+html body .dcm-modal .dcm-toggle-row span.t { color: #0f172a !important; }
+html body .dcm-modal .dcm-toggle-row span.s { color: #64748b !important; }
+html body .dcm-modal .adm-csl-arrow { color: #94a3b8 !important; }
+html body .dcm-modal .adm-csl-list { background: #fff !important; border: 1.5px solid #e2e8f0 !important; }
+html body .dcm-modal .adm-csl-list li { color: #334155 !important; }
+html body .dcm-modal .adm-csl-list li:hover,
+html body .dcm-modal .adm-csl-list li.is-selected { background: #fef2f2 !important; color: #dc2626 !important; }
+
+/* ── Reservation detail panel ("View details") ─────────────────────────── */
+html body .rdm-eyebrow { color: #dc2626; }
+html body .rdm-name { color: #0f172a; }
+html body .rdm-sub { color: #94a3b8; }
+html body .rdm-section { border-bottom-color: #f1f5f9; }
+html body .rdm-sec-title, html body .rdm-label { color: #94a3b8; }
+html body .rdm-value { color: #0f172a; }
+html body .rdm-value-sub, html body .rdm-att-label { color: #94a3b8; }
+html body .rdm-icon { background: #fef2f2; color: #dc2626; }
+html body .rdm-det-cell { background: #fef2f2; border-color: #fecaca; }
+html body .rdm-det-label { color: #dc2626; }
+html body .rdm-det-value { color: #0f172a; }
+html body .rdm-notes { background: #f8fafc; border-color: #e2e8f0; color: #334155; }
+html body .rdm-att-row { background: #f8fafc; border-color: #e2e8f0; }
+html body .rdm-att-name { color: #0f172a; }
+html body .rdm-att-link { color: #dc2626; }
+html body .rdm-att-link:hover { color: #b91c1c; }
+html body .rdm-footer { background: #fff !important; border-top-color: #f1f5f9; }
+html body .rdm-badge { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+html body .rdm-badge-pending  { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+html body .rdm-badge-approved { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+html body .rdm-badge-declined { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+html body .rdm-badge-wedding  { background: #fdf2f8; color: #be185d; border-color: #fbcfe8; }
+html body .rdm-badge-baptism  { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+html body .rdm-badge-funeral  { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+html body .rdm-badge-urgent   { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+html body .rdm-req.is-complete { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+html body .rdm-req.is-missing  { color: #b45309; background: #fffbeb; border-color: #fde68a; }
+
+/* ── Cancellation requests panel ───────────────────────────────────────── */
+html body .cpanel-eyebrow { color: #dc2626; }
+html body .creq-card { background: #fff; border-color: #e5e7eb; }
+html body .creq-name { color: #0f172a; }
+html body .creq-detail { color: #94a3b8; }
+html body .creq-reason { background: #fef2f2; border-color: #fecaca; }
+html body .creq-reason-label { color: #dc2626; }
+html body .creq-reason-text { color: #334155; }
+html body .creq-reason-empty { color: #f87171; }
+html body .creq-actions { border-top-color: #f1f5f9; }
+html body .creq-btn-approve { background: #f0fdf4 !important; color: #15803d !important; border-right-color: #e5e7eb !important; }
+html body .creq-btn-approve:hover { background: #dcfce7 !important; color: #166534 !important; }
+html body .creq-btn-deny { background: #fef2f2 !important; color: #b91c1c !important; }
+html body .creq-btn-deny:hover { background: #fee2e2 !important; color: #991b1b !important; }
+html body .cpanel-footer { background: #f8fafc; border-top-color: #f1f5f9; }
+html body .cpanel-footer-icon { background: #fffbeb; color: #d97706; }
+html body .cpanel-footer-note { color: #64748b; }
+
+/* ── Customer profile modal ────────────────────────────────────────────── */
+html body .dcm-modal .cust-modal-name { color: #0f172a; }
+html body .dcm-modal .cust-modal-sub { color: #64748b; }
+html body .dcm-modal .cust-modal-meta { background: #f8fafc; border-top-color: #f1f5f9; border-bottom-color: #f1f5f9; }
+html body .dcm-modal .cust-modal-meta-item { color: #334155; }
+html body .dcm-modal .cust-modal-meta-item i { color: #94a3b8; }
+html body .dcm-modal .cust-modal-disabled-note { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+html body .dcm-modal .cust-modal-stat.total .cust-modal-stat-num,
+html body .dcm-modal .cust-modal-stat.declined .cust-modal-stat-num { color: #dc2626; }
+html body .dcm-modal .cust-modal-stat.total .cust-modal-stat-label,
+html body .dcm-modal .cust-modal-stat.declined .cust-modal-stat-label { color: #b91c1c; }
+html body .dcm-modal .cust-modal-stat.approved .cust-modal-stat-num { color: #059669; }
+html body .dcm-modal .cust-modal-stat.approved .cust-modal-stat-label { color: #047857; }
+html body .dcm-modal .cust-modal-stat.pending .cust-modal-stat-num { color: #d97706; }
+html body .dcm-modal .cust-modal-stat.pending .cust-modal-stat-label { color: #b45309; }
+html body .dcm-modal .cust-modal-history h6 { color: #94a3b8; }
+html body .dcm-modal .cust-history-row { border-bottom-color: #f1f5f9; }
+html body .dcm-modal .cust-history-id { color: #94a3b8; }
+html body .dcm-modal .cust-history-date { color: #64748b; }
+html body .dcm-modal .cust-status-badge.active { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+html body .dcm-modal .cust-status-badge.disabled { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+/* Title letter-spacing a touch looser on white */
+html body .ps-title, html body .adm-cfm-title { letter-spacing: -.01em !important; }

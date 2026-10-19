@@ -257,5 +257,6 @@
 </script>
 
 @include('partials.help')
+@include('partials.modal-theme')
 </body>
 </html>

@@ -184,5 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 @stack('scripts')
 @include('partials.help')
+@include('partials.modal-theme')
 </body>
 </html>
