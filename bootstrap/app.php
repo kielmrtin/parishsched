@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         'customer.status' => \App\Http\Middleware\CheckCustomerStatus::class,
     ]);
 
+    // Gzip HTML/JSON so pages load faster on slow connections.
+    $middleware->append(\App\Http\Middleware\CompressResponse::class);
+
     // Supabase's webhook call has no Laravel session/CSRF token — it's
     // authenticated by the X-Webhook-Secret header instead (see
     // ReservationWebhookController). The mobile app's contact form is the

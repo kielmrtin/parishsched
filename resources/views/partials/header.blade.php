@@ -35,7 +35,7 @@
                     <div class="col-xl-2 col-lg-2 d-none d-lg-flex order-lg-2 align-items-center justify-content-center">
                         <div class="logo-img">
                             <a href="{{ route('home') }}">
-                                <img src="{{ asset('img/about/about_1.jpg') }}"
+                                <img src="{{ asset('img/logo-160.webp') }}"
                                      alt="St. John the Baptist Parish logo"
                                      style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: block;">
                             </a>

@@ -37,7 +37,7 @@
         /* ---- HERO BANNER ---- */
         .contact-hero {
             position: relative;
-            background: url('{{ asset('img/banner/inquire.png') }}') center 65% / cover no-repeat;
+            background: url('{{ asset('img/banner/inquire.webp') }}') center 65% / cover no-repeat;
             overflow: hidden;
             padding: 80px 24px 96px;
             text-align: center;
@@ -433,16 +433,7 @@
                     <div class="mt-4">
                         <div class="mapouter">
                             <div class="gmap_canvas">
-                                <iframe
-                                    width="100%"
-                                    height="260"
-                                    src="https://maps.google.com/maps?q=St.%20John%20The%20Baptist%20Parish%20Tiaong%20Quezon&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                                    frameborder="0"
-                                    scrolling="no"
-                                    marginheight="0"
-                                    marginwidth="0"
-                                    title="Map to St. John the Baptist Parish">
-                                </iframe>
+                                @include('partials.map-facade', ['height' => 260])
                             </div>
                         </div>
                     </div>

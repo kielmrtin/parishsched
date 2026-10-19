@@ -29,7 +29,7 @@
             flex: 0 0 46%;
             background:
                 linear-gradient(160deg, rgba(127,29,29,.52) 0%, rgba(185,28,28,.44) 50%, rgba(127,29,29,.56) 100%),
-                url('{{ asset('img/banner/bradcam3.jpg') }}') center center / cover no-repeat;
+                url('{{ asset('img/banner/bradcam3.webp') }}') center center / cover no-repeat;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="auth-inner">
 
                 <div class="auth-brand">
-                    <img class="parish-logo" src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo">
+                    <img class="parish-logo" src="{{ asset('img/logo-160.webp') }}" alt="Parish Logo">
                     <div class="auth-brand-name">St. John the Baptist Parish</div>
                     <div class="auth-brand-loc">Tiaong, Quezon</div>
                 </div>

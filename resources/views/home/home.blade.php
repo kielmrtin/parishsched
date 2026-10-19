@@ -106,7 +106,7 @@
             <div class="col-xl-6 col-lg-6">
                 <div class="about_thumb d-flex mb-30">
                     <div class="img_1">
-                        <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish exterior" class="img-fluid rounded shadow">
+                        <img src="{{ asset('img/about/about_1-900.webp') }}" alt="Parish exterior" loading="lazy" class="img-fluid rounded shadow">
                     </div>
                 </div>
             </div>

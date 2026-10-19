@@ -47,7 +47,7 @@
         /* ---- PAGE HERO ---- */
         .myres-hero {
             background: linear-gradient(rgba(0,0,0,.52), rgba(0,0,0,.48)),
-                        url("{{ asset('img/banner/myreservations.jpg') }}") center/cover no-repeat;
+                        url("{{ asset('img/banner/myreservations.webp') }}") center/cover no-repeat;
             padding: 72px 0 0;
             color: #fff;
             position: relative;

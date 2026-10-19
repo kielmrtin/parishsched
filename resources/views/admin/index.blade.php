@@ -605,7 +605,7 @@
             padding: 48px 20px;
             background:
                 linear-gradient(180deg, rgba(15,23,42,.45) 0%, rgba(15,23,42,.72) 100%),
-                url('{{ asset('img/cover.png') }}') center/cover no-repeat fixed;
+                url('{{ asset('img/cover.webp') }}') center/cover no-repeat fixed;
             position: relative;
         }
         .login-cover-content { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
@@ -1604,7 +1604,7 @@ input[type="number"] { -moz-appearance:textfield; }
 <div class="login-cover-content">
 
     <div class="lc-brand">
-        <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo" class="lc-logo">
+        <img src="{{ asset('img/logo-160.webp') }}" alt="Parish Logo" class="lc-logo">
         <div class="lc-brand-text">
             <div class="lc-wordmark">ParishSched</div>
             <div class="lc-tagline">St. John the Baptist Parish &middot; Tiaong, Quezon</div>
@@ -1787,7 +1787,7 @@ function adminStatusBadge(string $status): string {
     <aside class="admin-sidebar">
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon">
-                <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo">
+                <img src="{{ asset('img/logo-160.webp') }}" alt="Parish Logo">
             </div>
             <div class="sidebar-brand-name">St. John the Baptist Parish</div>
             <div class="sidebar-brand-sub">Administration Panel</div>
@@ -3209,7 +3209,7 @@ function adminStatusBadge(string $status): string {
 <div id="rptPrintDoc" class="rpd-page">
     <div class="rpd-letterhead">
         <div class="rpd-letterhead-left">
-            <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo" class="rpd-logo">
+            <img src="{{ asset('img/logo-160.webp') }}" alt="Parish Logo" class="rpd-logo">
             <div>
                 <div class="rpd-parish-name">ST. JOHN THE BAPTIST PARISH</div>
                 <div class="rpd-parish-loc">Tiaong, Quezon</div>
@@ -6165,7 +6165,7 @@ $purposeColors = [
 <div id="donPrintDoc">
     <div class="rpd-letterhead">
         <div class="rpd-letterhead-left">
-            <img src="{{ asset('img/about/about_1.jpg') }}" alt="Parish Logo" class="rpd-logo">
+            <img src="{{ asset('img/logo-160.webp') }}" alt="Parish Logo" class="rpd-logo">
             <div>
                 <div class="rpd-parish-name">ST. JOHN THE BAPTIST PARISH</div>
                 <div class="rpd-parish-loc">Tiaong, Quezon</div>

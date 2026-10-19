@@ -6,7 +6,7 @@
 <style>
     body { background: #f4f7fb; }
 
-    .give-hero { background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.5)), url("{{ asset('img/banner/myreservations.jpg') }}") center/cover no-repeat; color: #fff; padding: 150px 0 56px; }
+    .give-hero { background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.5)), url("{{ asset('img/banner/myreservations.webp') }}") center/cover no-repeat; color: #fff; padding: 150px 0 56px; }
     .give-kicker { font-size: .74rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: .6rem; }
     .give-hero h1 { color: #fff; font-size: 2.4rem; font-weight: 800; margin: 0 0 .6rem; }
     .give-hero p { color: rgba(255,255,255,.82); max-width: 560px; margin: 0; line-height: 1.7; }

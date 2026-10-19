@@ -42,7 +42,7 @@
             position: relative;
             padding: 140px 0 80px;
             color: #fff;
-            background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.45)), url('{{ asset('img/banner/bradcam3.jpg') }}') center/cover no-repeat;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.45)), url('{{ asset('img/banner/bradcam3.webp') }}') center/cover no-repeat;
             overflow: hidden;
         }
 
@@ -543,8 +543,8 @@
         <div class="row align-items-center heritage-row">
             <div class="col-lg-6">
                 <div class="image-stack text-center text-lg-start">
-                    <img src="{{ asset('img/about/about_1.jpg') }}" class="img-fluid" alt="Historic façade of St. John the Baptist Parish">
-                    <img src="{{ asset('img/about/about_2.jpg') }}" class="img-fluid stacked-img" alt="Interior of the parish church during Mass">
+                    <img src="{{ asset('img/about/about_1-900.webp') }}" loading="lazy" class="img-fluid" alt="Historic façade of St. John the Baptist Parish">
+                    <img src="{{ asset('img/about/about_2-900.webp') }}" loading="lazy" class="img-fluid stacked-img" alt="Interior of the parish church during Mass">
                 </div>
             </div>
             <div class="col-lg-6">
@@ -701,7 +701,7 @@
             <div class="col-lg-6" style="padding-left: 40px;">
                 <div class="mapouter" style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
                     <div class="gmap_canvas">
-                        <iframe width="100%" height="380" id="gmap_canvas" src="https://maps.google.com/maps?q=St.%20John%20The%20Baptist%20Parish%20Tiaong%20Quezon&t=&z=15&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" title="Map to St. John the Baptist Parish"></iframe>
+                        @include('partials.map-facade', ['height' => 380])
                     </div>
                 </div>
             </div>
