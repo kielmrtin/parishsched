@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ReservationNameGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -44,6 +45,62 @@ class ReservationController extends Controller
         return view('reservation.index', [
             'customer'             => null,
             'approvedReservations' => $grouped,
+        ]);
+    }
+
+    /**
+     * Readable names of the people receiving the sacrament, keyed like
+     * ReservationNameGuard::subjectNames(), for the duplicate message.
+     */
+    private function subjectDisplayNames(Request $request): array
+    {
+        $join = fn (string $prefix) => trim(preg_replace('/\s+/', ' ', implode(' ', [
+            $request->input($prefix . '-first', ''), $request->input($prefix . '-middle', ''),
+            $request->input($prefix . '-last', ''), $request->input($prefix . '-suffix', ''),
+        ])));
+
+        return array_filter([
+            'child'    => $join('baptism-child-name'),
+            'groom'    => $join('wedding-groom-name'),
+            'bride'    => $join('wedding-bride-name'),
+            'deceased' => $join('funeral-deceased-name'),
+        ]);
+    }
+
+    /**
+     * Pre-submit check from the reservation form, so a duplicate person is
+     * reported before the customer uploads files. store() checks again.
+     */
+    public function checkName(Request $request)
+    {
+        $request->validate(['event_type' => 'required|string|in:Baptism,Wedding,Funeral']);
+
+        $type = strtolower($request->event_type);
+        $part = fn (string $field) => (string) $request->input($field, '');
+        $details = [$type => match ($type) {
+            'baptism' => [
+                'child_first' => $part('baptism-child-name-first'), 'child_middle' => $part('baptism-child-name-middle'),
+                'child_last'  => $part('baptism-child-name-last'),  'child_suffix' => $part('baptism-child-name-suffix'),
+            ],
+            'wedding' => [
+                'groom_first' => $part('wedding-groom-name-first'), 'groom_middle' => $part('wedding-groom-name-middle'),
+                'groom_last'  => $part('wedding-groom-name-last'),  'groom_suffix' => $part('wedding-groom-name-suffix'),
+                'bride_first' => $part('wedding-bride-name-first'), 'bride_middle' => $part('wedding-bride-name-middle'),
+                'bride_last'  => $part('wedding-bride-name-last'),  'bride_suffix' => $part('wedding-bride-name-suffix'),
+            ],
+            default => [
+                'deceased_first' => $part('funeral-deceased-name-first'), 'deceased_middle' => $part('funeral-deceased-name-middle'),
+                'deceased_last'  => $part('funeral-deceased-name-last'),  'deceased_suffix' => $part('funeral-deceased-name-suffix'),
+            ],
+        }];
+
+        $duplicate = app(ReservationNameGuard::class)->findDuplicate(
+            $request->event_type, $details, $this->subjectDisplayNames($request)
+        );
+
+        return response()->json([
+            'duplicate' => (bool) $duplicate,
+            'message'   => $duplicate ? ReservationNameGuard::message($request->event_type, $duplicate) : null,
         ]);
     }
 
@@ -94,6 +151,60 @@ class ReservationController extends Controller
         $dupStatus = ucfirst($dupResponse->json()[0]['status'] ?? 'pending');
         return back()->withInput()->withErrors([
             'reservation' => "You already have a {$dupStatus} {$validated['event_type']} reservation on this date. Please contact the parish office if you need to make changes.",
+        ]);
+    }
+
+    // Subject-name details, built here so the duplicate-name check below
+    // runs before any file is uploaded.
+    $details = array_filter([
+        'name'    => $validated['name'],
+        'email'   => $validated['email'],
+        'phone'   => $validated['phone'],
+        'notes'   => $validated['notes'] ?? null,
+        'baptism' => strtolower($validated['event_type']) === 'baptism' ? [
+            'child_first'  => $request->input('baptism-child-name-first', ''),
+            'child_middle' => $request->input('baptism-child-name-middle', ''),
+            'child_last'   => $request->input('baptism-child-name-last', ''),
+            'child_suffix' => $request->input('baptism-child-name-suffix', ''),
+            'child_name'   => trim(implode(' ', array_filter([
+                $request->input('baptism-child-name-first', ''),
+                $request->input('baptism-child-name-middle', ''),
+                $request->input('baptism-child-name-last', ''),
+            ]))) . ($request->input('baptism-child-name-suffix') ? ', ' . $request->input('baptism-child-name-suffix') : ''),
+            'child_dob'    => $request->input('baptism-child-dob', ''),
+            'father_name'  => $request->input('baptism-father-name', ''),
+            'mother_name'  => $request->input('baptism-mother-name', ''),
+        ] : null,
+        'wedding' => strtolower($validated['event_type']) === 'wedding' ? [
+            'groom_first'      => $request->input('wedding-groom-name-first', ''),
+            'groom_middle'     => $request->input('wedding-groom-name-middle', ''),
+            'groom_last'       => $request->input('wedding-groom-name-last', ''),
+            'groom_suffix'     => $request->input('wedding-groom-name-suffix', ''),
+            'bride_first'      => $request->input('wedding-bride-name-first', ''),
+            'bride_middle'     => $request->input('wedding-bride-name-middle', ''),
+            'bride_last'       => $request->input('wedding-bride-name-last', ''),
+            'bride_suffix'     => $request->input('wedding-bride-name-suffix', ''),
+            'seminar_date'     => $request->input('wedding-seminar-date', ''),
+            'sacrament_details'=> $request->input('wedding-sacrament-details', ''),
+        ] : null,
+        'funeral' => strtolower($validated['event_type']) === 'funeral' ? [
+            'deceased_first'   => $request->input('funeral-deceased-name-first', ''),
+            'deceased_middle'  => $request->input('funeral-deceased-name-middle', ''),
+            'deceased_last'    => $request->input('funeral-deceased-name-last', ''),
+            'deceased_suffix'  => $request->input('funeral-deceased-name-suffix', ''),
+            'marital_status'   => $request->input('funeral-marital-status', ''),
+        ] : null,
+    ], fn($v) => $v !== null);
+
+    // DUPLICATE NAME CHECK: the same person cannot have two active
+    // reservations for the same sacrament (supabase/reservation_name_guard.sql
+    // enforces the same rule inside the database).
+    $nameDuplicate = app(ReservationNameGuard::class)->findDuplicate(
+        $validated['event_type'], $details, $this->subjectDisplayNames($request)
+    );
+    if ($nameDuplicate) {
+        return back()->withInput()->withErrors([
+            'reservation' => ReservationNameGuard::message($validated['event_type'], $nameDuplicate),
         ]);
     }
 
@@ -216,45 +327,7 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
     'reservation_date' => $validated['reservation_date'],
     'reservation_time' => $validated['reservation_time'],
     'status' => 'pending',
-    'details' => array_filter([
-        'name'    => $validated['name'],
-        'email'   => $validated['email'],
-        'phone'   => $validated['phone'],
-        'notes'   => $validated['notes'] ?? null,
-        'baptism' => strtolower($validated['event_type']) === 'baptism' ? [
-            'child_first'  => $request->input('baptism-child-name-first', ''),
-            'child_middle' => $request->input('baptism-child-name-middle', ''),
-            'child_last'   => $request->input('baptism-child-name-last', ''),
-            'child_suffix' => $request->input('baptism-child-name-suffix', ''),
-            'child_name'   => trim(implode(' ', array_filter([
-                $request->input('baptism-child-name-first', ''),
-                $request->input('baptism-child-name-middle', ''),
-                $request->input('baptism-child-name-last', ''),
-            ]))) . ($request->input('baptism-child-name-suffix') ? ', ' . $request->input('baptism-child-name-suffix') : ''),
-            'child_dob'    => $request->input('baptism-child-dob', ''),
-            'father_name'  => $request->input('baptism-father-name', ''),
-            'mother_name'  => $request->input('baptism-mother-name', ''),
-        ] : null,
-        'wedding' => strtolower($validated['event_type']) === 'wedding' ? [
-            'groom_first'      => $request->input('wedding-groom-name-first', ''),
-            'groom_middle'     => $request->input('wedding-groom-name-middle', ''),
-            'groom_last'       => $request->input('wedding-groom-name-last', ''),
-            'groom_suffix'     => $request->input('wedding-groom-name-suffix', ''),
-            'bride_first'      => $request->input('wedding-bride-name-first', ''),
-            'bride_middle'     => $request->input('wedding-bride-name-middle', ''),
-            'bride_last'       => $request->input('wedding-bride-name-last', ''),
-            'bride_suffix'     => $request->input('wedding-bride-name-suffix', ''),
-            'seminar_date'     => $request->input('wedding-seminar-date', ''),
-            'sacrament_details'=> $request->input('wedding-sacrament-details', ''),
-        ] : null,
-        'funeral' => strtolower($validated['event_type']) === 'funeral' ? [
-            'deceased_first'   => $request->input('funeral-deceased-name-first', ''),
-            'deceased_middle'  => $request->input('funeral-deceased-name-middle', ''),
-            'deceased_last'    => $request->input('funeral-deceased-name-last', ''),
-            'deceased_suffix'  => $request->input('funeral-deceased-name-suffix', ''),
-            'marital_status'   => $request->input('funeral-marital-status', ''),
-        ] : null,
-    ], fn($v) => $v !== null),
+    'details' => $details,
 ]);
 
     if ($response->failed()) {
@@ -264,6 +337,12 @@ if ($customerResponse->successful() && !empty($customerResponse->json())) {
         if (str_starts_with($dbMessage, 'SLOT_CONFLICT:')) {
             return back()->withInput()->withErrors([
                 'reservation' => trim(substr($dbMessage, strlen('SLOT_CONFLICT:'))),
+            ]);
+        }
+        // reservations_name_guard: same person booked between our check and the insert.
+        if (str_starts_with($dbMessage, 'DUPLICATE_NAME:')) {
+            return back()->withInput()->withErrors([
+                'reservation' => trim(substr($dbMessage, strlen('DUPLICATE_NAME:'))),
             ]);
         }
 

@@ -1230,7 +1230,83 @@ foreach ($approvedReservationsJson as $dayGroup) {
                 document.getElementById('laravel-time-field').value = document.getElementById('reservation-time')?.value || '';
                 document.getElementById('laravel-notes-field').value = document.getElementById('reservation-notes')?.value || '';
             });
+
+            // Duplicate-name pre-check: report "this person already has a
+            // reservation" before the files are sent. The server checks again.
+            form.addEventListener('submit', function (event) {
+                if (form.dataset.nameChecked === '1' || !form.checkValidity()) return;
+                event.preventDefault();
+
+                const submitBtn = form.querySelector('[data-reservation-submit]');
+                if (submitBtn) submitBtn.disabled = true;
+
+                const data = new FormData();
+                data.append('event_type', document.querySelector('input[name="reservation-type"]:checked')?.value || '');
+                ['baptism-child-name', 'wedding-groom-name', 'wedding-bride-name', 'funeral-deceased-name'].forEach(function (prefix) {
+                    ['first', 'middle', 'last', 'suffix'].forEach(function (part) {
+                        const el = document.getElementById(prefix + '-' + part);
+                        if (el) data.append(prefix + '-' + part, el.value.trim());
+                    });
+                });
+
+                fetch('{{ route('reservation.checkName') }}', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value },
+                    body: data
+                })
+                .then(r => r.ok ? r.json() : { duplicate: false })
+                .catch(() => ({ duplicate: false }))
+                .then(function (result) {
+                    if (submitBtn) submitBtn.disabled = false;
+                    if (result.duplicate) {
+                        psResAlert('error', 'Reservation already exists', result.message);
+                        return;
+                    }
+                    form.dataset.nameChecked = '1';
+                    form.requestSubmit(submitBtn || undefined);
+                });
+            });
         });
+
+        // Parish dark modal for reservation errors (the page has no SweetAlert).
+        function psResAlert(type, title, text) {
+            document.getElementById('ps-res-alert')?.remove();
+            const isError = type === 'error';
+            const el = document.createElement('div');
+            el.className = 'ps-overlay';
+            el.id = 'ps-res-alert';
+            el.innerHTML = `
+              <div class="ps-modal" role="alertdialog" aria-modal="true">
+                <div class="ps-hdr">
+                  <svg class="ps-cross" viewBox="0 0 20 20" fill="none"><path d="M10 1v18M4 7h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  <span class="ps-parish">St. John the Baptist Parish</span>
+                  <span class="ps-dot"></span>
+                  <span class="ps-loc">Tiaong, Quezon</span>
+                </div>
+                <div class="ps-body">
+                  <div class="ps-glow"></div>
+                  <div class="ps-icon">
+                    <div class="ps-ring"></div>
+                    <div class="ps-inner">
+                      <svg viewBox="0 0 42 42">${isError
+                        ? '<line class="ps-chk" x1="13" y1="13" x2="29" y2="29"/><line class="ps-chk" x1="29" y1="13" x2="13" y2="29"/>'
+                        : '<line class="ps-chk" x1="21" y1="10" x2="21" y2="24"/><line class="ps-chk" x1="21" y1="31" x2="21" y2="31.5"/>'}</svg>
+                    </div>
+                  </div>
+                  <h2 class="ps-title"></h2>
+                  <p class="ps-sub"></p>
+                  <div class="ps-btns" style="justify-content:center">
+                    <button type="button" class="ps-btn-solo">OK</button>
+                  </div>
+                </div>
+              </div>`;
+            el.querySelector('.ps-title').textContent = title;
+            el.querySelector('.ps-sub').textContent = text;
+            el.querySelector('.ps-btn-solo').addEventListener('click', function () { el.remove(); });
+            document.body.appendChild(el);
+            el.querySelector('.ps-btn-solo').focus();
+        }
+        window.psResAlert = psResAlert;
     </script>
 
     <script>

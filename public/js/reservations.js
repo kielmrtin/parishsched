@@ -2032,6 +2032,14 @@ function computeAvailableSlots(eventType, selectedDate) {
 
     function displayReservationNotifications() {
         if (typeof Swal === 'undefined' || typeof Swal.fire !== 'function') {
+            // No SweetAlert on this page: show errors in the parish modal.
+            // Success messages already have their own overlay in the view.
+            const problem = (window.reservationNotifications || []).find(function (n) {
+                return n && (n.icon === 'error' || n.icon === 'warning');
+            });
+            if (problem && typeof window.psResAlert === 'function') {
+                window.psResAlert(problem.icon, problem.title || 'Please check your reservation', problem.text || '');
+            }
             return;
         }
 

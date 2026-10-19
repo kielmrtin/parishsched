@@ -39,6 +39,10 @@ Route::post('/reservation/{id}/cancel-request', [ReservationController::class, '
     ->middleware(['customer.auth'])
     ->name('reservation.cancel');
 
+Route::post('/reservation/check-name', [ReservationController::class, 'checkName'])
+    ->middleware(['customer.auth', 'customer.status', 'throttle:30,1'])
+    ->name('reservation.checkName');
+
 Route::post('/reservation', [ReservationController::class, 'store'])
     ->middleware(['customer.auth', 'customer.status', 'throttle:10,1'])
     ->name('reservation.store');
