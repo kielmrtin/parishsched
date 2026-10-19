@@ -273,20 +273,32 @@
 .schedule_item {
     display: flex;
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.32s ease, transform 0.36s ease;
+    transform: translateY(32px) scale(.985);
+    /* long, soft ease-out so cards glide in instead of popping */
+    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity, transform;
 }
 
 .schedule_item.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
 }
 
 .schedule_section_head,
 .schedule_cta_inner {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(24px);
+    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1);
+}
+
+/* quick fade used by the sacrament filter buttons */
+.schedule_item.is-filtered-out {
+    opacity: 0 !important;
+    transition: opacity .18s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .schedule_item, .schedule_section_head, .schedule_cta_inner { opacity: 1; transform: none; transition: none; }
 }
 
 .schedule_section_head.is-visible,

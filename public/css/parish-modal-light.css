@@ -198,8 +198,12 @@ html body .dcm-modal .cust-status-badge.disabled { background: #fef2f2; color: #
 html body .ps-title, html body .adm-cfm-title { letter-spacing: -.01em !important; }
 
 /* ── Page scroll lock while a modal is open (partials/modal-theme) ─────── */
-html.ps-scroll-lock,
-html.ps-scroll-lock body { overflow: hidden !important; }
+/* Lock the page (the viewport) only. If <body> also got overflow:hidden it
+   would become its own scroll box, and sticky elements inside it (the admin
+   sidebar) would jump back to the top of the page. Some page scripts set
+   body overflow:hidden themselves, so it is forced back here. */
+html.ps-scroll-lock { overflow: hidden !important; }
+html.ps-scroll-lock body { overflow: visible !important; }
 html.ps-scroll-lock body { padding-right: var(--ps-scrollbar-gap, 0px); }
 html.ps-scroll-lock .ps-overlay,
 html.ps-scroll-lock .dcm-overlay,

@@ -8,35 +8,19 @@
         const items = $('#schedule-events .schedule_item');
 
         var FADE_OUT = 180;
-        var FADE_IN  = 260;
 
+        // Filtering fades cards out and back in with a class (not inline
+        // styles), so it never cancels the scroll-in animation that the
+        // schedule page adds with .is-visible.
         function filterEvents(filter) {
-            // Phase 1: fade out ALL items at once
-            items.each(function () {
-                var el = this;
-                el.style.transition = 'opacity ' + FADE_OUT + 'ms ease';
-                el.style.opacity = '0';
-            });
-
-            // Phase 2: after fade out — collapse hidden items, then fade in matching
+            items.addClass('is-filtered-out');
             setTimeout(function () {
                 items.each(function () {
-                    var el = this;
-                    var type = $(el).data('type');
-                    var shouldShow = (filter === 'all' || type === filter);
-                    el.style.display = shouldShow ? 'flex' : 'none';
+                    var type = $(this).data('type');
+                    this.style.display = (filter === 'all' || type === filter) ? '' : 'none';
                 });
-
-                // Force reflow so layout settles before fade in
                 if (items[0]) { void items[0].offsetWidth; }
-
-                items.each(function () {
-                    var el = this;
-                    if (el.style.display !== 'none') {
-                        el.style.transition = 'opacity ' + FADE_IN + 'ms ease';
-                        el.style.opacity = '1';
-                    }
-                });
+                items.removeClass('is-filtered-out');
             }, FADE_OUT + 30);
         }
 
@@ -47,8 +31,6 @@
             button.addClass('active').attr('aria-pressed', 'true');
             filterEvents(button.data('filter'));
         });
-
-        filterEvents('all');
 
         const calendarContainer = $('[data-calendar]');
 

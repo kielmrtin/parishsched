@@ -210,7 +210,7 @@
 <script src="{{ asset('js/plugins.js') }}"></script>
 <script src="{{ asset('js/gijgo.min.js') }}"></script>
 <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
-<script src="{{ asset('js/schedule.js') }}"></script>
+<script src="{{ asset('js/schedule.js') }}?v={{ file_exists(public_path('js/schedule.js')) ? filemtime(public_path('js/schedule.js')) : 1 }}"></script>
 <script>
 (function () {
     var observer = new IntersectionObserver(function (entries) {
@@ -224,10 +224,11 @@
                 observer.unobserve(el);
             }
         });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.06 });
 
+    // Stagger each row of three cards evenly.
     document.querySelectorAll('.schedule_item').forEach(function (el, i) {
-        el.dataset.delay = i % 3 * 80;
+        el.dataset.delay = i % 3 * 120;
         observer.observe(el);
     });
 
