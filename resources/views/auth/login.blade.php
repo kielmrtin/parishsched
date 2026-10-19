@@ -400,6 +400,7 @@
         .auth-mobile-back:hover { color: #dc2626; text-decoration: none; }
     }
     .auth-mobile-back { display: none; }
+    
     </style>
 </head>
 
@@ -604,6 +605,13 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
+    <script>
+    // main.js only makes the nav bar sticky after 400px of scrolling, which
+    // this short page never reaches, so switch it on as soon as it scrolls.
+    $(window).on('scroll', function () {
+        $('#sticky-header').toggleClass('sticky', $(window).scrollTop() > 10);
+    });
+    </script>
 
 @include('partials.help')
 </body>
