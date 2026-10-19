@@ -332,20 +332,18 @@
 
 @include('partials.header')
 
-<section class="contact-hero">
-    <div class="contact-hero-inner">
-        <div class="contact-hero-eyebrow">
-            <i class="fa fa-paper-plane" style="color:#fff;"></i> Parish Inquiries
-        </div>
-        <h1>We are here to <em>listen,<br>guide, and pray</em> with you</h1>
-        <p class="contact-hero-sub">Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.</p>
-    </div>
-    <div class="contact-hero-wave">
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="height:40px;width:100%;display:block;">
-            <path d="M0,56 L0,28 Q360,0 720,28 Q1080,56 1440,28 L1440,56 Z" fill="#eef2fb"/>
-        </svg>
-    </div>
-</section>
+@include('partials.page-hero', [
+    'image'    => asset('img/banner/inquire.webp'),
+    'position' => 'center 65%',
+    'title'    => 'We are here to listen, guide, and pray with you',
+    'desc'     => 'Share your intentions, plan a celebration, or simply say hello. Our parish team in Tiaong is ready to accompany you with warmth and compassion.',
+    'buttons'  => [
+        ['label' => 'Send a message', 'href' => '#contact-form', 'icon' => 'fa-paper-plane', 'primary' => true, 'scroll' => true],
+        ['label' => 'Reserve a sacrament', 'href' => route('reservation.index'), 'icon' => 'fa-calendar-plus-o'],
+        ['label' => 'View schedule', 'href' => url('/schedule'), 'icon' => 'fa-clock-o'],
+    ],
+    'wave'     => '#eef2fb',
+])
 
 <section class="contact-section">
     <div class="container">
@@ -595,6 +593,7 @@ function showContactAlert(type, title, text) {
 })(jQuery);
 </script>
 
+@include('partials.reveal')
 @include('partials.help')
 @include('partials.modal-theme')
 </body>

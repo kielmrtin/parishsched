@@ -37,38 +37,18 @@
 
 @include('partials.header')
 
-<section class="schedule_intro">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-7 text-center">
-                <span class="schedule_intro_kicker"><i class="fa fa-calendar-o"></i>&nbsp; Parish Schedule</span>
-                <h1 class="schedule_intro_title">Sacrament Schedule</h1>
-                <p class="schedule_intro_sub">Browse available time windows for Weddings, Baptisms, and Funeral Masses celebrated at St. John the Baptist Parish.</p>
-                <div class="schedule_intro_stats">
-                    <div class="schedule_stat">
-                        <span class="schedule_stat_num">3</span>
-                        <span class="schedule_stat_label">Sacrament Types</span>
-                    </div>
-                    <div class="schedule_stat_divider"></div>
-                    <div class="schedule_stat">
-                        <span class="schedule_stat_num">5</span>
-                        <span class="schedule_stat_label">Time Windows</span>
-                    </div>
-                    <div class="schedule_stat_divider"></div>
-                    <div class="schedule_stat">
-                        <span class="schedule_stat_num">6</span>
-                        <span class="schedule_stat_label">Days a Week</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="schedule_intro_wave">
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,56 L0,28 Q360,0 720,28 Q1080,56 1440,28 L1440,56 Z" fill="#f7f9ff"/>
-        </svg>
-    </div>
-</section>
+@include('partials.page-hero', [
+    'image'    => asset('img/banner/sched_main.webp'),
+    'position' => 'center 35%',
+    'title'    => 'Sacrament Schedule',
+    'desc'     => 'Browse available time windows for Weddings, Baptisms, and Funeral Masses celebrated at St. John the Baptist Parish.',
+    'buttons'  => [
+        ['label' => 'Reserve now', 'href' => route('reservation.index'), 'icon' => 'fa-calendar-plus-o', 'primary' => true],
+        ['label' => 'Contact parish', 'href' => url('/contact'), 'icon' => 'fa-envelope-o'],
+    ],
+    'meta'     => ['3 sacrament types', '5 time windows', '6 days a week'],
+    'wave'     => '#f7f9ff',
+])
 
 <section class="schedule_filters">
     <div class="container">
@@ -257,6 +237,7 @@
 })();
 </script>
 
+@include('partials.reveal')
 @include('partials.help')
 @include('partials.modal-theme')
 </body>
