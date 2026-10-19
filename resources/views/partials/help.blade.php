@@ -27,7 +27,7 @@
 
     .ps-help-head { padding: 18px 22px 16px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; }
     .ps-help-head-text { flex: 1; min-width: 0; }
-    .ps-help-hero { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 3px solid #fff; box-shadow: 0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.18); }
+    .ps-help-hero { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-right: 16px; border: 3px solid #fff; box-shadow: 0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.18); }
     .ps-help-eyebrow { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700; color: #dc2626; margin-bottom: 8px; }
     .ps-help-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 3px; }
     .ps-help-sub { font-size: 12px; color: #94a3b8; margin: 0; }
