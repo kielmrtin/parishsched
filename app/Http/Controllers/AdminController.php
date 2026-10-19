@@ -1337,6 +1337,12 @@ Monthly breakdown: {$monthlyBreakdown}";
 
         $adminRole = Session::get('admin_role', 'admin');
 
+        $reportRecommendations = $section === 'reports'
+            ? \App\Support\ReportRecommendations::build(
+                $reportMonthlyData, $reportDayData, $reportTotals, $yearReservations, $reservations, $attendanceAvg, $officiantWorkload
+            )
+            : [];
+
         return view('admin.index', compact(
             'section', 'isLoggedIn', 'adminRole',
             'reservations', 'filteredReservations',
@@ -1363,7 +1369,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'pastApproved', 'attendanceLookup', 'attendanceAvg',
             'donationsList', 'donationSearch', 'donationPurpose', 'donationFrom', 'donationTo',
             'donationSectionTotal', 'donationsByPurpose',
-            'priests', 'officiantWorkload'
+            'priests', 'officiantWorkload', 'reportRecommendations'
         ));
     }
 
@@ -1730,6 +1736,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'donationFrom' => '', 'donationTo' => '',
             'donationSectionTotal' => 0,
             'donationsByPurpose' => ['building_fund'=>0,'mass_intention'=>0,'tithes'=>0,'other'=>0],
+            'reportRecommendations' => [],
             'priests' => [], 'officiantWorkload' => [],
         ];
     }

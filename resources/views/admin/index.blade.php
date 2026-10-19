@@ -458,6 +458,17 @@
         .rdm-req { font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; }
         .rdm-req.is-complete { color:#4ade80; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); }
         .rdm-req.is-missing  { color:#fbbf24; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); }
+        /* Reports: recommended actions */
+        .rec-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap:12px; }
+        .rec-item { display:grid; grid-template-columns:38px minmax(0,1fr); gap:12px; padding:14px 16px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; }
+        .rec-icon { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; font-size:15px; }
+        .rec-urgent .rec-icon { background:#fef2f2; color:#dc2626; }
+        .rec-capacity .rec-icon { background:#f0fdfa; color:#0f766e; }
+        .rec-staff .rec-icon { background:#fffbeb; color:#b45309; }
+        .rec-plan .rec-icon { background:#fdf2f8; color:#db2777; }
+        .rec-title { font-size:14px; font-weight:800; color:#0f172a; margin-bottom:3px; }
+        .rec-detail { font-size:12.5px; color:#475569; line-height:1.55; }
+        .rec-source { margin-top:7px; font-size:10.5px; font-weight:600; color:#94a3b8; letter-spacing:.02em; }
         /* Donation payment method / status chips */
         .don-chip { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; border:1px solid; }
         .don-m-cash { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
@@ -3410,6 +3421,40 @@ function adminStatusBadge(string $status): string {
             </div>
         </div>
     </div>
+    @endif
+</section>
+
+{{-- ── Recommended actions (decisions backed by the numbers below) ── --}}
+<div class="rpt-label" style="margin-top:24px"><span>Recommended Actions</span><div class="rpt-label-line"></div></div>
+<section class="section-card" style="margin-bottom:24px">
+    <div class="section-header">
+        <div>
+            <h2>Recommended actions</h2>
+            <p>Decisions suggested by this report's numbers. Each one names the rule and the report it comes from.</p>
+        </div>
+    </div>
+    @if(count($reportRecommendations))
+        <div class="rec-list">
+            @foreach($reportRecommendations as $rec)
+            <div class="rec-item rec-{{ $rec['tone'] }}">
+                <div class="rec-icon" aria-hidden="true">
+                    @switch($rec['tone'])
+                        @case('urgent')<i class="fa fa-exclamation"></i>@break
+                        @case('capacity')<i class="fa fa-users"></i>@break
+                        @case('staff')<i class="fa fa-user-plus"></i>@break
+                        @default<i class="fa fa-calendar-check-o"></i>
+                    @endswitch
+                </div>
+                <div class="rec-body">
+                    <div class="rec-title">{{ $rec['title'] }}</div>
+                    <div class="rec-detail">{{ $rec['detail'] }}</div>
+                    <div class="rec-source">{{ $rec['source'] }}</div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    @else
+        <p class="empty-block">No action needed for {{ $reportRangeLabel }}. The numbers are within the normal range.</p>
     @endif
 </section>
 
