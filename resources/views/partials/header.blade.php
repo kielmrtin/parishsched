@@ -1,3 +1,17 @@
+<style>
+    /* Donation (Give online) icon before Home */
+    #navigation > li.nav-give { margin-right: 18px; }
+    #navigation > li.nav-give > a { display: inline-flex; align-items: center; gap: 8px; position: relative; top: 7px; } /* line up with the text links, which leave room for their underline */
+    #navigation > li.nav-give > a::before { display: none !important; }
+    .nav-give-icon { width: 24px; height: 24px; flex-shrink: 0; transition: transform .2s ease; }
+    #navigation > li.nav-give > a:hover .nav-give-icon { transform: translateY(-2px) scale(1.08); }
+    #navigation > li.nav-give > a.active .nav-give-icon { color: #dc2626; }
+    .nav-give-text { display: none; }
+    /* the phone menu (slicknav copy) shows the words next to the icon */
+    .slicknav_nav .nav-give-text { display: inline; }
+    .slicknav_nav .nav-give-icon { width: 20px; height: 20px; }
+    .slicknav_nav li.nav-give a { display: flex; align-items: center; gap: 8px; }
+</style>
 <header>
     <style>
         .home-header .myres-icon-btn { color:#fff !important; border-color:#fff !important; }
@@ -13,6 +27,7 @@
                         <div class="main-menu d-none d-lg-block">
                             <nav>
                                 <ul id="navigation">
+                                    <li class="nav-give"><a class="{{ request()->routeIs('donate.*') ? 'active' : '' }}" href="{{ route('donate.index') }}" title="Give online" aria-label="Give online"><svg class="nav-give-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path transform="translate(7.2 .2) scale(.52)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/><path d="M1.2 14.2c1.4-.9 3-1.4 4.7-1.4 1.4 0 2.7.4 3.9 1l1.6.8h4.1c.8 0 1.4.6 1.4 1.4 0 .2 0 .3-.1.5l3.8-1.9c.7-.3 1.5-.1 1.9.6.3.6.1 1.3-.4 1.7l-6.4 4.3c-.7.5-1.6.7-2.5.6L6 21.2c-.5-.1-1-.1-1.5 0l-3.3.5v-7.5z"/></svg><span class="nav-give-text">Give online</span></a></li>
                                     <li><a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a></li>
                                     <li><a class="{{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a></li>
                                     <li><a class="{{ request()->is('schedule') ? 'active' : '' }}" href="{{ url('/schedule') }}">Schedule</a></li>
