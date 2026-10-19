@@ -196,3 +196,24 @@ html.ps-scroll-lock #rdm-modal { overscroll-behavior: contain; }
 [data-ps-ghost] > * { transition: transform .22s ease, opacity .22s ease; }
 [data-ps-ghost].ps-leaving { opacity: 0; }
 [data-ps-ghost].ps-leaving > * { transform: scale(.94) translateY(10px); opacity: 0; }
+
+/* ── Slim scrollbars in every modal ────────────────────────────────────── */
+/* Covers the overlays themselves and anything that scrolls inside them. */
+/* Firefox only: Chrome ignores the ::-webkit-scrollbar rules below when
+   these standard properties are set, and those rules look better there. */
+@supports not selector(::-webkit-scrollbar) {
+    html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel),
+    html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) * {
+        scrollbar-width: thin;
+        scrollbar-color: #e2e8f0 transparent;
+    }
+}
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel)::-webkit-scrollbar,
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) *::-webkit-scrollbar { width: 6px; height: 6px; }
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel)::-webkit-scrollbar-track,
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) *::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel)::-webkit-scrollbar-thumb,
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) *::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 999px; }
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) *::-webkit-scrollbar-thumb:hover { background: #fca5a5; }
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel)::-webkit-scrollbar-button,
+html body :is(.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #purge-confirm-overlay, #cancel-overlay-panel, .ps-help-panel) *::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
