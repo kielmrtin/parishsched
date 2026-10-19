@@ -4631,7 +4631,9 @@ function annOpenEdit(id, title, body, category, visible, imgUrl) {
     document.body.style.overflow = 'hidden';
 }
 function annCloseEdit() {
-    document.getElementById('annEditModal').classList.remove('is-open');
+    const modal = document.getElementById('annEditModal');
+    if (!modal) return; // Escape is pressed on sections without this modal too
+    modal.classList.remove('is-open');
     document.body.style.overflow = '';
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { annCloseEdit(); if (window.closeAttModal) closeAttModal(); } });

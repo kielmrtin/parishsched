@@ -7,7 +7,7 @@
 //     (removed, class removed, display:none), so a copy of the closing modal
 //     is shown in its place and animated out.
 (function () {
-    var SELECTOR = '.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #rdm-backdrop, #purge-confirm-overlay, #cancel-overlay-panel, #cancel-overlay-backdrop';
+    var SELECTOR = '.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #rdm-backdrop, #purge-confirm-overlay, #cancel-overlay-panel, #cancel-overlay-backdrop, .ps-help-overlay';
     var LEAVE_MS = 220;
     var root = document.documentElement;
     var shown = new Map(); // element -> its display value while open
@@ -30,6 +30,7 @@
         // after the original, so getElementById still finds the real one.
         ghost.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
         ghost.querySelectorAll('script').forEach(function (n) { n.remove(); });
+        ghost.removeAttribute('hidden');
         ghost.style.display = display;
         ghost.style.visibility = 'visible';
         ghost.style.pointerEvents = 'none';
