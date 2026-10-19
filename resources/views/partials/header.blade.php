@@ -21,6 +21,19 @@
     .slicknav_nav .nav-give-text { display: inline; }
     .slicknav_nav .nav-give-icon { width: 20px; height: 20px; }
     .slicknav_nav li.nav-give a { display: flex; align-items: center; gap: 8px; color: #dc2626 !important; }
+
+    /* Sticky bar: when it comes back after scrolling down, glide in from fully
+       above the screen instead of starting half-visible and jumping
+       (desktop; login/register keep their always-fixed bar). */
+    @media (min-width: 992px) {
+        html body:not(.auth-body) #sticky-header.sticky {
+            top: 0 !important;
+            transform: none;
+            animation: ps-nav-in .45s cubic-bezier(.22,.61,.36,1) both;
+        }
+    }
+    @keyframes ps-nav-in { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { html body #sticky-header.sticky { animation: none; } }
 </style>
 <header>
     <style>
@@ -157,6 +170,19 @@
         header.classList.toggle('nav-on-dark', !light);
     }
     update();
+
+    // Where the bar sits in the page flow (white-header pages), keep its space
+    // when it turns sticky so the content below doesn't jump up.
+    var area = header.closest('.header-area');
+    function reserveSpace() {
+        if (!area || header.classList.contains('sticky')) return;
+        var pos = getComputedStyle(area).position;
+        area.style.minHeight = (pos === 'absolute' || pos === 'fixed') ? '' : header.offsetHeight + 'px';
+    }
+    reserveSpace();
+    window.addEventListener('resize', reserveSpace);
+    window.addEventListener('load', reserveSpace);
+
     window.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
     window.addEventListener('load', update);
     header.addEventListener('transitionend', update);

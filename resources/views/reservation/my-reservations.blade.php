@@ -389,6 +389,16 @@
             .res-stepper { gap: 0; }
         }
 
+        /* Pages for the reservation list */
+        .res-pager { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+        .res-pager:empty { display: none; }
+        .res-pager-info { font-size: .82rem; color: #6b7280; }
+        .res-pager-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+        .res-pager-btns button { padding: 6px 12px; border-radius: 8px; border: 1.5px solid #e5e7eb; background: #fff; color: #374151; font-size: .8rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .res-pager-btns button:hover:not(:disabled):not(.is-active) { border-color: #fca5a5; color: #dc2626; }
+        .res-pager-btns button.is-active { background: #dc2626; border-color: #dc2626; color: #fff; }
+        .res-pager-btns button:disabled { opacity: .4; cursor: default; }
+
         /* GCash payment for an approved reservation */
         .btn-pay-gcash { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:8px; background:#1d4ed8; color:#fff !important; font-size:.8rem; font-weight:700; text-decoration:none !important; }
         .btn-pay-gcash:hover { background:#1e40af; }
@@ -737,6 +747,7 @@
                 </div>
             @endforeach
             </div>
+            <div class="res-pager" id="res-pager" aria-label="Reservation pages"></div>
 
         @else
             <div class="myres-empty ps-reveal">
@@ -760,17 +771,62 @@ function toggleCancelForm(id) {
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
 }
 
+// Status filter + pages (5 reservations per page, like the admin lists).
+var resFilter = 'all';
+var resPage = 1;
+var RES_PER_PAGE = 5;
+
 function filterReservations(status, btn) {
     document.querySelectorAll('.res-summary-chip').forEach(function (chip) {
         chip.classList.remove('is-active');
     });
     btn.classList.add('is-active');
-
-    var cards = document.querySelectorAll('#res-cards-list .res-card');
-    cards.forEach(function (card) {
-        card.style.display = (status === 'all' || card.dataset.status === status) ? '' : 'none';
-    });
+    resFilter = status;
+    resPage = 1;
+    renderResPage();
 }
+
+function renderResPage(scroll) {
+    var cards = Array.prototype.slice.call(document.querySelectorAll('#res-cards-list .res-card'));
+    var matching = cards.filter(function (card) { return resFilter === 'all' || card.dataset.status === resFilter; });
+    var pages = Math.max(1, Math.ceil(matching.length / RES_PER_PAGE));
+    resPage = Math.min(Math.max(resPage, 1), pages);
+    var start = (resPage - 1) * RES_PER_PAGE;
+
+    cards.forEach(function (card) { card.style.display = 'none'; });
+    matching.slice(start, start + RES_PER_PAGE).forEach(function (card) { card.style.display = ''; });
+
+    var pager = document.getElementById('res-pager');
+    if (!pager) return;
+    if (matching.length <= RES_PER_PAGE) { pager.innerHTML = ''; }
+    else {
+        var html = '<span class="res-pager-info">Showing ' + (start + 1) + '–' + Math.min(start + RES_PER_PAGE, matching.length) + ' of ' + matching.length + '</span><div class="res-pager-btns">';
+        html += '<button type="button" data-page="' + (resPage - 1) + '"' + (resPage === 1 ? ' disabled' : '') + '>‹ Prev</button>';
+        var from = Math.max(1, Math.min(resPage - 2, pages - 4)), to = Math.min(pages, from + 4);
+        for (var i = from; i <= to; i++) {
+            html += '<button type="button" data-page="' + i + '"' + (i === resPage ? ' class="is-active" aria-current="page"' : '') + '>' + i + '</button>';
+        }
+        html += '<button type="button" data-page="' + (resPage + 1) + '"' + (resPage === pages ? ' disabled' : '') + '>Next ›</button></div>';
+        pager.innerHTML = html;
+    }
+    if (scroll) {
+        var list = document.getElementById('res-cards-list');
+        var nav = document.getElementById('sticky-header');
+        var top = list.getBoundingClientRect().top + window.scrollY - (nav ? nav.offsetHeight : 0) - 90;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var pager = document.getElementById('res-pager');
+    if (pager) pager.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-page]');
+        if (!b || b.disabled) return;
+        resPage = Number(b.dataset.page);
+        renderResPage(true);
+    });
+    renderResPage();
+});
 </script>
 <script src="{{ asset('js/vendor/modernizr-3.5.0.min.js') }}"></script>
 <script src="{{ asset('js/vendor/jquery-1.12.4.min.js') }}"></script>
