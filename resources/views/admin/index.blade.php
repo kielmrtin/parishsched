@@ -838,10 +838,11 @@
     gap: 18px !important;
 }
 
-.cal-legend-pulse { width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0; }
-@keyframes legend-pulse-green  { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}  70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}  100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
-@keyframes legend-pulse-yellow { 0%{box-shadow:0 0 0 0 rgba(245,158,11,.5)} 70%{box-shadow:0 0 0 6px rgba(245,158,11,0)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} }
-@keyframes legend-pulse-red    { 0%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}  70%{box-shadow:0 0 0 6px rgba(220,38,38,0)}  100%{box-shadow:0 0 0 0 rgba(220,38,38,0)} }
+.cal-legend-pulse { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.calendar_legend .legend-dot { width:7px; height:7px; }
+@keyframes legend-pulse-green  { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}  70%{box-shadow:0 0 0 4px rgba(34,197,94,0)}  100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+@keyframes legend-pulse-yellow { 0%{box-shadow:0 0 0 0 rgba(245,158,11,.5)} 70%{box-shadow:0 0 0 4px rgba(245,158,11,0)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} }
+@keyframes legend-pulse-red    { 0%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}  70%{box-shadow:0 0 0 4px rgba(220,38,38,0)}  100%{box-shadow:0 0 0 0 rgba(220,38,38,0)} }
 
 .legend.booked {
     background: #60a5fa !important;
