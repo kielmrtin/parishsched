@@ -401,6 +401,22 @@
     }
     .auth-mobile-back { display: none; }
     
+    
+    /* Desktop: keep the nav bar fixed at the top from the start. These pages
+       are too short for main.js's 400px sticky switch, and switching while
+       the bar is still on screen makes it jump, so it simply never moves. */
+    @media (min-width: 992px) {
+        body.auth-body .main-header-area {
+            position: fixed;
+        }
+        /* ...and ignore main.js's sticky class if a long error passes 400px */
+        body.auth-body .main-header-area.sticky {
+            top: 0 !important;
+            transform: none;
+            transition: none;
+            padding: 18px 150px !important;
+        }
+    }
     </style>
 </head>
 
@@ -605,13 +621,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.slicknav.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
-    <script>
-    // main.js only makes the nav bar sticky after 400px of scrolling, which
-    // this short page never reaches, so switch it on as soon as it scrolls.
-    $(window).on('scroll', function () {
-        $('#sticky-header').toggleClass('sticky', $(window).scrollTop() > 10);
-    });
-    </script>
 
 @include('partials.help')
 </body>
