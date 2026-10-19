@@ -1,16 +1,26 @@
 <style>
-    /* Donation (Give online) icon before Home */
-    #navigation > li.nav-give { margin-right: 18px; }
-    #navigation > li.nav-give > a { display: inline-flex; align-items: center; gap: 8px; position: relative; top: 7px; } /* line up with the text links, which leave room for their underline */
+    /* Donation (Give online) icon before Home: an outlined box like the
+       My Reservations button. Red on white headers, white on the dark
+       homepage header (the script below tells them apart). */
+    #navigation > li.nav-give { margin-right: 30px; }
+    #navigation > li.nav-give > a {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        width: 38px; height: 38px; padding: 0 !important; border-radius: 6px;
+        border: 2px solid currentColor; position: relative; top: 11px;
+        transition: background .2s, color .2s, border-color .2s;
+    }
     #navigation > li.nav-give > a::before { display: none !important; }
-    .nav-give-icon { width: 24px; height: 24px; flex-shrink: 0; transition: transform .2s ease; }
-    #navigation > li.nav-give > a:hover .nav-give-icon { transform: translateY(-2px) scale(1.08); }
-    #navigation > li.nav-give > a.active .nav-give-icon { color: #dc2626; }
+    .nav-give-icon { width: 20px; height: 20px; flex-shrink: 0; transition: transform .2s ease; }
+    #navigation > li.nav-give > a:hover .nav-give-icon { transform: translateY(-1px) scale(1.08); }
+    .nav-on-light #navigation > li.nav-give > a { color: #dc2626 !important; border-color: #dc2626; }
+    .nav-on-light #navigation > li.nav-give > a:hover { background: rgba(220,38,38,.1); }
+    .nav-on-dark #navigation > li.nav-give > a { color: #fff !important; border-color: #fff; }
+    .nav-on-dark #navigation > li.nav-give > a:hover { background: rgba(255,255,255,.15); }
     .nav-give-text { display: none; }
     /* the phone menu (slicknav copy) shows the words next to the icon */
     .slicknav_nav .nav-give-text { display: inline; }
     .slicknav_nav .nav-give-icon { width: 20px; height: 20px; }
-    .slicknav_nav li.nav-give a { display: flex; align-items: center; gap: 8px; }
+    .slicknav_nav li.nav-give a { display: flex; align-items: center; gap: 8px; color: #dc2626 !important; }
 </style>
 <header>
     <style>
@@ -126,3 +136,29 @@
         </div>
     </div>
 </header>
+<script>
+// Light or dark header? Checked on load and while scrolling, since the
+// header turns white when it becomes sticky.
+(function () {
+    var header = document.getElementById('sticky-header');
+    if (!header) return;
+    // Only the bar itself and its wrapper count: when both are see-through
+    // the bar sits on a dark hero photo.
+    function isLight(el) {
+        for (var i = 0; el && i < 2; i++, el = el.parentElement) {
+            var m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+            if (m && (m.length < 4 || +m[3] > 0.5)) return (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) > 186;
+        }
+        return false;
+    }
+    function update() {
+        var light = isLight(header);
+        header.classList.toggle('nav-on-light', light);
+        header.classList.toggle('nav-on-dark', !light);
+    }
+    update();
+    window.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
+    window.addEventListener('load', update);
+    header.addEventListener('transitionend', update);
+})();
+</script>
