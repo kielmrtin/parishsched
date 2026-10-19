@@ -8,12 +8,30 @@
  */
 
 /* ── Backdrops ─────────────────────────────────────────────────────────── */
+/* Plain tint, no blur: a blurred backdrop is re-rendered while the modal
+   scrolls, which made scrolling inside View details / Help stutter. */
 html body .ps-overlay,
 html body .dcm-overlay,
 html body #adm-cfm-overlay,
 html body #cancel-overlay-backdrop,
-html body #purge-confirm-overlay { background: rgba(15, 23, 42, .38) !important; backdrop-filter: blur(4px); }
-html body #rdm-backdrop { background: rgba(15, 23, 42, .38); }
+html body #purge-confirm-overlay,
+html body #rdm-backdrop,
+html body .ps-help-overlay {
+    background: rgba(15, 23, 42, .45) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Scroll areas inside modals: own layer, momentum, no scroll chaining. */
+html body .rdm-body,
+html body .dcm-scroll,
+html body .cpanel-body,
+html body .ps-help-body {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+    contain: paint;
+}
 
 /* ── Card ──────────────────────────────────────────────────────────────── */
 html body .ps-modal,
