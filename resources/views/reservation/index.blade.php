@@ -73,9 +73,7 @@
             'id' => 'baptism-attachments',
             'title' => 'Required Baptism documents',
             'description' => 'Upload clear scans or photos of the following requirements. Accepted formats: PDF, JPG, PNG (max 5MB each).',
-            'documents' => [
-                'baptism_file' => ['label' => 'Birth certificate / Baptism document (PDF, JPG, PNG)'],
-            ],
+            'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Baptism'))->map(fn ($label) => ['label' => $label])->all(),
             'notes' => [
                 'Choose one godfather and one godmother as major sponsors (proxies are not allowed).',
                 'Major sponsors must be practicing Catholics in good standing.',
@@ -87,19 +85,14 @@
             'id' => 'wedding-attachments',
             'title' => 'Required Wedding documents',
             'description' => 'Upload scanned copies of the following pre-marriage requirements. Accepted formats: PDF, JPG, PNG (max 5MB each).',
-            'documents' => [
-                'wedding_file1' => ['label' => 'Wedding Requirement 1 / Baptismal certificate'],
-                'wedding_file2' => ['label' => 'Wedding Requirement 2 / Marriage license or seminar certificate'],
-            ],
+            'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Wedding'))->map(fn ($label) => ['label' => $label])->all(),
             'notes' => ['Submit photocopies with the original documents to the parish office when requested.'],
         ],
         'Funeral' => [
             'id' => 'funeral-attachments',
             'title' => 'Required Funeral documents',
             'description' => 'Upload the document that matches the marital status selected above. Accepted formats: PDF, JPG, PNG (max 5MB).',
-            'documents' => [
-                'funeral_file' => ['label' => 'Funeral document / Marriage contract or baptismal certificate'],
-            ],
+            'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Funeral'))->map(fn ($label) => ['label' => $label])->all(),
             'notes' => [],
         ],
     ];
@@ -549,6 +542,9 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                             @if(!empty($attachmentSet['description']))
                                                 <p class="small text-muted">{{ $attachmentSet['description'] }}</p>
                                             @endif
+                                            <div class="res-req-progress" data-req-progress aria-live="polite">
+                                                0 of {{ count($documents) }} required {{ count($documents) === 1 ? 'upload' : 'uploads' }} attached
+                                            </div>
                                             @foreach($documents as $fieldName => $documentConfig)
                                                 @php
                                                     $inputId = (string) $fieldName;
@@ -558,13 +554,14 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                                     $conditionalField = is_array($conditional) ? ($conditional['field'] ?? '') : '';
                                                     $conditionalValue = is_array($conditional) ? ($conditional['value'] ?? '') : '';
                                                 @endphp
-                                                <div class="form-group"
+                                                <div class="form-group res-req-item"
+                                                     data-required-upload="{{ $label }}"
                                                      data-attachment-field="{{ $fieldName }}"
                                                      @if($conditionalField !== '')
                                                          data-attachment-conditional-field="{{ $conditionalField }}"
                                                          data-attachment-conditional-value="{{ $conditionalValue }}"
                                                      @endif>
-                                                    <label for="{{ $inputId }}">{{ $label }}</label>
+                                                    <label for="{{ $inputId }}"><span class="res-req-tick" aria-hidden="true"></span>{{ $label }} <span class="res-req-star">*</span></label>
                                                     <div class="res-file">
                                                         <input type="file" class="res-file-input" id="{{ $inputId }}" name="{{ $fieldName }}" accept="{{ $accept }}">
                                                         <label for="{{ $inputId }}" class="res-file-btn">
@@ -1231,10 +1228,49 @@ foreach ($approvedReservationsJson as $dayGroup) {
                 document.getElementById('laravel-notes-field').value = document.getElementById('reservation-notes')?.value || '';
             });
 
+            // Requirements: every upload of the chosen sacrament is required.
+            function visibleRequirementItems() {
+                const type = document.querySelector('input[name="reservation-type"]:checked')?.value || '';
+                const section = document.querySelector('[data-attachment-section="' + type + '"]');
+                return section ? Array.from(section.querySelectorAll('[data-required-upload]')) : [];
+            }
+            function refreshRequirements() {
+                document.querySelectorAll('[data-attachment-section]').forEach(function (section) {
+                    const items = Array.from(section.querySelectorAll('[data-required-upload]'));
+                    let done = 0;
+                    items.forEach(function (item) {
+                        const has = !!item.querySelector('input[type="file"]')?.files.length;
+                        item.classList.toggle('is-uploaded', has);
+                        if (has) done++;
+                    });
+                    const progress = section.querySelector('[data-req-progress]');
+                    if (progress) {
+                        progress.textContent = done + ' of ' + items.length + ' required ' + (items.length === 1 ? 'upload' : 'uploads') + ' attached';
+                        progress.classList.toggle('is-complete', items.length > 0 && done === items.length);
+                    }
+                });
+            }
+            form.addEventListener('change', function (e) {
+                if (e.target.matches('input[type="file"], input[name="reservation-type"]')) refreshRequirements();
+            });
+            refreshRequirements();
+
+            form.addEventListener('submit', function (event) {
+                const missing = visibleRequirementItems()
+                    .filter(item => !item.querySelector('input[type="file"]')?.files.length)
+                    .map(item => item.dataset.requiredUpload);
+                if (missing.length) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    psResAlert('warning', 'Missing requirement' + (missing.length > 1 ? 's' : ''),
+                        'Please upload: ' + missing.join('; ') + '.');
+                }
+            });
+
             // Duplicate-name pre-check: report "this person already has a
             // reservation" before the files are sent. The server checks again.
             form.addEventListener('submit', function (event) {
-                if (form.dataset.nameChecked === '1' || !form.checkValidity()) return;
+                if (event.defaultPrevented || form.dataset.nameChecked === '1' || !form.checkValidity()) return;
                 event.preventDefault();
 
                 const submitBtn = form.querySelector('[data-reservation-submit]');

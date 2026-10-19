@@ -455,6 +455,12 @@
         .dcm-textarea::placeholder{color:rgba(255,255,255,.3)}
         .dcm-textarea:focus{outline:none;border-color:#f87171;background:rgba(255,255,255,.06)}
         .rdm-att-label { font-size:10.5px; color:rgba(255,255,255,.35); }
+        .rdm-req { font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; }
+        .rdm-req.is-complete { color:#4ade80; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); }
+        .rdm-req.is-missing  { color:#fbbf24; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); }
+        .req-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:.62rem; font-weight:700; text-transform:uppercase; white-space:nowrap; }
+        .req-badge.is-complete { background:rgba(34,197,94,.12); color:#16a34a; border:1px solid rgba(34,197,94,.3); }
+        .req-badge.is-missing  { background:rgba(245,158,11,.14); color:#b45309; border:1px solid rgba(245,158,11,.35); }
         .rdm-footer { padding:13px 22px; border-top:1px solid rgba(255,255,255,.07); background:#0f172a; flex-shrink:0; display:flex; gap:8px; }
         .rdm-foot-btn { flex:1; padding:10px 14px; border-radius:999px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer; border:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; transition:background .15s; }
         .rdm-approve { background:#16a34a; color:#fff; }
@@ -2704,6 +2710,14 @@ function adminStatusBadge(string $status): string {
                                     @if($isUrgent)
                                     <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.62rem;font-weight:700;text-transform:uppercase;background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3)"><i class="fa fa-exclamation-circle"></i> Urgent</span>
                                     @endif
+                                    @php $reqStatus = \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? []); @endphp
+                                    @if($reqStatus['required'] > 0)
+                                    <span class="req-badge {{ $reqStatus['complete'] ? 'is-complete' : 'is-missing' }}"
+                                          title="{{ $reqStatus['complete'] ? 'All required documents uploaded' : 'Missing: ' . implode('; ', $reqStatus['missing']) }}">
+                                        @if($reqStatus['complete'])<i class="fa fa-check"></i> Requirements {{ $reqStatus['uploaded'] }}/{{ $reqStatus['required'] }}
+                                        @else<i class="fa fa-exclamation-triangle"></i> Missing {{ count($reqStatus['missing']) }}@endif
+                                    </span>
+                                    @endif
                                 </div>
 
                                 <div class="rcard-name">{{ $r['name'] ?? $r['customer_name'] ?? 'No name' }}<span class="rcard-id-span">#{{ $r['id'] ?? '—' }}</span></div>
@@ -2895,6 +2909,7 @@ function adminStatusBadge(string $status): string {
                                             'is_one_day_before'=> $isOneDayBefore,
                                             'created_at'       => $r['created_at'] ?? '',
                                             'attachments'      => $rdmAtts,
+                                            'requirements'     => $reqStatus,
                                             'baptism'          => $rdmBaptism,
                                             'wedding'          => $rdmWedding,
                                             'funeral'          => $rdmFuneral,
@@ -4731,11 +4746,17 @@ function openResDetail(r) {
     const notesSec = document.getElementById('rdm-notes-sec');
     if (r.notes) { document.getElementById('rdm-notes').textContent=r.notes; notesSec.style.display='block'; }
     else notesSec.style.display='none';
-    // Attachments
+    // Attachments (with the automatic requirements check on top)
     const attSec = document.getElementById('rdm-att-sec');
     const attList = document.getElementById('rdm-att-list');
-    if (r.attachments && r.attachments.length) {
-        attList.innerHTML = r.attachments.map(a => {
+    const req = r.requirements || { required: 0 };
+    const reqHtml = req.required
+        ? `<div class="rdm-req ${req.complete ? 'is-complete' : 'is-missing'}">${req.complete
+            ? `✓ All required documents uploaded (${req.uploaded}/${req.required})`
+            : `Missing ${req.missing.length} of ${req.required}: ${req.missing.map(eh).join('; ')}`}</div>`
+        : '';
+    if (req.required || (r.attachments && r.attachments.length)) {
+        attList.innerHTML = reqHtml + (r.attachments || []).map(a => {
             const icon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
             const nameEl = a.path
                 ? `<a class="rdm-att-link" href="${eh(a.path)}" target="_blank" rel="noopener">${eh(a.file)}</a>`

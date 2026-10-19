@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ReservationNameGuard;
+use App\Support\ReservationRequirements;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -121,10 +122,11 @@ class ReservationController extends Controller
         'baptism-child-dob' => 'nullable|date',
         'baptism-father-name' => 'nullable|string|max:200',
         'baptism-mother-name' => 'nullable|string|max:200',
-        'baptism_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        'wedding_file1' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        'wedding_file2' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        'funeral_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        // Required uploads per sacrament come from ReservationRequirements.
+        'baptism_file' => 'required_if:event_type,Baptism|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'wedding_file1' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'wedding_file2' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'funeral_file' => 'required_if:event_type,Funeral|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ], [
         'name.required' => 'Please enter the name of the person reserving.',
         'email.required' => 'Please enter your email address.',
@@ -133,7 +135,9 @@ class ReservationController extends Controller
         'event_type.required' => 'Please choose an event type.',
         'reservation_date.required' => 'Please select a reservation date.',
         'reservation_time.required' => 'Please select a preferred time.',
-    ]);
+    ] + collect(ReservationRequirements::uploadsFor($request->input('event_type')))
+        ->mapWithKeys(fn ($label, $field) => ["{$field}.required_if" => "Please upload this requirement: {$label}."])
+        ->all());
 
     // DUPLICATE ENTRY CHECK: same customer email + same event type + same date
     $dupResponse = Http::withHeaders([

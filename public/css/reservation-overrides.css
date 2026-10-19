@@ -1409,3 +1409,11 @@ select.form-control {
     color: #fff !important;
     border-color: #fff !important;
 }
+
+/* ── Required uploads checklist (panel revision: automatic requirement checking) ── */
+.res-req-progress{font-size:.74rem;font-weight:700;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:6px 10px;margin:0 0 12px}
+.res-req-progress.is-complete{color:#15803d;background:#f0fdf4;border-color:#bbf7d0}
+.res-req-item > label{display:flex;align-items:flex-start;gap:7px}
+.res-req-tick{flex:0 0 16px;width:16px;height:16px;margin-top:1px;border-radius:50%;border:1.5px solid #cbd5e1;background:#fff}
+.res-req-item.is-uploaded .res-req-tick{border-color:#16a34a;background:#16a34a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='4,8.5 7,11.5 12,5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.res-req-star{color:#dc2626}
