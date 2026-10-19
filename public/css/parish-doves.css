@@ -1,6 +1,9 @@
 /* Parish doves: see js/parish-doves.js */
 .pd-layer { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: visible; pointer-events: none; z-index: 90; }
 .pd-layer-fixed { position: fixed; z-index: 100001; }
+/* doves entering or leaving past the sides must not widen the page */
+#pd-ambient-layer { width: 100%; overflow-x: clip; overflow-y: visible; }
+@supports not (overflow-x: clip) { html { overflow-x: hidden; } }
 .pd-dove { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform, opacity; }
 .pd-small { width: 64px; height: 69px; }
 .pd-big { width: var(--pdw, 170px); height: calc(var(--pdw, 170px) * 1.077); }
