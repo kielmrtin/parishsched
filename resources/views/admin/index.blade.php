@@ -6894,36 +6894,82 @@ document.addEventListener('DOMContentLoaded', function () {
         detailsPanel.innerHTML = html + '</div>';
     }
 
-    function renderList() {
+    // List view, paged like the other admin lists. Opens on the page that
+    // holds today / the next upcoming date; pass resetPage to recompute it.
+    const LIST_PER_PAGE = 10;
+    state.listPage = null;
+
+    function renderList(resetPage) {
         const listContainer = document.getElementById('scheduleListView');
         if (!listContainer) return;
+        if (resetPage) state.listPage = null;
 
-        const keys = Object.keys(reservationsByDate).filter(function (key) {
-            if (state.typeFilter === 'all') return true;
-            return reservationsByDate[key].some(function (r) { return (r.eventType || '').toLowerCase() === state.typeFilter; });
-        }).sort();
+        const matches = function (r) {
+            return state.typeFilter === 'all' || (r.eventType || '').toLowerCase() === state.typeFilter;
+        };
+        const items = [];
+        Object.keys(reservationsByDate).sort().forEach(function (key) {
+            reservationsByDate[key].filter(matches).forEach(function (r) { items.push({ key: key, r: r }); });
+        });
 
-        if (!keys.length) {
+        if (!items.length) {
             listContainer.innerHTML = '<div class="schedule-list-empty">No reservations match this filter.</div>';
             return;
         }
 
+        const pages = Math.ceil(items.length / LIST_PER_PAGE);
+        if (state.listPage === null) {
+            const todayKey = toLocalKey(today.getFullYear(), today.getMonth(), today.getDate());
+            const firstUpcoming = items.findIndex(function (it) { return it.key >= todayKey; });
+            state.listPage = firstUpcoming === -1 ? pages : Math.floor(firstUpcoming / LIST_PER_PAGE) + 1;
+        }
+        state.listPage = Math.min(Math.max(state.listPage, 1), pages);
+
+        const start = (state.listPage - 1) * LIST_PER_PAGE;
+        const pageItems = items.slice(start, start + LIST_PER_PAGE);
+
         let html = '';
-        keys.forEach(function (key) {
-            const done = isDoneDate(key);
-            const entries = reservationsByDate[key].filter(function (r) {
-                return state.typeFilter === 'all' || (r.eventType || '').toLowerCase() === state.typeFilter;
-            });
-            if (!entries.length) return;
-            html += '<div class="schedule-list-group"><div class="schedule-list-date-heading">' + escapeHtml(formatDisplayDate(key)) + '</div><div class="schedule-list-cards">';
-            entries.forEach(function (r) {
-                html += buildDetailCardHtml(r, key, done);
-            });
-            html += '</div></div>';
+        let openKey = null;
+        pageItems.forEach(function (it) {
+            if (it.key !== openKey) {
+                if (openKey !== null) html += '</div></div>';
+                openKey = it.key;
+                html += '<div class="schedule-list-group"><div class="schedule-list-date-heading">' + escapeHtml(formatDisplayDate(it.key)) + '</div><div class="schedule-list-cards">';
+            }
+            html += buildDetailCardHtml(it.r, it.key, isDoneDate(it.key));
         });
+        html += '</div></div>';
+
+        if (pages > 1) {
+            const p = state.listPage;
+            const btn = function (page, label, opts) {
+                opts = opts || {};
+                const base = 'padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer;';
+                const look = opts.active
+                    ? 'border:1.5px solid #dc2626;background:#dc2626;color:#fff;font-weight:700;'
+                    : 'border:1.5px solid #e5e7eb;background:#fff;color:' + (opts.nav ? '#6b7280' : '#374151') + ';font-weight:' + (opts.nav ? 600 : 700) + ';';
+                const off = opts.disabled ? 'opacity:.4;cursor:default;' : '';
+                return '<button type="button" data-list-page="' + page + '"' + (opts.disabled ? ' disabled' : '') + ' style="' + base + look + off + '">' + label + '</button>';
+            };
+            let pager = '<div class="no-print" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 4px 4px;margin-top:8px;border-top:1px solid #f1f5f9">';
+            pager += '<span style="font-size:12px;color:#6b7280">Showing ' + (start + 1) + '–' + Math.min(start + LIST_PER_PAGE, items.length) + ' of ' + items.length + '</span>';
+            pager += '<div style="display:flex;gap:4px;align-items:center">' + btn(p - 1, '‹ Prev', { nav: true, disabled: p === 1 });
+            const from = Math.max(1, Math.min(p - 2, pages - 4)), to = Math.min(pages, from + 4);
+            for (let i = from; i <= to; i++) pager += btn(i, i, { active: i === p });
+            pager += btn(p + 1, 'Next ›', { nav: true, disabled: p === pages }) + '</div></div>';
+            html += pager;
+        }
 
         listContainer.innerHTML = html;
     }
+
+    document.getElementById('scheduleListView')?.addEventListener('click', function (e) {
+        const b = e.target.closest('[data-list-page]');
+        if (!b || b.disabled) return;
+        state.listPage = Number(b.dataset.listPage);
+        renderList();
+        this.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
 
     function appendEmptyCell(row) {
         const td = document.createElement('td');
@@ -7155,7 +7201,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 b.classList.toggle('is-active', b === btn);
             });
             if (state.view === 'list') {
-                renderList();
+                renderList(true);
             } else {
                 renderCalendar();
             }
