@@ -292,6 +292,7 @@
         }
         .auth-mobile-back { display: none; }
     </style>
+    @include('partials.modal-theme-css')
 </head>
 
 <body class="auth-body">

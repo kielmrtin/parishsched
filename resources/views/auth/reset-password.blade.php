@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{{ asset('css/slicknav.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1 }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    @include('partials.modal-theme-css')
 </head>
 
 <body class="auth-body">

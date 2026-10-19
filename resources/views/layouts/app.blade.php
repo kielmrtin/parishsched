@@ -66,6 +66,7 @@
 .ps-btn-solo{width:100%;padding:13px;border-radius:11px;border:none;background:#dc2626;color:#fff;font-family:'Raleway',system-ui,sans-serif;font-size:.86rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.4);transition:all .15s}
 .ps-btn-solo:hover{background:#b91c1c;transform:translateY(-1px)}
 </style>
+    @include('partials.modal-theme-css')
 </head>
 
 <body>

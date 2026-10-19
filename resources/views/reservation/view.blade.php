@@ -438,6 +438,7 @@
             }
         }
     </style>
+    @include('partials.modal-theme-css')
 </head>
 
 <body style="--accent-color:{{ $statusStyle['accent'] }}; --accent-soft:{{ $statusStyle['accent_soft'] }}; --badge-bg:{{ $statusStyle['badge_bg'] }}; --badge-text:{{ $statusStyle['badge_text'] }}; --badge-border:{{ $statusStyle['badge_border'] }};">

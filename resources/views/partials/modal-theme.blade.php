@@ -1,5 +1,4 @@
-{{-- Light parish modal theme. Include last in <body> so it overrides each page's dark modal styles. --}}
-<link rel="stylesheet" href="{{ asset('css/parish-modal-light.css') }}?v={{ file_exists(public_path('css/parish-modal-light.css')) ? filemtime(public_path('css/parish-modal-light.css')) : 1 }}">
+{{-- Modal behaviour (scroll lock, closing animation). The styles load in <head> via partials/modal-theme-css. --}}
 <script>
 // Shared behaviour for every parish modal (alerts, confirmations, form
 // modals, View details), whichever script opens or closes them:

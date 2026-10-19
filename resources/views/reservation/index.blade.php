@@ -174,6 +174,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : 1 }}">
     <link rel="stylesheet" href="{{ asset('css/schedule.css') }}?v={{ file_exists(public_path('css/schedule.css')) ? filemtime(public_path('css/schedule.css')) : 1 }}">
     <link rel="stylesheet" href="{{ asset('css/reservation-overrides.css') }}?v={{ file_exists(public_path('css/reservation-overrides.css')) ? filemtime(public_path('css/reservation-overrides.css')) : 1 }}">
+    @include('partials.modal-theme-css')
 </head>
 
 <body class="reservation-page schedule-page">

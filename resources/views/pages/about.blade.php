@@ -474,6 +474,7 @@
         }
 
     </style>
+    @include('partials.modal-theme-css')
 </head>
 
 <body>

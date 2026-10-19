@@ -1594,6 +1594,7 @@ input[type="number"] { -moz-appearance:textfield; }
 
     </style>
     <style id="printPageSizeOverride"></style>
+    @include('partials.modal-theme-css')
 </head>
 <body>
 
