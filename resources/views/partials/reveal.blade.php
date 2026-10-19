@@ -2,15 +2,9 @@
     Page entrance animation, matching the Schedule page: elements with
     .ps-reveal fade in and slide up. Hero items animate on load (staggered
     by data-reveal-delay, in ms); the rest animate when scrolled into view.
-    Include once near the end of <body>.
+    Include once near the end of <body>. The start-state styles live in
+    <head> (partials/modal-theme-css) so nothing flashes before animating.
 --}}
-<style>
-    .ps-reveal { opacity: 0; transform: translateY(20px); transition: opacity .5s ease, transform .5s ease; }
-    .ps-reveal.is-visible { opacity: 1; transform: none; }
-    @media (prefers-reduced-motion: reduce) {
-        .ps-reveal { opacity: 1; transform: none; transition: none; }
-    }
-</style>
 <script>
 (function () {
     var items = Array.prototype.slice.call(document.querySelectorAll('.ps-reveal'));
