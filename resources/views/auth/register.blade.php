@@ -261,39 +261,84 @@
             background: #fff;
         }
 
-        /* Registration steps */
-        .reg-steps { display: flex; gap: 6px; margin-bottom: 18px; }
-        .reg-steps div {
-            flex: 1; text-align: center; padding-top: 7px; border-top: 3px solid #e2e8f0;
-            font-family: 'Raleway', sans-serif; font-size: .7rem; font-weight: 700; color: #94a3b8;
+        /* Phone + OTP */
+        .otp-wrap {
+            display: flex;
+            gap: 8px;
         }
-        .reg-steps div.is-active { color: #dc2626; border-top-color: #dc2626; }
-        .reg-steps div.is-done   { color: #16a34a; border-top-color: #16a34a; }
-        .reg-step[hidden] { display: none !important; }
-        .reg-hint { font-family: 'Raleway', sans-serif; font-size: .74rem; font-weight: 600; margin-top: 4px; }
+
+        .otp-phone {
+            position: relative;
+            flex: 1;
+        }
+
+        .otp-phone > i {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            font-size: .85rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .otp-phone input {
+            display: block;
+            width: 100%;
+            padding: 10px 13px 10px 37px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            font-family: 'Raleway', sans-serif;
+            font-size: .87rem;
+            color: #1a2a4a;
+            outline: none;
+            box-sizing: border-box;
+            min-height: 42px;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        .otp-phone input:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220,38,38,.12);
+            background: #fff;
+        }
+
+        #sendOtpBtn {
+            flex-shrink: 0;
+            padding: 0 14px;
+            min-height: 42px;
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Raleway', sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: filter .25s ease;
+        }
+
+        #sendOtpBtn:hover:not(:disabled) { filter: brightness(0.88); }
+        #sendOtpBtn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        #otpCountdown:empty { display: none; }
+
+        /* Duplicate-email check under the email field */
+        .reg-hint { font-family: 'Raleway', sans-serif; font-size: .72rem; font-weight: 600; margin-top: 4px; }
         .reg-hint:empty { display: none; }
         .reg-hint.is-ok  { color: #16a34a; }
         .reg-hint.is-bad { color: #dc2626; }
         .iw input.is-bad { border-color: #fca5a5; background: #fef2f2; }
-        .iw input.is-ok  { border-color: #86efac; }
-        .reg-otp-note { font-size: .84rem; color: #64748b; margin-bottom: 14px; }
-        .reg-otp-note strong { color: #0f172a; }
-        .reg-btns { display: flex; gap: 10px; }
-        .reg-btns .auth-submit { flex: 1; }
-        .auth-submit.reg-back { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; flex: 0 0 34%; }
-        .auth-submit.reg-back:hover:not(:disabled) { filter: none; background: #f8fafc; }
-        .reg-resend { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
-        .reg-resend button {
-            background: none; border: 0; padding: 0; color: #dc2626; cursor: pointer;
-            font-family: 'Raleway', sans-serif; font-size: .78rem; font-weight: 700;
-        }
-        .reg-resend button:disabled { color: #94a3b8; cursor: not-allowed; }
 
         #otpCountdown {
             font-family: 'Raleway', sans-serif;
             font-size: .72rem;
             color: #94a3b8;
             min-height: 16px;
+            margin-top: 4px;
         }
 
         .auth-submit {
@@ -509,26 +554,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 @endif
 
-                @php
-                    // After a failed submit, reopen the step that holds the first error.
-                    $regStartStep = 1;
-                    if ($errors->any() && !$errors->hasAny(['name', 'email', 'phone', 'register'])) {
-                        $regStartStep = $errors->hasAny(['address', 'password']) ? 2 : 3;
-                    }
-                @endphp
-
-                <div class="reg-steps" aria-hidden="true">
-                    <div data-step-tab="1">1 · Account</div>
-                    <div data-step-tab="2">2 · Address</div>
-                    <div data-step-tab="3">3 · Verify phone</div>
-                </div>
-
-                <form class="auth-form" method="POST" action="{{ route('register') }}" id="registerForm" novalidate
-                      data-start-step="{{ $regStartStep }}">
+                <form class="auth-form" method="POST" action="{{ route('register') }}">
                     @csrf
 
-                    {{-- STEP 1: account details (email is checked for duplicates here) --}}
-                    <div class="reg-step" data-step="1">
+                    <div class="auth-row">
                         <div class="form-group">
                             <label for="name">Full Name *</label>
                             <div class="iw">
@@ -546,74 +575,63 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                             <div class="reg-hint" id="emailHint" aria-live="polite"></div>
                         </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="address">Home Address *</label>
+                        <div class="iw">
+                            <i class="fa fa-map-marker"></i>
+                            <input type="text" id="address" name="address"
+                                placeholder="Barangay, Municipality, Province" required value="{{ old('address') }}">
+                        </div>
+                    </div>
+
+                    <div class="auth-row">
                         <div class="form-group">
-                            <label for="phone">Phone Number *</label>
+                            <label for="password">Password *</label>
                             <div class="iw">
+                                <i class="fa fa-lock"></i>
+                                <input type="password" id="password" name="password"
+                                    placeholder="Password" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password_confirmation">Confirm *</label>
+                            <div class="iw">
+                                <i class="fa fa-lock"></i>
+                                <input type="password" id="password_confirmation"
+                                    name="password_confirmation" placeholder="Repeat" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Phone verification is the last step (panel revision) --}}
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <div class="otp-wrap">
+                            <div class="otp-phone">
                                 <i class="fa fa-phone"></i>
                                 <input type="text" id="phone" name="phone"
                                     placeholder="09XXXXXXXXX" required value="{{ old('phone') }}">
                             </div>
+                            <button type="button" id="sendOtpBtn">Send OTP</button>
                         </div>
-                        <button type="button" class="auth-submit" id="regNext1">Next</button>
+                        <div id="otpCountdown"></div>
                     </div>
 
-                    {{-- STEP 2: address and password --}}
-                    <div class="reg-step" data-step="2" hidden>
-                        <div class="form-group">
-                            <label for="address">Home Address *</label>
-                            <div class="iw">
-                                <i class="fa fa-map-marker"></i>
-                                <input type="text" id="address" name="address"
-                                    placeholder="Barangay, Municipality, Province" required value="{{ old('address') }}">
-                            </div>
-                        </div>
-
-                        <div class="auth-row">
-                            <div class="form-group">
-                                <label for="password">Password *</label>
-                                <div class="iw">
-                                    <i class="fa fa-lock"></i>
-                                    <input type="password" id="password" name="password"
-                                        placeholder="At least 8 characters" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="password_confirmation">Confirm *</label>
-                                <div class="iw">
-                                    <i class="fa fa-lock"></i>
-                                    <input type="password" id="password_confirmation"
-                                        name="password_confirmation" placeholder="Repeat" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="reg-btns">
-                            <button type="button" class="auth-submit reg-back" data-go="1">Back</button>
-                            <button type="button" class="auth-submit" id="regNext2">Next</button>
+                    <div class="form-group">
+                        <label for="otp_code">Verification Code</label>
+                        <div class="iw">
+                            <i class="fa fa-shield"></i>
+                            <input type="text" id="otp_code" name="otp_code"
+                                placeholder="6-digit code" maxlength="6" required>
                         </div>
                     </div>
 
-                    {{-- STEP 3: phone OTP is the last step --}}
-                    <div class="reg-step" data-step="3" hidden>
-                        <p class="reg-otp-note">We'll send a 6-digit code to <strong id="otpPhoneLabel"></strong>.</p>
-                        <div class="form-group">
-                            <label for="otp_code">Verification Code</label>
-                            <div class="iw">
-                                <i class="fa fa-shield"></i>
-                                <input type="text" id="otp_code" name="otp_code" inputmode="numeric"
-                                    autocomplete="one-time-code" placeholder="6-digit code" maxlength="6" required>
-                            </div>
-                            <div class="reg-resend">
-                                <div id="otpCountdown"></div>
-                                <button type="button" id="sendOtpBtn">Send code</button>
-                            </div>
-                        </div>
-
-                        <div class="reg-btns">
-                            <button type="button" class="auth-submit reg-back" data-go="2">Back</button>
-                            <button type="submit" class="auth-submit" id="createAccountBtn">Create Account</button>
-                        </div>
-                    </div>
+                    <button type="submit" class="auth-submit" id="createAccountBtn">
+                        Create Account
+                    </button>
                 </form>
 
                 <p class="auth-switch">
@@ -695,54 +713,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const form        = document.getElementById('registerForm');
-        const csrf        = document.querySelector('input[name="_token"]').value;
-        const nameInput   = document.getElementById('name');
-        const emailInput  = document.getElementById('email');
-        const emailHint   = document.getElementById('emailHint');
-        const phoneInput  = document.getElementById('phone');
-        const addrInput   = document.getElementById('address');
-        const passInput   = document.getElementById('password');
-        const confInput   = document.getElementById('password_confirmation');
-        const otpInput    = document.getElementById('otp_code');
-        const sendOtpBtn  = document.getElementById('sendOtpBtn');
-        const countdown   = document.getElementById('otpCountdown');
-        const phoneLabel  = document.getElementById('otpPhoneLabel');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const phoneInput = document.getElementById('phone');
+        const countdown  = document.getElementById('otpCountdown');
+        const emailInput = document.getElementById('email');
+        const emailHint  = document.getElementById('emailHint');
+        const csrf       = document.querySelector('input[name="_token"]').value;
         let timer = null;
-        let otpSentTo = null;       // phone number the last code went to
-        let emailChecked = null;    // { email, available } from the last check
-
-        function postJson(url, body) {
-            return fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify(body)
-            }).then(r => r.json().then(data => ({ ok: r.ok, data: data })));
-        }
-
-        function showStep(n) {
-            document.querySelectorAll('.reg-step').forEach(el => { el.hidden = Number(el.dataset.step) !== n; });
-            document.querySelectorAll('[data-step-tab]').forEach(el => {
-                const t = Number(el.dataset.stepTab);
-                el.classList.toggle('is-active', t === n);
-                el.classList.toggle('is-done', t < n);
-            });
-            if (n === 3) {
-                phoneLabel.textContent = phoneInput.value.trim();
-                // Send automatically the first time, or when the number changed.
-                if (otpSentTo !== phoneInput.value.trim()) sendOtp();
-                otpInput.focus();
-            }
-        }
+        let emailChecked = null; // { email, available }
 
         function setEmailHint(state, text) {
             emailHint.textContent = text || '';
             emailHint.className = 'reg-hint' + (state ? ' is-' + state : '');
             emailInput.classList.toggle('is-bad', state === 'bad');
-            emailInput.classList.toggle('is-ok', state === 'ok');
         }
 
-        // Resolves to true when the email is free; caches the last answer.
+        // Duplicate-email check (panel revision): runs when the email field is
+        // left and again before a code is sent. The server checks as well.
         function checkEmail() {
             const email = emailInput.value.trim();
             if (!email || !emailInput.checkValidity()) {
@@ -752,86 +739,65 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emailChecked && emailChecked.email === email.toLowerCase()) {
                 return Promise.resolve(emailChecked.available);
             }
-            setEmailHint('', 'Checking email…');
-            return postJson('{{ route('register.checkEmail') }}', { email: email })
-                .then(({ data }) => {
-                    emailChecked = { email: email.toLowerCase(), available: !!data.available };
-                    setEmailHint(data.available ? 'ok' : 'bad', data.available ? '✓ Email is available' : data.message);
-                    return !!data.available;
-                })
-                .catch(() => {
-                    setEmailHint('bad', 'Could not check the email. Please check your connection.');
-                    return false;
-                });
+            return fetch('{{ route('register.checkEmail') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: JSON.stringify({ email: email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                emailChecked = { email: email.toLowerCase(), available: !!data.available };
+                setEmailHint(data.available ? 'ok' : 'bad', data.available ? '✓ Email is available' : data.message);
+                return !!data.available;
+            })
+            .catch(() => true); // network hiccup: the server still checks on submit
         }
 
         emailInput.addEventListener('blur', function () { if (emailInput.value.trim()) checkEmail(); });
         emailInput.addEventListener('input', function () { emailChecked = null; setEmailHint('', ''); });
 
-        document.getElementById('regNext1').addEventListener('click', function () {
-            if (!nameInput.value.trim() || !phoneInput.value.trim()) {
-                showPsModal('warning', 'Missing Details', 'Please enter your full name, email and phone number.');
+        sendOtpBtn.addEventListener('click', async function () {
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                showPsModal('warning', 'Phone Required', 'Please enter your phone number first.');
                 return;
             }
-            const btn = this;
-            btn.disabled = true;
-            checkEmail().then(available => {
-                btn.disabled = false;
-                if (available) showStep(2);
-                else emailInput.focus();
+            sendOtpBtn.disabled = true;
+            if (!(await checkEmail())) {
+                sendOtpBtn.disabled = false;
+                showPsModal('warning', 'Check Your Email', emailHint.textContent || 'Please enter a valid email address first.');
+                emailInput.focus();
+                return;
+            }
+
+            fetch('{{ route('register.sendOtp') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({ phone: phone, email: emailInput.value.trim() })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showPsModal('success', 'OTP Sent', data.message || 'Check your phone for the code.');
+                    startCountdown(30);
+                } else {
+                    showPsModal('error', 'Failed', data.message || 'Could not send OTP. Try again.');
+                    sendOtpBtn.disabled = false;
+                }
+            })
+            .catch(() => {
+                showPsModal('error', 'Network Error', 'Network error. Please try again.');
+                sendOtpBtn.disabled = false;
             });
         });
-
-        document.getElementById('regNext2').addEventListener('click', function () {
-            if (!addrInput.value.trim()) {
-                showPsModal('warning', 'Address Required', 'Please enter your home address.');
-                return;
-            }
-            if (passInput.value.length < 8) {
-                showPsModal('warning', 'Password Too Short', 'Your password must be at least 8 characters.');
-                return;
-            }
-            if (passInput.value !== confInput.value) {
-                showPsModal('warning', 'Passwords Do Not Match', 'Please make sure both passwords are the same.');
-                return;
-            }
-            showStep(3);
-        });
-
-        document.querySelectorAll('[data-go]').forEach(btn => {
-            btn.addEventListener('click', () => showStep(Number(btn.dataset.go)));
-        });
-
-        function sendOtp() {
-            const phone = phoneInput.value.trim();
-            sendOtpBtn.disabled = true;
-            countdown.textContent = 'Sending code…';
-
-            postJson('{{ route('register.sendOtp') }}', { phone: phone, email: emailInput.value.trim() })
-                .then(({ data }) => {
-                    if (data.success) {
-                        otpSentTo = phone;
-                        showPsModal('success', 'Code Sent', data.message || 'Check your phone for the code.');
-                        startCountdown(30);
-                    } else {
-                        countdown.textContent = '';
-                        sendOtpBtn.disabled = false;
-                        showPsModal('error', 'Failed', data.message || 'Could not send the code. Try again.');
-                    }
-                })
-                .catch(() => {
-                    countdown.textContent = '';
-                    sendOtpBtn.disabled = false;
-                    showPsModal('error', 'Network Error', 'Network error. Please try again.');
-                });
-        }
-
-        sendOtpBtn.addEventListener('click', sendOtp);
 
         function startCountdown(seconds) {
             clearInterval(timer);
             let rem = seconds;
-            sendOtpBtn.textContent = 'Resend code';
             countdown.textContent = 'Resend available in ' + rem + 's';
             timer = setInterval(function () {
                 rem--;
@@ -839,33 +805,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(timer);
                     countdown.textContent = '';
                     sendOtpBtn.disabled = false;
+                    sendOtpBtn.textContent = 'Resend OTP';
                 } else {
                     countdown.textContent = 'Resend available in ' + rem + 's';
                 }
             }, 1000);
         }
 
-        form.addEventListener('submit', function (e) {
-            // Passwords are never refilled after a failed submit, so send the user back for them.
-            if (passInput.value.length < 8 || passInput.value !== confInput.value) {
-                e.preventDefault();
-                showStep(2);
-                showPsModal('warning', 'Re-enter Password', 'Please enter your password again before creating your account.');
-                return;
-            }
-            if (!/^\d{6}$/.test(otpInput.value.trim())) {
-                e.preventDefault();
-                showPsModal('warning', 'Code Required', 'Please enter the 6-digit code sent to your phone.');
-                return;
-            }
-            document.getElementById('createAccountBtn').disabled = true;
-        });
-
-        const startStep = Number(form.dataset.startStep) || 1;
-        // Coming back to step 3 after an error: the earlier code was already sent.
-        if (startStep === 3) otpSentTo = phoneInput.value.trim();
-        showStep(startStep);
-        if (startStep === 3) startCountdown(1);
     });
     </script>
 

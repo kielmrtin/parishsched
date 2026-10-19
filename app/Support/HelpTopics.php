@@ -59,9 +59,10 @@ class HelpTopics
                 'No account yet? Open the Create Account tab.',
             ]],
             'register' => ['title' => 'Creating an account', 'steps' => [
-                'Step 1: enter your name, email and phone. The email is checked right away; an email can only be used once.',
-                'Step 2: enter your address and a password of at least 8 characters.',
-                'Step 3: enter the 6-digit code sent to your phone, then press Create Account.',
+                'Enter your name and email. The email is checked right away; an email can only be used once.',
+                'Enter your address and a password of at least 8 characters.',
+                'Last, enter your phone number, press Send OTP, and type the 6-digit code sent to your phone.',
+                'Press Create Account.',
             ]],
             'forgot-password' => ['title' => 'Resetting your password', 'steps' => [
                 'Enter the email you registered with.',
