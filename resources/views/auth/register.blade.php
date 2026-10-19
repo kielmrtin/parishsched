@@ -270,7 +270,8 @@
         .reg-steps div.is-active { color: #dc2626; border-top-color: #dc2626; }
         .reg-steps div.is-done   { color: #16a34a; border-top-color: #16a34a; }
         .reg-step[hidden] { display: none !important; }
-        .reg-hint { font-family: 'Raleway', sans-serif; font-size: .74rem; font-weight: 600; min-height: 16px; margin-top: 4px; }
+        .reg-hint { font-family: 'Raleway', sans-serif; font-size: .74rem; font-weight: 600; margin-top: 4px; }
+        .reg-hint:empty { display: none; }
         .reg-hint.is-ok  { color: #16a34a; }
         .reg-hint.is-bad { color: #dc2626; }
         .iw input.is-bad { border-color: #fca5a5; background: #fef2f2; }
