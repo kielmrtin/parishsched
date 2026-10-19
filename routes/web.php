@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DonationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -47,6 +48,14 @@ Route::post('/reservation', [ReservationController::class, 'store'])
     ->middleware(['customer.auth', 'customer.status', 'throttle:10,1'])
     ->name('reservation.store');
 
+Route::get('/donate', [DonationController::class, 'index'])
+    ->middleware(['customer.auth'])
+    ->name('donate.index');
+
+Route::post('/donate', [DonationController::class, 'store'])
+    ->middleware(['customer.auth', 'customer.status', 'throttle:10,1'])
+    ->name('donate.store');
+
 Route::get('/reservation_view/{id}', [ReservationController::class, 'show'])
     ->name('reservation.view');
 
@@ -83,6 +92,7 @@ Route::post('/admin', [AdminController::class, 'handle'])->name('admin.handle');
 Route::get('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 Route::get('/admin/reports/export-pdf', [AdminController::class, 'exportReportPdf'])->name('admin.reports.exportPdf');
 Route::post('/admin/donations', [AdminController::class, 'storeDonation'])->name('admin.donations.store');
+Route::post('/admin/donations/{id}/status', [AdminController::class, 'updateDonationStatus'])->name('admin.donations.status');
 Route::delete('/admin/donations/{id}', [AdminController::class, 'deleteDonation'])->name('admin.donations.delete');
 Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');
 Route::post('/admin/priests', [AdminController::class, 'storePriest'])->name('admin.priests.store');

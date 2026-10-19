@@ -458,6 +458,16 @@
         .rdm-req { font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; }
         .rdm-req.is-complete { color:#4ade80; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); }
         .rdm-req.is-missing  { color:#fbbf24; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); }
+        /* Donation payment method / status chips */
+        .don-chip { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; border:1px solid; }
+        .don-m-cash { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
+        .don-m-gcash { color:#1d4ed8; background:#eff6ff; border-color:#bfdbfe; }
+        .don-m-cheque { color:#7c3aed; background:#f5f3ff; border-color:#ddd6fe; }
+        .don-s-received, .don-s-verified, .don-s-cleared { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
+        .don-s-pending, .don-s-uncleared { color:#b45309; background:#fffbeb; border-color:#fde68a; }
+        .don-s-rejected { color:#b91c1c; background:#fef2f2; border-color:#fecaca; }
+        .don-act { padding:3px 9px; border-radius:7px; border:1.5px solid #e5e7eb; background:#fff; color:#6b7280; font-size:11px; font-weight:700; cursor:pointer; }
+        .don-act-ok { border-color:rgba(22,163,74,.35); color:#15803d; }
         /* Schedule daily time grid */
         .sgrid { display:flex; flex-direction:column; margin-top:6px; }
         .sgrid-row { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; padding:12px 0; border-top:1px solid #f1f5f9; }
@@ -5822,6 +5832,41 @@ $purposeColors = [
                    style="display:{{ old('purpose')==='other' ? 'block' : 'none' }};margin-top:6px;padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.35);font-size:14px;width:100%;box-sizing:border-box;outline:none">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Payment Method</label>
+            @php $oldMethod = old('payment_method', 'cash'); $methodLabelMap = \App\Services\DonationService::METHODS; @endphp
+            <input type="hidden" name="payment_method" id="paymentMethodInput" value="{{ $oldMethod }}">
+            <div class="adm-csl" id="adm-csl-donation-method" style="width:100%;">
+                <button type="button" class="adm-csl-btn" onclick="admCslToggle('adm-csl-donation-method')">
+                    <span class="adm-csl-label">{{ $methodLabelMap[$oldMethod] ?? 'Cash' }}</span>
+                    <svg class="adm-csl-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="adm-csl-list">
+                    @foreach($methodLabelMap as $mk => $ml)
+                    <li class="{{ $oldMethod === $mk ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-donation-method','paymentMethodInput','{{ $mk }}','{{ $ml }}');togglePaymentFields('{{ $mk }}')">{{ $ml }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+        <div class="don-pay-fields" data-method="gcash" style="display:{{ $oldMethod === 'gcash' ? 'flex' : 'none' }};flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">GCash Reference No.</label>
+            <input type="text" name="gcash_reference" maxlength="40" value="{{ old('gcash_reference') }}" inputmode="numeric"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 4012 345 678901">
+        </div>
+        <div class="don-pay-fields" data-method="cheque" style="display:{{ $oldMethod === 'cheque' ? 'flex' : 'none' }};flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Cheque No.</label>
+            <input type="text" name="cheque_number" maxlength="40" value="{{ old('cheque_number') }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 001842">
+        </div>
+        <div class="don-pay-fields" data-method="cheque" style="display:{{ $oldMethod === 'cheque' ? 'flex' : 'none' }};flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Bank</label>
+            <input type="text" name="cheque_bank" maxlength="120" value="{{ old('cheque_bank') }}"
+                   style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. BDO">
+        </div>
+        <div class="don-pay-fields" data-method="cheque" style="display:{{ $oldMethod === 'cheque' ? 'flex' : 'none' }};flex-direction:column;gap:5px">
+            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Cheque Date</label>
+            <input type="date" name="cheque_date" value="{{ old('cheque_date') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date Received</label>
             <input type="hidden" name="donation_date" id="don-cal-input" value="{{ old('donation_date', date('Y-m-d')) }}">
             <div class="adm-cal-wrap" id="don-cal-wrap">
@@ -5982,6 +6027,8 @@ $purposeColors = [
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</th>
                     <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">Amount</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Purpose</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Method</th>
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Status</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes</th>
                     <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Actions</th>
@@ -5989,7 +6036,11 @@ $purposeColors = [
             </thead>
             <tbody id="donTableBody">
                 @foreach($donationsList as $don)
-                @php $donPurpose = $don['purpose'] ?? 'other'; @endphp
+                @php
+                    $donPurpose = $don['purpose'] ?? 'other';
+                    $donMethod  = $don['payment_method'] ?? 'cash';
+                    $donStatus  = $don['payment_status'] ?? 'received';
+                @endphp
                 <tr class="don-row" style="border-top:1px solid #f1f5f9">
                     <td style="padding:10px 14px;color:#94a3b8;font-weight:700">{{ $loop->iteration }}</td>
                     <td style="padding:10px 14px;font-family:monospace;font-size:12px;color:#64748b;white-space:nowrap">{{ $don['receipt_number'] ?? '—' }}</td>
@@ -6001,6 +6052,37 @@ $purposeColors = [
                               color:{{ $purposeColors[$donPurpose] ?? '#64748b' }}">
                             {{ $donPurpose === 'other' && !empty($don['custom_purpose']) ? $don['custom_purpose'] : ($purposeLabels[$donPurpose] ?? ucfirst($donPurpose)) }}
                         </span>
+                    </td>
+                    <td style="padding:10px 14px;white-space:nowrap">
+                        <span class="don-chip don-m-{{ $donMethod }}">{{ \App\Services\DonationService::METHODS[$donMethod] ?? ucfirst($donMethod) }}</span>
+                        @if($donMethod === 'gcash' && !empty($don['gcash_reference']))
+                            <div style="font-family:monospace;font-size:11px;color:#64748b;margin-top:3px">Ref {{ $don['gcash_reference'] }}</div>
+                        @elseif($donMethod === 'cheque')
+                            <div style="font-size:11px;color:#64748b;margin-top:3px">{{ trim(($don['cheque_bank'] ?? '') . ' #' . ($don['cheque_number'] ?? ''), ' #') }}</div>
+                        @endif
+                        @if(!empty($don['receipt_url']))
+                            <a href="{{ $don['receipt_url'] }}" target="_blank" rel="noopener" style="font-size:11px;font-weight:700;color:#dc2626">View screenshot</a>
+                        @endif
+                        @if(($don['source'] ?? 'admin') === 'online')
+                            <div style="font-size:10.5px;color:#94a3b8;margin-top:2px">Submitted online{{ !empty($don['reservation_id']) ? ' · Reservation #' . $don['reservation_id'] : '' }}</div>
+                        @endif
+                    </td>
+                    <td style="padding:10px 14px;white-space:nowrap">
+                        <span class="don-chip don-s-{{ $donStatus }}">{{ \App\Services\DonationService::STATUSES[$donStatus] ?? ucfirst($donStatus) }}</span>
+                        @if(in_array($donStatus, ['pending', 'uncleared'], true))
+                        <div style="display:flex;gap:4px;margin-top:5px">
+                            <form method="POST" action="{{ route('admin.donations.status', $don['id']) }}" style="margin:0">
+                                @csrf
+                                <input type="hidden" name="payment_status" value="{{ $donStatus === 'pending' ? 'verified' : 'cleared' }}">
+                                <button type="submit" class="don-act don-act-ok">{{ $donStatus === 'pending' ? 'Verify' : 'Mark cleared' }}</button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.donations.status', $don['id']) }}" style="margin:0">
+                                @csrf
+                                <input type="hidden" name="payment_status" value="rejected">
+                                <button type="submit" class="don-act">Reject</button>
+                            </form>
+                        </div>
+                        @endif
                     </td>
                     <td style="padding:10px 14px;color:#64748b;white-space:nowrap">{{ \Carbon\Carbon::parse($don['donation_date'])->format('M j, Y') }}</td>
                     <td style="padding:10px 14px;color:#94a3b8;font-size:13px;max-width:200px">{{ $don['notes'] ?? '—' }}</td>
@@ -6022,9 +6104,9 @@ $purposeColors = [
             </tbody>
             <tfoot>
                 <tr style="border-top:2px solid #e2e8f0;background:#f8fafc">
-                    <td colspan="3" style="padding:10px 14px;font-weight:700;color:#374151">Total</td>
+                    <td colspan="3" style="padding:10px 14px;font-weight:700;color:#374151">Total <span style="font-weight:600;color:#94a3b8;font-size:12px">(received, verified &amp; cleared only)</span></td>
                     <td style="padding:10px 14px;text-align:right;font-weight:800;color:#dc2626;font-size:16px">₱{{ number_format($donationSectionTotal, 2) }}</td>
-                    <td colspan="4"></td>
+                    <td colspan="6"></td>
                 </tr>
             </tfoot>
         </table>
@@ -6074,6 +6156,7 @@ $purposeColors = [
                 <th>Donor Name</th>
                 <th>Amount</th>
                 <th>Purpose</th>
+                <th>Payment</th>
                 <th>Date</th>
                 <th>Notes</th>
             </tr>
@@ -6087,6 +6170,7 @@ $purposeColors = [
                 <td style="font-weight:600">{{ $don['donor_name'] ?? '—' }}</td>
                 <td style="font-weight:700;color:#dc2626">₱{{ number_format((float)($don['amount'] ?? 0), 2) }}</td>
                 <td>{{ $rpdDonPurpose === 'other' && !empty($don['custom_purpose']) ? $don['custom_purpose'] : ($purposeLabels[$rpdDonPurpose] ?? ucfirst($rpdDonPurpose)) }}</td>
+                <td>{{ \App\Services\DonationService::METHODS[$don['payment_method'] ?? 'cash'] ?? 'Cash' }} · {{ \App\Services\DonationService::STATUSES[$don['payment_status'] ?? 'received'] ?? '' }}</td>
                 <td style="color:#64748b">{{ \Carbon\Carbon::parse($don['donation_date'])->format('M j, Y') }}</td>
                 <td style="color:#94a3b8">{{ $don['notes'] ?? '—' }}</td>
             </tr>
@@ -6094,7 +6178,7 @@ $purposeColors = [
             <tr class="rpd-total-row">
                 <td colspan="2">Total</td>
                 <td style="text-align:right">₱{{ number_format($donationSectionTotal, 2) }}</td>
-                <td colspan="3"></td>
+                <td colspan="4"></td>
             </tr>
         </tbody>
     </table>
@@ -6119,6 +6203,7 @@ $purposeColors = [
                 <tr><td style="padding:5px 0;color:#6b7280">Date</td><td style="padding:5px 0;color:#374151" id="rct-date"></td></tr>
                 <tr><td style="padding:5px 0;color:#6b7280">Donor</td><td style="padding:5px 0;font-weight:700;color:#1f2937" id="rct-donor"></td></tr>
                 <tr><td style="padding:5px 0;color:#6b7280">Purpose</td><td style="padding:5px 0;color:#374151" id="rct-purpose"></td></tr>
+                <tr><td style="padding:5px 0;color:#6b7280">Payment</td><td style="padding:5px 0;color:#374151" id="rct-method"></td></tr>
                 <tr><td style="padding:5px 0;color:#6b7280">Notes</td><td style="padding:5px 0;color:#94a3b8;font-style:italic;font-size:12px" id="rct-notes"></td></tr>
                 <tr style="border-top:2px solid #dc2626;margin-top:8px">
                     <td style="padding:12px 0 5px;font-weight:700;color:#dc2626;font-size:15px">Amount</td>
@@ -6197,6 +6282,11 @@ function donGoPage(p) {
 }
 
 document.addEventListener('DOMContentLoaded', renderDonPagination);
+function togglePaymentFields(method) {
+    document.querySelectorAll('.don-pay-fields').forEach(function (el) {
+        el.style.display = el.dataset.method === method ? 'flex' : 'none';
+    });
+}
 function toggleCustomPurpose(val) {
     const el = document.getElementById('customPurposeInput');
     el.style.display = val === 'other' ? 'block' : 'none';
@@ -6208,6 +6298,12 @@ function printReceipt(don) {
     document.getElementById('rct-donor').textContent  = don.donor_name     || '—';
     document.getElementById('rct-purpose').textContent= (don.purpose === 'other' && don.custom_purpose) ? don.custom_purpose : (purposeLabels[don.purpose] || don.purpose || '—');
     document.getElementById('rct-notes').textContent  = don.notes           || '—';
+    const method = don.payment_method || 'cash';
+    document.getElementById('rct-method').textContent = method === 'gcash'
+        ? 'GCash' + (don.gcash_reference ? ' · Ref ' + don.gcash_reference : '')
+        : method === 'cheque'
+            ? 'Cheque' + (don.cheque_bank ? ' · ' + don.cheque_bank : '') + (don.cheque_number ? ' #' + don.cheque_number : '')
+            : 'Cash';
     document.getElementById('rct-amount').textContent = '₱' + parseFloat(don.amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2});
     const modal = document.getElementById('receiptModal');
     modal.style.display = 'flex';

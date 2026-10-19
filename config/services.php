@@ -41,6 +41,13 @@ return [
         'password' => env('SECRETARY_PASSWORD', '12345678'),
     ],
 
+    // Parish GCash account shown on the "Give online" page. Temporary
+    // defaults until the parish provides its own account.
+    'gcash' => [
+        'number' => env('PARISH_GCASH_NUMBER', '09995787620'),
+        'name'   => env('PARISH_GCASH_NAME', 'Kiel Martin'),
+    ],
+
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
     ],

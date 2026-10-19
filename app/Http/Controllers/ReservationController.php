@@ -482,15 +482,30 @@ public function myReservations()
         'apikey'        => config('services.supabase.key'),
         'Authorization' => 'Bearer ' . config('services.supabase.key'),
     ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
-        'select'      => 'id,event_type,reservation_date,reservation_time,status,admin_note,created_at,name',
+        'select'      => 'id,event_type,reservation_date,reservation_time,status,admin_note,created_at,name,cancellation_requested',
         'customer_id' => 'eq.' . $customerId,
         'order'       => 'created_at.desc',
     ]);
 
     $reservations = $response->successful() ? ($response->json() ?? []) : [];
 
+    // Latest GCash payment per reservation, for the "Pay with GCash" button.
+    $serviceKey = config('services.supabase.service_role_key');
+    $paymentsResponse = Http::withHeaders(['apikey' => $serviceKey, 'Authorization' => 'Bearer ' . $serviceKey])
+        ->get(config('services.supabase.url') . '/rest/v1/donations', [
+            'select'         => 'reservation_id,payment_status,receipt_number',
+            'customer_id'    => 'eq.' . $customerId,
+            'reservation_id' => 'not.is.null',
+            'order'          => 'created_at.desc',
+        ]);
+    $reservationPayments = [];
+    foreach ($paymentsResponse->successful() ? ($paymentsResponse->json() ?? []) : [] as $payment) {
+        $reservationPayments[$payment['reservation_id']] ??= $payment;
+    }
+
     return view('reservation.my-reservations', [
         'reservations'   => $reservations,
+        'reservationPayments' => $reservationPayments,
         'customerName'   => session('customer_name', 'Member'),
         'customerEmail'  => session('customer_email', ''),
     ]);

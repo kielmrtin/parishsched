@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\DonationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -1221,17 +1222,20 @@ Monthly breakdown: {$monthlyBreakdown}";
             return true;
         }));
 
-        $donationSectionTotal = array_sum(array_map(fn($d) => (float)($d['amount'] ?? 0), $donationsList));
+        // Totals count only money that reached the parish (not pending GCash,
+        // uncleared cheques or rejected entries).
+        $countedDonationsList = array_filter($donationsList, [DonationService::class, 'isCounted']);
+        $donationSectionTotal = array_sum(array_map(fn($d) => (float)($d['amount'] ?? 0), $countedDonationsList));
         $donationsByPurpose   = [];
         foreach (['building_fund','mass_intention','tithes','other'] as $p) {
             $donationsByPurpose[$p] = array_sum(array_map(
                 fn($d) => (float)($d['amount'] ?? 0),
-                array_filter($donationsList, fn($d) => ($d['purpose'] ?? 'other') === $p)
+                array_filter($countedDonationsList, fn($d) => ($d['purpose'] ?? 'other') === $p)
             ));
         }
 
         // Donations for reports chart (filtered by range, grouped by purpose)
-        $donationsForYear = array_filter($allDonationsRaw, function ($d) use ($reportFromYear, $reportFromMonth, $reportToYear, $reportToMonth) {
+        $donationsForYear = array_filter(array_filter($allDonationsRaw, [DonationService::class, 'isCounted']), function ($d) use ($reportFromYear, $reportFromMonth, $reportToYear, $reportToMonth) {
             $dd = (string)($d['donation_date'] ?? '');
             if (strlen($dd) < 7) return false;
             $ym = (int) substr($dd, 0, 4) * 100 + (int) substr($dd, 5, 2);
@@ -1446,7 +1450,34 @@ Monthly breakdown: {$monthlyBreakdown}";
             'custom_purpose' => 'nullable|string|max:255',
             'donation_date'  => 'required|date',
             'notes'          => 'nullable|string|max:500',
+            'payment_method' => 'required|in:cash,gcash,cheque',
+            'gcash_reference'=> 'required_if:payment_method,gcash|nullable|string|max:40',
+            'cheque_number'  => 'required_if:payment_method,cheque|nullable|string|max:40',
+            'cheque_bank'    => 'required_if:payment_method,cheque|nullable|string|max:120',
+            'cheque_date'    => 'nullable|date',
+        ], [
+            'gcash_reference.required_if' => 'Enter the GCash reference number.',
+            'cheque_number.required_if'   => 'Enter the cheque number.',
+            'cheque_bank.required_if'     => 'Enter the bank of the cheque.',
         ]);
+
+        // Payment method: staff recording a GCash payment have seen it in the
+        // parish account, so it is verified; a cheque starts uncleared.
+        $method = $validated['payment_method'];
+        $validated['payment_status'] = ['cash' => 'received', 'gcash' => 'verified', 'cheque' => 'uncleared'][$method];
+        $validated['source'] = 'admin';
+        if ($method !== 'gcash') {
+            $validated['gcash_reference'] = null;
+        } else {
+            $validated['gcash_reference'] = preg_replace('/\s+/', '', $validated['gcash_reference']);
+            if (app(DonationService::class)->gcashReferenceUsed($validated['gcash_reference'])) {
+                Session::flash('donation_action_error', 'This GCash reference number was already recorded.');
+                return redirect()->route('admin.index', ['section' => 'donations']);
+            }
+        }
+        if ($method !== 'cheque') {
+            $validated['cheque_number'] = $validated['cheque_bank'] = $validated['cheque_date'] = null;
+        }
 
         // DUPLICATE ENTRY CHECK: same donor + same amount + same date
         $dupCheck = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
@@ -1466,25 +1497,52 @@ Monthly breakdown: {$monthlyBreakdown}";
         }
 
         // Auto-generate receipt number: RCP-{YEAR}-{sequential}
-        $year = (int) substr($validated['donation_date'], 0, 4);
-        $countResp = $this->sb()->get(config('services.supabase.url') . '/rest/v1/donations', [
-            'select'        => 'id',
-            'donation_date' => 'gte.' . $year . '-01-01',
-            'donation_date' => 'lte.' . $year . '-12-31',
-        ]);
-        $countSoFar = ($countResp->successful()) ? count($countResp->json() ?? []) : 0;
-        $validated['receipt_number'] = 'RCP-' . $year . '-' . str_pad($countSoFar + 1, 4, '0', STR_PAD_LEFT);
+        $validated['receipt_number'] = app(DonationService::class)
+            ->nextReceiptNumber((int) substr($validated['donation_date'], 0, 4));
 
-        $response = $this->sb()->withHeaders(['Prefer' => 'return=minimal'])
-            ->post(config('services.supabase.url') . '/rest/v1/donations', $validated);
+        $response = app(DonationService::class)->insert($validated);
+
+        // Until supabase/donation_payments.sql is run, cash donations still
+        // save with the original columns.
+        if ($response->failed() && $method === 'cash' && str_contains((string) $response->json('message'), 'column')) {
+            $response = app(DonationService::class)->insert(array_intersect_key($validated, array_flip([
+                'donor_name', 'amount', 'purpose', 'custom_purpose', 'donation_date', 'notes', 'receipt_number',
+            ])));
+        }
 
         if ($response->failed()) {
-            Session::flash('donation_action_error', 'Failed to save donation: ' . $response->body());
+            Session::flash('donation_action_error', DonationService::insertError($response));
             return redirect()->route('admin.index', ['section' => 'donations']);
         }
 
         return redirect()->route('admin.index', ['section' => 'donations'])
             ->with('donation_action_success', 'Donation recorded. Receipt #' . $validated['receipt_number']);
+    }
+
+    /**
+     * Verify or reject a GCash donation, or mark a cheque cleared/rejected.
+     */
+    public function updateDonationStatus(Request $request, string $id)
+    {
+        if (!session()->get('admin_logged_in')) {
+            return redirect()->route('admin.index');
+        }
+
+        $validated = $request->validate(['payment_status' => 'required|in:verified,cleared,rejected']);
+
+        $response = $this->sb()->patch(config('services.supabase.url') . '/rest/v1/donations?id=eq.' . (int) $id, [
+            'payment_status' => $validated['payment_status'],
+        ]);
+
+        if ($response->failed()) {
+            Session::flash('donation_action_error', 'Could not update the donation: ' . ($response->json('message') ?? $response->body()));
+            return redirect()->route('admin.index', ['section' => 'donations']);
+        }
+
+        $label = DonationService::STATUSES[$validated['payment_status']];
+
+        return redirect()->route('admin.index', ['section' => 'donations'])
+            ->with('donation_action_success', "Donation marked as {$label}.");
     }
 
     public function deleteDonation(string $id)

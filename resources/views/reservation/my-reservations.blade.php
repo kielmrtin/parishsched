@@ -389,6 +389,13 @@
             .res-stepper { gap: 0; }
         }
 
+        /* GCash payment for an approved reservation */
+        .btn-pay-gcash { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:8px; background:#1d4ed8; color:#fff !important; font-size:.8rem; font-weight:700; text-decoration:none !important; }
+        .btn-pay-gcash:hover { background:#1e40af; }
+        .res-pay-status { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.78rem; font-weight:700; border:1px solid; }
+        .res-pay-status.pending { color:#b45309; background:#fffbeb; border-color:#fde68a; }
+        .res-pay-status.verified, .res-pay-status.received, .res-pay-status.cleared { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
+
         /* Dark modal alert (matches the login/register confirmation modal) */
         .ps-overlay{position:fixed;inset:0;background:rgba(6,13,26,.75);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:ps-fade-in .25s ease both}
         @keyframes ps-fade-in{from{opacity:0}to{opacity:1}}
@@ -685,6 +692,19 @@
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.4 2.1L8 10.2a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c1 .4 2 .6 3 .7a2 2 0 0 1 1.5 2z"/></svg>
                                 Contact Parish Office
                             </a>
+                        @endif
+                        @if($status === 'approved')
+                            @php $resPayment = $reservationPayments[$res['id']] ?? null; @endphp
+                            @if($resPayment && ($resPayment['payment_status'] ?? '') !== 'rejected')
+                                <span class="res-pay-status {{ $resPayment['payment_status'] }}">
+                                    <i class="fa {{ $resPayment['payment_status'] === 'pending' ? 'fa-clock-o' : 'fa-check' }}"></i>
+                                    GCash payment {{ $resPayment['payment_status'] === 'pending' ? 'being verified' : 'verified' }}
+                                </span>
+                            @else
+                                <a href="{{ route('donate.index', ['reservation' => $res['id']]) }}" class="btn-pay-gcash">
+                                    <i class="fa fa-mobile"></i> Pay with GCash
+                                </a>
+                            @endif
                         @endif
                         @if(in_array($status, ['pending', 'approved']) && empty($res['cancellation_requested']))
                             <button class="btn-cancel-req" onclick="toggleCancelForm('cancel-{{ $res['id'] }}')">
