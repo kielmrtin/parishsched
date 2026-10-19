@@ -3993,6 +3993,7 @@ function adminStatusBadge(string $status): string {
         <table class="table" style="font-size:14px">
             <thead>
                 <tr style="border-bottom:2px solid #e5e7eb">
+                    <th style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;width:44px">#</th>
                     <th style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px">Month</th>
                     <th style="color:#2dd4bf;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Baptisms</th>
                     <th style="color:#f472b6;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Weddings</th>
@@ -4012,6 +4013,7 @@ function adminStatusBadge(string $status): string {
                         $rptFoot['t'] += $mt; $rptFoot['a'] += $md['approved']; $rptFoot['p'] += $md['pending']; $rptFoot['d'] += $md['declined'];
                     @endphp
                     <tr style="border-bottom:1px solid #f1f5f9;{{ $mt === 0 ? 'color:#cbd5e1' : '' }}" data-ym="{{ \Carbon\Carbon::parse($mn)->format('Y-m') }}">
+                        <td class="data-num" style="padding:9px 10px;color:#94a3b8;font-weight:700">{{ $loop->iteration }}</td>
                         <td style="padding:9px 10px;font-weight:500">{{ $mn }}</td>
                         <td style="padding:9px 10px;text-align:center">{{ $md['baptism'] ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center">{{ $md['wedding'] ?: '—' }}</td>
@@ -4025,6 +4027,7 @@ function adminStatusBadge(string $status): string {
             </tbody>
             <tfoot>
                 <tr style="font-weight:700;border-top:2px solid #e5e7eb;background:#f8fafc">
+                    <td style="padding:9px 10px"></td>
                     <td style="padding:9px 10px">Total</td>
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['b'] }}</td>
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['w'] }}</td>
@@ -4339,6 +4342,8 @@ function renderDataPagination() {
 
     filtered.forEach(function(row, i) {
         row.style.display = (i >= start && i < end) ? '' : 'none';
+        var num = row.querySelector('.data-num');
+        if (num) num.textContent = i + 1;
     });
 
     var pg = document.getElementById('dataPagination');
@@ -5929,6 +5934,7 @@ $purposeColors = [
         <table style="width:100%;border-collapse:collapse;font-size:14px">
             <thead>
                 <tr style="background:#f8fafc">
+                    <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;width:44px">#</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Receipt #</th>
                     <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Donor Name</th>
                     <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">Amount</th>
@@ -5938,10 +5944,11 @@ $purposeColors = [
                     <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="donTableBody">
                 @foreach($donationsList as $don)
                 @php $donPurpose = $don['purpose'] ?? 'other'; @endphp
-                <tr style="border-top:1px solid #f1f5f9">
+                <tr class="don-row" style="border-top:1px solid #f1f5f9">
+                    <td style="padding:10px 14px;color:#94a3b8;font-weight:700">{{ $loop->iteration }}</td>
                     <td style="padding:10px 14px;font-family:monospace;font-size:12px;color:#64748b;white-space:nowrap">{{ $don['receipt_number'] ?? '—' }}</td>
                     <td style="padding:10px 14px;font-weight:600;color:#1f2937">{{ $don['donor_name'] ?? '—' }}</td>
                     <td style="padding:10px 14px;text-align:right;font-weight:700;color:#dc2626;white-space:nowrap">₱{{ number_format((float)($don['amount'] ?? 0), 2) }}</td>
@@ -5972,13 +5979,14 @@ $purposeColors = [
             </tbody>
             <tfoot>
                 <tr style="border-top:2px solid #e2e8f0;background:#f8fafc">
-                    <td colspan="2" style="padding:10px 14px;font-weight:700;color:#374151">Total</td>
+                    <td colspan="3" style="padding:10px 14px;font-weight:700;color:#374151">Total</td>
                     <td style="padding:10px 14px;text-align:right;font-weight:800;color:#dc2626;font-size:16px">₱{{ number_format($donationSectionTotal, 2) }}</td>
                     <td colspan="4"></td>
                 </tr>
             </tfoot>
         </table>
     </div>
+    <div id="donPagination" class="no-print" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 4px 4px;margin-top:8px;border-top:1px solid #f1f5f9"></div>
     @endif
 </section>
 </div>
@@ -6106,6 +6114,46 @@ const purposeLabels = {
     tithes:         'Tithes',
     other:          'Other',
 };
+
+// ── Donation records pagination (same look as the attendance log) ──
+var donPage = 1;
+var donPerPage = 10;
+
+function renderDonPagination() {
+    var rows  = Array.from(document.querySelectorAll('#donTableBody .don-row'));
+    var total = rows.length;
+    var pages = Math.ceil(total / donPerPage) || 1;
+    if (donPage > pages) donPage = pages;
+    var start = (donPage - 1) * donPerPage;
+    var end   = Math.min(start + donPerPage, total);
+
+    rows.forEach(function(row, i) {
+        row.style.display = (i >= start && i < end) ? '' : 'none';
+    });
+
+    var pg = document.getElementById('donPagination');
+    if (!pg) return;
+    if (total <= donPerPage) { pg.innerHTML = ''; return; }
+
+    var info = '<span style="font-size:12px;color:#6b7280">Showing ' + (start+1) + '–' + end + ' of ' + total + '</span>';
+    var btns = '<div style="display:flex;gap:4px;align-items:center">';
+    btns += '<button onclick="donGoPage(' + (donPage-1) + ')" ' + (donPage===1?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (donPage===1?'opacity:.4;cursor:default':'') + '">‹ Prev</button>';
+    var from = Math.max(1, Math.min(donPage-2, pages-4)), to = Math.min(pages, from+4);
+    for (var p = from; p <= to; p++) {
+        var active = p === donPage;
+        btns += '<button onclick="donGoPage(' + p + ')" style="padding:4px 10px;border-radius:8px;border:1.5px solid ' + (active?'#dc2626':'#e5e7eb') + ';background:' + (active?'#dc2626':'#fff') + ';font-size:12px;font-weight:700;color:' + (active?'#fff':'#374151') + ';cursor:pointer">' + p + '</button>';
+    }
+    btns += '<button onclick="donGoPage(' + (donPage+1) + ')" ' + (donPage===pages?'disabled':'') + ' style="padding:4px 10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;' + (donPage===pages?'opacity:.4;cursor:default':'') + '">Next ›</button>';
+    btns += '</div>';
+    pg.innerHTML = info + btns;
+}
+
+function donGoPage(p) {
+    donPage = p;
+    renderDonPagination();
+}
+
+document.addEventListener('DOMContentLoaded', renderDonPagination);
 function toggleCustomPurpose(val) {
     const el = document.getElementById('customPurposeInput');
     el.style.display = val === 'other' ? 'block' : 'none';
