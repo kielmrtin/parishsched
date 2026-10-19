@@ -958,8 +958,29 @@ foreach ($scheduleCalendarReservations as $r) {
         }
     }
 
+    // Who receives the sacrament, shown under the customer's name in the
+    // schedule time grid.
+    $joinName = fn (array $parts) => trim(preg_replace('/\s+/', ' ', implode(' ', array_map('strval', $parts))));
+    $rEvKey = strtolower((string) ($r['event_type'] ?? ''));
+    $rSubject = match ($rEvKey) {
+        'baptism' => ($rDetails['baptism']['child_name'] ?? '') ?: $joinName([
+            $rDetails['baptism']['child_first'] ?? '', $rDetails['baptism']['child_middle'] ?? '',
+            $rDetails['baptism']['child_last'] ?? '', $rDetails['baptism']['child_suffix'] ?? '',
+        ]),
+        'wedding' => implode(' & ', array_filter([
+            $joinName([$rDetails['wedding']['groom_first'] ?? '', $rDetails['wedding']['groom_last'] ?? '']),
+            $joinName([$rDetails['wedding']['bride_first'] ?? '', $rDetails['wedding']['bride_last'] ?? '']),
+        ])),
+        'funeral' => $joinName([
+            $rDetails['funeral']['deceased_first'] ?? '', $rDetails['funeral']['deceased_middle'] ?? '',
+            $rDetails['funeral']['deceased_last'] ?? '', $rDetails['funeral']['deceased_suffix'] ?? '',
+        ]),
+        default => '',
+    };
+
     $scheduleCalendarJson[$dateKey][] = [
         'id' => $r['id'] ?? null,
+        'subject' => $rSubject,
         'name' => $r['name'] ?? $r['details']['name'] ?? 'No name provided',
         'email' => $r['email'] ?? $r['details']['email'] ?? 'Not provided',
         'phone' => $r['phone'] ?? $r['details']['phone'] ?? 'Not provided',
@@ -985,6 +1006,7 @@ foreach ($scheduleCalendarReservations as $r) {
             'is_one_day_before' => $reservationDate <= $today->modify('+1 day'),
             'created_at'        => $r['created_at'] ?? '',
             'attachments'       => $rAttachments,
+            'requirements'      => \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? []),
             'baptism'           => $rDetails['baptism'] ?? null,
             'wedding'           => $rDetails['wedding'] ?? null,
             'funeral'           => $rDetails['funeral'] ?? null,

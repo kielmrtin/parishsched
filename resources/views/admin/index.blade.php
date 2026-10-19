@@ -458,6 +458,28 @@
         .rdm-req { font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; }
         .rdm-req.is-complete { color:#4ade80; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); }
         .rdm-req.is-missing  { color:#fbbf24; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); }
+        /* Schedule daily time grid */
+        .sgrid { display:flex; flex-direction:column; margin-top:6px; }
+        .sgrid-row { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; padding:12px 0; border-top:1px solid #f1f5f9; }
+        .sgrid-row:first-child { border-top:0; }
+        .sgrid-time { font-size:13px; font-weight:800; color:#0f172a; padding-top:8px; font-variant-numeric:tabular-nums; }
+        .sgrid-time small { display:block; font-size:10.5px; font-weight:600; color:#94a3b8; margin-top:1px; }
+        .sgrid-list { display:flex; flex-direction:column; gap:6px; min-width:0; }
+        .sgrid-meta { display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700; color:#94a3b8; letter-spacing:.04em; text-transform:uppercase; padding:4px 0 2px; }
+        .sgrid-bar { flex:0 1 90px; height:5px; border-radius:99px; background:#f1f5f9; overflow:hidden; }
+        .sgrid-bar i { display:block; height:100%; background:#2dd4bf; }
+        .sgrid-empty { min-height:38px; border:1.5px dashed #e2e8f0; border-radius:10px; }
+        .sgrid-person { display:grid; grid-template-columns:4px minmax(0,1fr) auto; gap:12px; align-items:stretch; width:100%; text-align:left; padding:0; border:1px solid #e5e7eb; border-radius:10px; background:#fff; cursor:pointer; overflow:hidden; font-family:inherit; transition:border-color .15s, background .15s; }
+        .sgrid-person:hover, .sgrid-person:focus-visible { border-color:#fca5a5; background:#fff8f8; outline:none; }
+        .sgrid-stripe { display:block; }
+        .sgrid-who { display:flex; flex-direction:column; justify-content:center; min-width:0; padding:8px 0; }
+        .sgrid-name { font-size:13px; font-weight:700; color:#0f172a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .sgrid-sub { font-size:11px; font-weight:600; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .sgrid-right { display:flex; align-items:center; gap:8px; padding-right:12px; color:#cbd5e1; font-size:16px; }
+        .sgrid-pill { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid; white-space:nowrap; }
+        .sgrid-pill.is-pending { color:#b45309; background:#fffbeb; border-color:#fde68a; }
+        .sgrid-pill.is-done { color:#64748b; background:#f1f5f9; border-color:#e2e8f0; }
+        @media (max-width: 480px) { .sgrid-row { grid-template-columns:72px minmax(0,1fr); gap:10px; } }
         .req-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:.62rem; font-weight:700; text-transform:uppercase; white-space:nowrap; }
         .req-badge.is-complete { background:rgba(34,197,94,.12); color:#16a34a; border:1px solid rgba(34,197,94,.3); }
         .req-badge.is-missing  { background:rgba(245,158,11,.14); color:#b45309; border:1px solid rgba(245,158,11,.35); }
@@ -6629,40 +6651,106 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
     }
 
+    // ── Daily time grid (panel revision, Sir Jayson) ─────────────────────
+    // Slot rules mirror public/js/reservations.js so the grid lists exactly
+    // the times customers can book on that weekday.
+    function slotsForDay(dow) {
+        const slots = [];
+        if (dow !== 0) slots.push({ start: '7:30 AM', end: '10:00 AM', type: 'wedding' });
+        if (dow === 0 || dow === 1) {
+            slots.push({ start: '1:00 PM', type: 'funeral' }, { start: '2:00 PM', type: 'funeral' });
+        } else {
+            slots.push({ start: '8:00 AM', type: 'funeral' }, { start: '9:00 AM', type: 'funeral' }, { start: '10:00 AM', type: 'funeral' });
+        }
+        if (dow === 0 || dow === 6) slots.push({ start: '11:00 AM', end: '12:00 PM', type: 'baptism' });
+        if (dow !== 0) slots.push({ start: '3:00 PM', end: '5:00 PM', type: 'wedding' });
+        return slots;
+    }
+
+    // Minutes after midnight of a time's start ("7:30 AM - 10:00 AM" -> 450).
+    function startMinutes(time) {
+        const m = String(time || '').match(/(\d{1,2}):(\d{2})\s*([AaPp][Mm])?/);
+        if (!m) return null;
+        let h = parseInt(m[1], 10) % 12;
+        if (m[3] && m[3].toUpperCase() === 'PM') h += 12;
+        if (!m[3] && parseInt(m[1], 10) === 12) h = 12;
+        return h * 60 + parseInt(m[2], 10);
+    }
+
+    function fmtMinutes(min) {
+        const h = Math.floor(min / 60), mm = String(min % 60).padStart(2, '0');
+        return ((h % 12) || 12) + ':' + mm + ' ' + (h >= 12 ? 'PM' : 'AM');
+    }
+
+    function buildPersonRow(r, done) {
+        const type = (r.eventType || '').toLowerCase();
+        const etLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Reservation';
+        const isPending = r.status === 'pending';
+        const pill = isPending
+            ? '<span class="sgrid-pill is-pending">Pending</span>'
+            : (done ? '<span class="sgrid-pill is-done">Done</span>' : '');
+        const subject = r.subject ? etLabel + ' · ' + r.subject : etLabel;
+        const payload = escapeHtml(JSON.stringify(r.detail || {}));
+        return `
+            <button type="button" class="sgrid-person is-${escapeHtml(type)}" data-res="${payload}"
+                    onclick="openResDetail(JSON.parse(this.dataset.res))" title="View reservation details">
+                <span class="sgrid-stripe" style="background:${getEventColor(type)}"></span>
+                <span class="sgrid-who">
+                    <span class="sgrid-name">${escapeHtml(r.name)}</span>
+                    <span class="sgrid-sub">${escapeHtml(subject)}</span>
+                </span>
+                <span class="sgrid-right">${pill}<i class="fa fa-angle-right"></i></span>
+            </button>`;
+    }
+
     function renderDetails(dateKey) {
         const reservations = reservationsByDate[dateKey] || [];
         const done = isDoneDate(dateKey);
         const todayKeyForPanel = toLocalKey(today.getFullYear(), today.getMonth(), today.getDate());
         const isToday = dateKey === todayKeyForPanel;
+        const parts = dateKey.split('-');
+        const dow = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
 
-        if (!reservations.length) {
-            detailsPanel.innerHTML = `
-                <div class="admin-calendar-empty">
-                    <div class="admin-calendar-empty-icon">
-                        <i class="fa fa-calendar-o"></i>
-                    </div>
-                    <h3>${escapeHtml(formatDisplayDate(dateKey))}</h3>
-                    <p>No reservations for this date.</p>
-                </div>
-            `;
-            return;
-        }
+        // One row per bookable time; reservations at any other time (older
+        // records) get their own row so nothing is hidden.
+        const rows = slotsForDay(dow).map(function (s) {
+            return { min: startMinutes(s.start), label: s.start, end: s.end || '', type: s.type, people: [] };
+        });
+        reservations.forEach(function (r) {
+            const min = startMinutes(r.time);
+            let row = rows.find(function (x) { return x.min === min && min !== null; });
+            if (!row) {
+                row = { min: min === null ? 24 * 60 : min, label: min === null ? (r.time || 'No time') : fmtMinutes(min), end: '', type: '', people: [], extra: true };
+                rows.push(row);
+            }
+            row.people.push(r);
+        });
+        rows.sort(function (a, b) { return a.min - b.min; });
 
         const badgeLabel = isToday ? "Today's schedule" : (done ? 'Done / Past date' : 'Upcoming schedule');
-
         let html = `
             <div class="admin-date-heading">
                 <span>${badgeLabel}</span>
                 <h3>${escapeHtml(formatDisplayDate(dateKey))}</h3>
-                <p>${reservations.length} reservation${reservations.length > 1 ? 's' : ''}</p>
+                <p>${reservations.length ? reservations.length + ' reservation' + (reservations.length > 1 ? 's' : '') : 'No reservations'}</p>
             </div>
-        `;
+            <div class="sgrid">`;
 
-        reservations.forEach(function (r) {
-            html += buildDetailCardHtml(r, dateKey, done);
+        rows.forEach(function (row) {
+            const baptismMeta = row.type === 'baptism'
+                ? `<div class="sgrid-meta">${row.people.length} of 5 booked<span class="sgrid-bar"><i style="width:${Math.min(row.people.length, 5) * 20}%"></i></span></div>`
+                : '';
+            const people = row.people.length
+                ? row.people.map(function (r) { return buildPersonRow(r, done); }).join('')
+                : '<div class="sgrid-empty" aria-label="No reservation"></div>';
+            html += `
+                <div class="sgrid-row">
+                    <div class="sgrid-time">${escapeHtml(row.label)}${row.end ? '<small>to ' + escapeHtml(row.end) + '</small>' : ''}${row.extra ? '<small>other time</small>' : ''}</div>
+                    <div class="sgrid-list">${baptismMeta}${people}</div>
+                </div>`;
         });
 
-        detailsPanel.innerHTML = html;
+        detailsPanel.innerHTML = html + '</div>';
     }
 
     function renderList() {
