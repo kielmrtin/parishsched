@@ -165,7 +165,13 @@
             var vx = r.left + rnd(0.25, 0.75) * r.width;   // middle part, clear of rounded ends
             return { el: el, vx: vx, vy: r.top, x: vx - W / 2 + window.scrollX, y: r.top + window.scrollY - H * FEET + 1 };
         }
+        // the layer covers the whole page so it can hide doves past the edges
+        function fitLayer() {
+            docLayer.style.height = '0px';
+            docLayer.style.height = document.documentElement.scrollHeight + 'px';
+        }
         function arrive() {
+            fitLayer();
             if (doves.length >= MAX || document.hidden || modalOpen() || window.innerWidth < 576) return schedule(rnd(4000, 8000));
             var spot = pickPerch();
             if (!spot) return schedule(rnd(5000, 9000));
@@ -224,7 +230,8 @@
         window.addEventListener('scroll', function () {
             doves.forEach(function (d) { if (d.state === 'resting' && Math.abs(window.scrollY - d.scrollY) > 140) leave(d); });
         }, { passive: true });
-        window.addEventListener('resize', function () { doves.slice().forEach(leave); });
+        window.addEventListener('resize', function () { fitLayer(); doves.slice().forEach(leave); });
+        if ('ResizeObserver' in window) new ResizeObserver(fitLayer).observe(document.body);   // page grew or shrank
 
         schedule(rnd(4000, 7000));
         schedule(rnd(9000, 14000));
