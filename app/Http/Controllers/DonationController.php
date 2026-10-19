@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Customer "Give online" page: pay to the parish GCash account, then submit
+ * Customer Donations page: pay to the parish GCash account, then submit
  * the reference number and a screenshot for the staff to verify (panel
  * revision: GCash inclusion / online donation). Also used to pay for an
  * approved reservation from My Reservations.

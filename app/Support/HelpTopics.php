@@ -47,7 +47,7 @@ class HelpTopics
                 'On an approved reservation, press Pay with GCash to send the church donation online.',
                 'Press Request Cancellation if you can no longer attend.',
             ]],
-            'give' => ['title' => 'Giving through GCash', 'steps' => [
+            'give' => ['title' => 'Donating through GCash', 'steps' => [
                 'Send the amount to the parish GCash number shown on the left.',
                 'Take a screenshot of the receipt with the reference number.',
                 'Enter the amount, purpose and reference number, attach the screenshot, then press Submit payment.',

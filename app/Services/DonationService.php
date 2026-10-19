@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Shared donation rules for the admin donation records and the customer
- * "Give online" page (GCash / cheque panel revision).
+ * Donations page (GCash / cheque panel revision).
  */
 class DonationService
 {

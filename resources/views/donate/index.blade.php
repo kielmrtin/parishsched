@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Give Online | St. John the Baptist Parish')
+@section('title', 'Donations | St. John the Baptist Parish')
 
 @push('preloads')
 <style>
@@ -73,7 +73,7 @@
 <div class="give-hero">
     <div class="container">
         <div class="give-kicker">St. John the Baptist Parish</div>
-        <h1>Give online</h1>
+        <h1>Donations</h1>
         <p>Support the parish through GCash. Send your gift, then tell us the reference number so the parish office can confirm it.</p>
     </div>
 </div>
