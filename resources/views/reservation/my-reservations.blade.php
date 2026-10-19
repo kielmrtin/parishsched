@@ -437,14 +437,14 @@
 
 <div class="myres-hero">
     <div class="container myres-hero-body">
-        <div class="myres-hero-kicker">
+        <div class="myres-hero-kicker ps-reveal" data-reveal-delay="0">
             <span>St. John the Baptist Parish</span>
         </div>
-        <h1>My Reservations</h1>
-        <p class="hero-desc">
+        <h1 class="ps-reveal" data-reveal-delay="90">My Reservations</h1>
+        <p class="hero-desc ps-reveal" data-reveal-delay="180">
             Track and manage your sacrament reservation requests. Our parish team will review and respond to each submission as soon as possible.
         </p>
-        <div class="myres-hero-actions">
+        <div class="myres-hero-actions ps-reveal" data-reveal-delay="270">
             <a href="{{ route('reservation.index') }}" class="myres-btn-primary">
                 <i class="fa fa-calendar-plus-o"></i> New Reservation
             </a>
@@ -543,7 +543,7 @@
 
         @if(count($reservations) > 0)
 
-            <div class="res-summary">
+            <div class="res-summary ps-reveal">
                 <button type="button" class="res-summary-chip all is-active" onclick="filterReservations('all', this)">
                     All <span class="chip-count">{{ count($reservations) }}</span>
                 </button>
@@ -600,7 +600,7 @@
 
                 @endphp
 
-                <div class="res-card" data-status="{{ in_array($status, ['approved','declined']) ? $status : 'pending' }}" style="--accent: {{ $accentHex }};">
+                <div class="res-card ps-reveal" data-reveal-delay="{{ ($loop->index % 3) * 80 }}" data-status="{{ in_array($status, ['approved','declined']) ? $status : 'pending' }}" style="--accent: {{ $accentHex }};">
                     <div class="res-card-top">
                         <div class="res-card-heading">
                             <div class="res-icon-avatar {{ in_array($type, ['wedding','baptism','funeral']) ? $type : 'default' }}">
@@ -739,7 +739,7 @@
             </div>
 
         @else
-            <div class="myres-empty">
+            <div class="myres-empty ps-reveal">
                 <div class="myres-empty-icon"><i class="fa fa-calendar-o"></i></div>
                 <h4>No reservations yet</h4>
                 <p>You haven't submitted any sacrament reservation requests. When you do, they'll appear here with their current status.</p>
@@ -792,6 +792,7 @@ function filterReservations(status, btn) {
 <script src="{{ asset('js/gijgo.min.js') }}"></script>
 <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : 1 }}"></script>
 
+@include('partials.reveal')
 @include('partials.help')
 @include('partials.modal-theme')
 </body>
