@@ -248,3 +248,14 @@ html body .ps-help-overlay { animation: ps-soft-fade .3s ease both !important; }
     html body #rdm-modal.is-open .rdm-panel, html body .ps-help-dialog,
     html body .ps-overlay, html body #adm-cfm-overlay.is-open, html body .dcm-overlay.is-open, html body .ps-help-overlay { animation: none !important; }
 }
+
+/* View details: wedding documents to follow (admin) */
+html body .rdm-req.is-overdue { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+html body .rdm-doc-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 8px; background: #fffbeb; border: 1px solid #fde68a; margin-bottom: 7px; }
+html body .rdm-doc-name { font-size: 12px; font-weight: 700; color: #0f172a; }
+html body .rdm-doc-sub { font-size: 11px; color: #b45309; }
+html body .rdm-doc-btn { flex-shrink: 0; border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; border-radius: 7px; padding: 4px 10px; font: 700 11px 'Raleway', sans-serif; cursor: pointer; }
+html body .rdm-doc-btn.is-undo { border-color: #e2e8f0; background: #fff; color: #64748b; }
+html body .rdm-doc-btn:disabled { opacity: .5; cursor: wait; }
+html body .rdm-doc-row.is-received { background: #f0fdf4; border-color: #bbf7d0; }
+html body .rdm-doc-row.is-received .rdm-doc-sub { color: #15803d; }

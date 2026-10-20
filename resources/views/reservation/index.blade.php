@@ -55,11 +55,6 @@
         'baptism-mother-name' => old('baptism-mother-name', ''),
     ];
 
-    $selectedWeddingRequirements = old('wedding-requirements', []);
-    if (!is_array($selectedWeddingRequirements)) {
-        $selectedWeddingRequirements = [];
-    }
-
     $funeralMaritalStatusOptions = [
         'single' => 'Single / Unmarried',
         'married_baptized' => 'Married (baptized in the church)',
@@ -81,13 +76,6 @@
                 'Please bring original documents to the parish office on the day of baptism.',
             ],
         ],
-        'Wedding' => [
-            'id' => 'wedding-attachments',
-            'title' => 'Required Wedding documents',
-            'description' => 'Upload scanned copies of the following pre-marriage requirements. Accepted formats: PDF, JPG, PNG (max 5MB each).',
-            'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Wedding'))->map(fn ($label) => ['label' => $label])->all(),
-            'notes' => ['Submit photocopies with the original documents to the parish office when requested.'],
-        ],
         'Funeral' => [
             'id' => 'funeral-attachments',
             'title' => 'Required Funeral documents',
@@ -97,15 +85,10 @@
         ],
     ];
 
-    $weddingRequirementChecklist = [
-        'baptismal-certificate' => 'Baptismal Certificate (for marriage purposes)',
-        'confirmation-certificate' => 'Confirmation Certificate (for marriage purposes)',
-        'marriage-permit' => 'Marriage Permit',
-        'marriage-banns' => 'Marriage Banns',
-        'marriage-license' => 'Marriage License',
-        'seminar-certificate' => 'Certificate of Seminar',
-        'sponsors-list' => 'Listahan ng Ninong at Ninang (apat na pares na minimum)',
-    ];
+    // One row per wedding document; see ReservationRequirements::weddingDocuments().
+    $weddingDocumentGroups = collect(\App\Support\ReservationRequirements::weddingDocuments())
+        ->groupBy('owner', preserveKeys: true);
+    $weddingDocumentTitles = ['groom' => "Groom's requirements", 'bride' => "Bride's requirements", 'couple' => 'For the couple'];
 
     $reservationGender = $formData['reservation-gender'];
     $showWeddingCoupleFields = in_array($reservationGender, ['male', 'female'], true);
@@ -489,14 +472,39 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                     </div>
 
                                     <div class="res-section-lbl" style="margin-top:4px">Mga kailangan bago ikasal</div>
-                                    <p class="small text-muted mb-2">Confirm you have prepared the following requirements.</p>
-                                    @foreach($weddingRequirementChecklist as $requirementKey => $requirementLabel)
-                                        @php $inputId = 'wedding-requirement-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $requirementKey); @endphp
-                                        <div class="custom-control custom-checkbox mb-1">
-                                            <input type="checkbox" class="custom-control-input" id="{{ $inputId }}" name="wedding-requirements[]" value="{{ $requirementKey }}" @checked(in_array($requirementKey, $selectedWeddingRequirements, true)) data-wedding-required="true" data-wedding-checkbox="true">
-                                            <label class="custom-control-label" for="{{ $inputId }}">{{ $requirementLabel }}</label>
-                                        </div>
-                                    @endforeach
+                                    <p class="small text-muted mb-2">Attach a photo or scan of each document (PDF, JPG or PNG, up to 5 MB). Only the Baptismal Certificates are needed now; anything you don't attach is marked <b>To follow</b> and can be uploaded later from My Reservations.</p>
+                                    <div class="wd-docs" id="wedding-docs">
+                                        @foreach($weddingDocumentTitles as $owner => $title)
+                                            <details class="wd-party" data-wd-party {{ $owner === 'groom' ? 'open' : '' }}>
+                                                <summary>
+                                                    <span class="wd-who" aria-hidden="true"><i class="fa {{ $owner === 'couple' ? 'fa-heart' : 'fa-user' }}"></i></span>
+                                                    <span class="wd-title">{{ $title }}</span>
+                                                    <span class="wd-counts" data-wd-counts></span>
+                                                    <i class="fa fa-chevron-down wd-chev" aria-hidden="true"></i>
+                                                </summary>
+                                                <div class="wd-items">
+                                                    @foreach($weddingDocumentGroups[$owner] ?? [] as $docKey => $doc)
+                                                        <div class="wd-item" data-wd-doc="{{ $docKey }}" data-wd-label="{{ \App\Support\ReservationRequirements::weddingLabel($docKey) }}" @if($doc['required']) data-wd-required data-required-upload="{{ \App\Support\ReservationRequirements::weddingLabel($docKey) }}" @endif>
+                                                            <div class="wd-text">
+                                                                <span class="wd-name">{{ $doc['label'] }}</span>
+                                                                @if($doc['required'])<span class="wd-pill wd-pill--req">Required</span>@else<span class="wd-pill wd-pill--follow" data-wd-follow>To follow</span>@endif
+                                                                <span class="wd-hint">{{ $doc['hint'] }}</span>
+                                                            </div>
+                                                            <div class="res-file wd-file">
+                                                                <input type="file" class="res-file-input" id="wedding-doc-{{ $docKey }}" name="wedding_doc[{{ $docKey }}]" accept=".pdf,.jpg,.jpeg,.png" aria-label="Attach {{ \App\Support\ReservationRequirements::weddingLabel($docKey) }}">
+                                                                <label for="wedding-doc-{{ $docKey }}" class="res-file-btn">
+                                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                                    <span class="res-file-name">Attach file</span>
+                                                                </label>
+                                                                <button type="button" class="wd-remove" data-wd-remove aria-label="Remove file">&times;</button>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </details>
+                                        @endforeach
+                                        <div class="wd-summary" data-wd-summary aria-live="polite"></div>
+                                    </div>
                                 </div>
 
                                 {{-- FUNERAL DETAILS --}}
@@ -1232,9 +1240,84 @@ foreach ($approvedReservationsJson as $dayGroup) {
             // Requirements: every upload of the chosen sacrament is required.
             function visibleRequirementItems() {
                 const type = document.querySelector('input[name="reservation-type"]:checked')?.value || '';
+                if (type === 'Wedding') return Array.from(document.querySelectorAll('#wedding-docs [data-wd-required]'));
                 const section = document.querySelector('[data-attachment-section="' + type + '"]');
                 return section ? Array.from(section.querySelectorAll('[data-required-upload]')) : [];
             }
+
+            // Wedding documents: counts per person, the "to follow" summary
+            // with its due date, and a remove button for attached files.
+            const weddingDocs = document.getElementById('wedding-docs');
+            const isWeddingSelected = () => (document.querySelector('input[name="reservation-type"]:checked')?.value || '') === 'Wedding';
+            // Same rule as ReservationRequirements::weddingDueDate(): 30 days
+            // before the wedding, or 7 when it is closer, never before today.
+            function weddingDueDate() {
+                const m = (document.getElementById('reservation-date')?.value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (!m) return null;
+                const wedding = new Date(+m[1], +m[2] - 1, +m[3]);
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                for (const days of [30, 7]) {
+                    const due = new Date(wedding); due.setDate(due.getDate() - days);
+                    if (due >= today) return due;
+                }
+                return wedding < today ? today : wedding;
+            }
+            function refreshWeddingDocs() {
+                if (!weddingDocs) return;
+                const chip = (cls, text) => '<span class="wd-chip wd-chip--' + cls + '">' + text + '</span>';
+                weddingDocs.querySelectorAll('[data-wd-doc]').forEach(function (item) {
+                    const has = !!item.querySelector('input[type="file"]').files.length;
+                    item.classList.toggle('is-attached', has);
+                    if (!has) item.querySelector('.res-file-name').textContent = 'Attach file';
+                });
+                let follow = 0; const needed = [];
+                weddingDocs.querySelectorAll('[data-wd-party]').forEach(function (party) {
+                    const items = Array.from(party.querySelectorAll('[data-wd-doc]'));
+                    const attached = items.filter(i => i.classList.contains('is-attached')).length;
+                    const missing = items.filter(i => i.hasAttribute('data-wd-required') && !i.classList.contains('is-attached'));
+                    const toFollow = items.length - attached - missing.length;
+                    follow += toFollow;
+                    missing.forEach(i => needed.push(i.dataset.wdLabel));
+                    party.querySelector('[data-wd-counts]').innerHTML =
+                        (attached ? chip('ok', attached + ' attached') : '') +
+                        (toFollow ? chip('follow', toFollow + ' to follow') : '') +
+                        (missing.length ? chip('bad', 'Baptismal needed') : '');
+                });
+                const summary = weddingDocs.querySelector('[data-wd-summary]');
+                const due = weddingDueDate();
+                const dueText = due ? due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                if (needed.length) {
+                    summary.className = 'wd-summary is-bad';
+                    const owners = needed.map(label => label.split(' · ')[0].toLowerCase() + "'s");
+                    summary.textContent = 'Attach the ' + owners.join(' and ') + ' Baptismal Certificate' + (owners.length > 1 ? 's' : '') + ' to submit.';
+                } else if (follow) {
+                    summary.className = 'wd-summary';
+                    summary.textContent = follow + (follow === 1 ? ' document' : ' documents') + ' to follow' +
+                        (dueText ? ', due ' + dueText : '') + '. You can upload them later from My Reservations.';
+                } else {
+                    summary.className = 'wd-summary is-ok';
+                    summary.textContent = 'All wedding documents attached.';
+                }
+            }
+            if (weddingDocs) {
+                weddingDocs.addEventListener('click', function (e) {
+                    const btn = e.target.closest('[data-wd-remove]');
+                    if (!btn) return;
+                    e.preventDefault();
+                    const input = btn.closest('.wd-file').querySelector('input[type="file"]');
+                    input.value = '';
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                weddingDocs.addEventListener('change', () => setTimeout(refreshWeddingDocs));
+                // the reservation date is set by the calendar without a change event
+                form.addEventListener('click', () => requestAnimationFrame(refreshWeddingDocs));
+                refreshWeddingDocs();
+            }
+            // Files picked under Wedding must not be sent with another sacrament.
+            form.addEventListener('submit', function () {
+                const off = !isWeddingSelected();
+                weddingDocs?.querySelectorAll('input[type="file"]').forEach(i => { i.disabled = off; });
+            });
             function refreshRequirements() {
                 document.querySelectorAll('[data-attachment-section]').forEach(function (section) {
                     const items = Array.from(section.querySelectorAll('[data-required-upload]'));

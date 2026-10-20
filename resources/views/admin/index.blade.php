@@ -504,6 +504,8 @@
         .req-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:.62rem; font-weight:700; text-transform:uppercase; white-space:nowrap; }
         .req-badge.is-complete { background:rgba(34,197,94,.12); color:#16a34a; border:1px solid rgba(34,197,94,.3); }
         .req-badge.is-missing  { background:rgba(245,158,11,.14); color:#b45309; border:1px solid rgba(245,158,11,.35); }
+        .req-badge.is-follow   { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+        .req-badge.is-overdue  { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
         .rdm-footer { padding:13px 22px; border-top:1px solid rgba(255,255,255,.07); background:#0f172a; flex-shrink:0; display:flex; gap:8px; }
         .rdm-foot-btn { flex:1; padding:10px 14px; border-radius:999px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer; border:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; transition:background .15s; }
         .rdm-approve { background:#16a34a; color:#fff; }
@@ -2755,8 +2757,14 @@ function adminStatusBadge(string $status): string {
                                     @if($isUrgent)
                                     <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.62rem;font-weight:700;text-transform:uppercase;background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3)"><i class="fa fa-exclamation-circle"></i> Urgent</span>
                                     @endif
-                                    @php $reqStatus = \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? []); @endphp
-                                    @if($reqStatus['required'] > 0)
+                                    @php $reqStatus = \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? [], $r['details'] ?? []); @endphp
+                                    @if($reqStatus['to_follow'])
+                                    <span class="req-badge {{ $reqStatus['overdue'] ? 'is-overdue' : 'is-follow' }}"
+                                          title="To follow: {{ implode('; ', $reqStatus['to_follow']) }}">
+                                        <i class="fa fa-paperclip"></i> {{ $reqStatus['overdue'] ? 'Overdue' : 'To follow' }} {{ count($reqStatus['to_follow']) }}
+                                        · {{ $reqStatus['overdue'] ? 'was due' : 'due' }} {{ \Carbon\Carbon::parse($reqStatus['due'])->format('M j') }}
+                                    </span>
+                                    @elseif($reqStatus['required'] > 0)
                                     <span class="req-badge {{ $reqStatus['complete'] ? 'is-complete' : 'is-missing' }}"
                                           title="{{ $reqStatus['complete'] ? 'All required documents uploaded' : 'Missing: ' . implode('; ', $reqStatus['missing']) }}">
                                         @if($reqStatus['complete'])<i class="fa fa-check"></i> Requirements {{ $reqStatus['uploaded'] }}/{{ $reqStatus['required'] }}
@@ -2973,7 +2981,9 @@ function adminStatusBadge(string $status): string {
                                         @else
                                         @if($r['status'] !== 'approved')
                                             @if(!empty($r['officiant_id']))
-                                            <form method="POST" action="{{ route('admin.handle') }}">
+                                            <form method="POST" action="{{ route('admin.handle') }}"
+                                                  data-follow="{{ count($reqStatus['to_follow']) }}"
+                                                  data-follow-due="{{ $reqStatus['due'] ? \Carbon\Carbon::parse($reqStatus['due'])->format('M j, Y') : '' }}">
                                                 @csrf
                                                 <input type="hidden" name="action" value="update_status">
                                                 <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
@@ -4832,12 +4842,30 @@ function openResDetail(r) {
     const attSec = document.getElementById('rdm-att-sec');
     const attList = document.getElementById('rdm-att-list');
     const req = r.requirements || { required: 0 };
-    const reqHtml = req.required
+    let reqHtml = req.required
         ? `<div class="rdm-req ${req.complete ? 'is-complete' : 'is-missing'}">${req.complete
             ? `✓ All required documents uploaded (${req.uploaded}/${req.required})`
             : `Missing ${req.missing.length} of ${req.required}: ${req.missing.map(eh).join('; ')}`}</div>`
         : '';
-    if (req.required || (r.attachments && r.attachments.length)) {
+    // Weddings with a "to follow" list: what is still to come, and what
+    // staff already received at the office (each can be ticked or undone).
+    if (req.due) {
+        const dueText = new Date(req.due + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const follow = Object.entries(req.to_follow || {});
+        const received = ((r.wedding && r.wedding.documents_received) || []).filter(k => window.weddingDocLabels[k]);
+        const row = (key, label, sub, btn, received) => `<div class="rdm-doc-row ${received ? 'is-received' : ''}"><div><div class="rdm-doc-name">${eh(label)}</div><div class="rdm-doc-sub">${sub}</div></div>` +
+            `<button type="button" class="rdm-doc-btn ${received ? 'is-undo' : ''}" data-doc="${eh(key)}" data-received="${received ? 0 : 1}">${btn}</button></div>`;
+        reqHtml = `<div class="rdm-req ${req.complete ? 'is-complete' : (req.overdue ? 'is-overdue' : 'is-missing')}">${req.complete
+                ? `✓ All wedding documents handed in (${req.uploaded}/${req.required})`
+                : `${follow.length} of ${req.required} ${req.overdue ? 'overdue, were due' : 'to follow, due'} ${dueText}`}</div>` +
+            follow.map(([k, label]) => row(k, label, req.overdue ? 'Overdue' : 'To follow', 'Mark received', false)).join('') +
+            received.map(k => row(k, window.weddingDocLabels[k], 'Received at the office', 'Undo', true)).join('');
+    }
+    document.getElementById('rdm-app-form').dataset.follow = Object.keys(req.to_follow || {}).length;
+    document.getElementById('rdm-app-form').dataset.followDue = req.due
+        ? new Date(req.due + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    rdmCurrent = r;
+    if (req.required || req.due || (r.attachments && r.attachments.length)) {
         attList.innerHTML = reqHtml + (r.attachments || []).map(a => {
             const icon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
             const nameEl = a.path
@@ -4863,7 +4891,49 @@ function openResDetail(r) {
     document.body.style.overflow = 'hidden';
 }
 
+// View details → "Mark received" / "Undo" on a wedding document to follow.
+let rdmCurrent = null, rdmChanged = false;
+window.weddingDocLabels = @json(collect(\App\Support\ReservationRequirements::weddingDocuments())->keys()->mapWithKeys(fn ($k) => [$k => \App\Support\ReservationRequirements::weddingLabel($k)]));
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('#rdm-att-list .rdm-doc-btn');
+    if (!btn || !rdmCurrent) return;
+    btn.disabled = true;
+    const body = new FormData();
+    body.append('document', btn.dataset.doc);
+    body.append('received', btn.dataset.received);
+    fetch('{{ url('/admin/reservations') }}/' + encodeURIComponent(rdmCurrent.id) + '/documents', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('#rdm-app-form input[name="_token"]').value },
+        body: body
+    }).then(r => r.json().then(data => ({ ok: r.ok, data })))
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.data.message || 'Could not save.');
+        const w = rdmCurrent.wedding = rdmCurrent.wedding || {};
+        const list = (w.documents_received || []).filter(k => k !== btn.dataset.doc);
+        if (btn.dataset.received === '1') list.push(btn.dataset.doc);
+        w.documents_received = list;
+        rdmCurrent.requirements = res.data.requirements;
+        rdmChanged = true;
+        const scroll = document.querySelector('#rdm-modal .rdm-body')?.scrollTop;
+        openResDetail(rdmCurrent);
+        if (scroll != null) document.querySelector('#rdm-modal .rdm-body').scrollTop = scroll;
+      })
+      .catch(function (err) { btn.disabled = false; showAdminError('Could not save', err.message); });
+});
+// Approving while wedding documents are still to follow asks first.
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    const follow = Number(form.dataset.follow || 0);
+    if (!follow || form.querySelector('input[name="status"]')?.value !== 'approved') return;
+    e.preventDefault();
+    showAdminConfirm('Approve with documents to follow?',
+        follow + (follow === 1 ? ' document is' : ' documents are') + ' still to follow' + (form.dataset.followDue ? ' (due ' + form.dataset.followDue + ')' : '') +
+        '. The couple will keep seeing them on My Reservations until they are handed in.',
+        function () { form.submit(); });
+}, true);
+
 function closeResDetail() {
+    if (rdmChanged) { rdmChanged = false; setTimeout(function () { location.reload(); }, 320); }
     document.getElementById('rdm-backdrop').classList.remove('is-open');
     document.getElementById('rdm-modal').classList.remove('is-open');
     document.body.style.overflow = '';

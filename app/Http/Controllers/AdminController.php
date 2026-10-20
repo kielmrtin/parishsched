@@ -1007,7 +1007,7 @@ foreach ($scheduleCalendarReservations as $r) {
             'is_one_day_before' => $reservationDate <= $today->modify('+1 day'),
             'created_at'        => $r['created_at'] ?? '',
             'attachments'       => $rAttachments,
-            'requirements'      => \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? []),
+            'requirements'      => \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? [], $rDetails),
             'baptism'           => $rDetails['baptism'] ?? null,
             'wedding'           => $rDetails['wedding'] ?? null,
             'funeral'           => $rDetails['funeral'] ?? null,
@@ -1697,6 +1697,51 @@ Monthly breakdown: {$monthlyBreakdown}";
             Session::flash('flash_error', 'Failed to assign officiant: ' . $resp->body());
         }
         return redirect()->route('admin.index', ['section' => 'reservations']);
+    }
+
+    /**
+     * View details: staff tick a wedding document as received at the office
+     * (or undo it). Answers with the new requirement status as JSON.
+     */
+    public function markDocumentReceived(Request $request, string $id)
+    {
+        if (!$this->isLoggedIn()) {
+            return response()->json(['message' => 'Please log in again.'], 401);
+        }
+        $docs = \App\Support\ReservationRequirements::weddingDocuments();
+        $key = (string) $request->input('document');
+        if (!isset($docs[$key])) {
+            return response()->json(['message' => 'Unknown document.'], 422);
+        }
+
+        $res = $this->sb()->get($this->sbUrl('reservations', [
+            'id' => 'eq.' . (int) $id, 'select' => 'id,event_type,details,reservation_attachments(field_key)', 'limit' => 1,
+        ]));
+        $reservation = $res->successful() ? ($res->json()[0] ?? null) : null;
+        $details = $reservation['details'] ?? [];
+        if (is_string($details)) $details = json_decode($details, true) ?? [];
+        if (!$reservation || !\App\Support\ReservationRequirements::usesFollowList($reservation['event_type'] ?? '', $details)) {
+            return response()->json(['message' => 'This reservation has no documents to follow.'], 404);
+        }
+
+        $received = array_values(array_diff((array) ($details['wedding']['documents_received'] ?? []), [$key]));
+        if ($request->boolean('received')) $received[] = $key;
+        $details['wedding']['documents_received'] = $received;
+
+        $patch = $this->sb()->withHeaders(['Prefer' => 'return=minimal'])
+            ->patch($this->sbUrl('reservations', ['id' => 'eq.' . (int) $id]), [
+                'details'    => $details,
+                'updated_at' => now()->toISOString(),
+            ]);
+        if ($patch->failed()) {
+            return response()->json(['message' => 'Could not save. Please try again.'], 500);
+        }
+
+        return response()->json([
+            'requirements' => \App\Support\ReservationRequirements::status(
+                $reservation['event_type'], $reservation['reservation_attachments'] ?? [], $details
+            ),
+        ]);
     }
 
     private function emptyViewData(string $section): array

@@ -400,6 +400,21 @@
         .res-pager-btns button:disabled { opacity: .4; cursor: default; }
 
         /* GCash payment for an approved reservation */
+        /* Wedding documents still to follow */
+        .res-follow { margin-top: 14px; border: 1px solid #fde68a; background: #fffbeb; border-radius: 12px; padding: 12px 14px; }
+        .res-follow.is-overdue { border-color: #fecaca; background: #fef2f2; }
+        .res-follow-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 12px; flex-wrap: wrap; font-weight: 700; font-size: .86rem; color: #b45309; margin-bottom: 4px; }
+        .res-follow.is-overdue .res-follow-head { color: #b91c1c; }
+        .res-follow-head small { font-weight: 600; font-size: .76rem; }
+        .res-follow-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid rgba(180,83,9,.15); margin: 0; }
+        .res-follow-row:first-of-type { border-top: 0; }
+        .res-follow-name { font-size: .84rem; font-weight: 600; color: #334155; min-width: 0; }
+        .res-follow-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; margin: 0; padding: 6px 12px; border-radius: 8px; background: #dc2626; color: #fff; font-size: .76rem; font-weight: 700; cursor: pointer; }
+        .res-follow-btn:hover { background: #b91c1c; }
+        .res-follow-btn:focus-within { outline: 2px solid #dc2626; outline-offset: 2px; }
+        .res-follow-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+        .res-follow-btn.is-busy { opacity: .6; pointer-events: none; }
+        .res-follow-note { margin: 6px 0 0; font-size: .74rem; color: #94a3b8; }
         .btn-pay-gcash { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:8px; background:#1d4ed8; color:#fff !important; font-size:.8rem; font-weight:700; text-decoration:none !important; }
         .btn-pay-gcash:hover { background:#1e40af; }
         .res-pay-status { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.78rem; font-weight:700; border:1px solid; }
@@ -697,6 +712,32 @@
                         </p>
                     @endif
 
+                    @php $toFollow = in_array($status, ['pending', 'approved']) ? ($res['requirements']['to_follow'] ?? []) : []; @endphp
+                    @if($toFollow)
+                        @php
+                            $followDue = \Carbon\Carbon::parse($res['requirements']['due']);
+                            $followOverdue = $res['requirements']['overdue'];
+                        @endphp
+                        <div class="res-follow {{ $followOverdue ? 'is-overdue' : '' }}">
+                            <div class="res-follow-head">
+                                <span><i class="fa {{ $followOverdue ? 'fa-exclamation-circle' : 'fa-paperclip' }}"></i> {{ count($toFollow) }} {{ count($toFollow) === 1 ? 'document' : 'documents' }} to follow</span>
+                                <small>{{ $followOverdue ? 'Was due' : 'Due' }} {{ $followDue->format('M j, Y') }}</small>
+                            </div>
+                            @foreach($toFollow as $docKey => $docLabel)
+                                <form class="res-follow-row" method="POST" action="{{ route('reservation.uploadDocument', $res['id']) }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="document" value="{{ $docKey }}">
+                                    <span class="res-follow-name">{{ $docLabel }}</span>
+                                    <label class="res-follow-btn">
+                                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload {{ $docLabel }}" data-follow-upload>
+                                        <i class="fa fa-upload"></i> <span>Upload</span>
+                                    </label>
+                                </form>
+                            @endforeach
+                            <p class="res-follow-note">PDF, JPG or PNG, up to 5 MB. You can also bring the papers to the parish office.</p>
+                        </div>
+                    @endif
+
                     <div class="res-actions">
                         @if($status === 'declined')
                             <a href="{{ url('/contact') }}" class="btn-contact-parish">
@@ -787,6 +828,17 @@ function filterReservations(status, btn) {
 }
 
 function renderResPage(scroll) {
+    // Wedding documents to follow: picking a file sends it right away.
+    document.querySelectorAll('[data-follow-upload]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            if (!input.files.length) return;
+            var btn = input.closest('.res-follow-btn');
+            btn.classList.add('is-busy');
+            btn.querySelector('span').textContent = 'Uploading…';
+            input.form.submit();
+        });
+    });
+
     var cards = Array.prototype.slice.call(document.querySelectorAll('#res-cards-list .res-card'));
     var matching = cards.filter(function (card) { return resFilter === 'all' || card.dataset.status === resFilter; });
     var pages = Math.max(1, Math.ceil(matching.length / RES_PER_PAGE));

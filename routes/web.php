@@ -40,6 +40,10 @@ Route::post('/reservation/{id}/cancel-request', [ReservationController::class, '
     ->middleware(['customer.auth'])
     ->name('reservation.cancel');
 
+Route::post('/reservation/{id}/documents', [ReservationController::class, 'uploadDocument'])
+    ->middleware(['customer.auth', 'customer.status', 'throttle:20,1'])
+    ->name('reservation.uploadDocument');
+
 Route::post('/reservation/check-name', [ReservationController::class, 'checkName'])
     ->middleware(['customer.auth', 'customer.status', 'throttle:30,1'])
     ->name('reservation.checkName');
@@ -97,6 +101,7 @@ Route::delete('/admin/donations/{id}', [AdminController::class, 'deleteDonation'
 Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');
 Route::post('/admin/priests', [AdminController::class, 'storePriest'])->name('admin.priests.store');
 Route::delete('/admin/priests/{id}', [AdminController::class, 'deletePriest'])->name('admin.priests.delete');
+Route::post('/admin/reservations/{id}/documents', [AdminController::class, 'markDocumentReceived'])->name('admin.reservations.documents');
 Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assignOfficiant'])->name('admin.reservations.officiant');
 
 Route::post('/register/check-email', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'checkRegisterEmail'])

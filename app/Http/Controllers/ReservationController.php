@@ -124,8 +124,12 @@ class ReservationController extends Controller
         'baptism-mother-name' => 'nullable|string|max:200',
         // Required uploads per sacrament come from ReservationRequirements.
         'baptism_file' => 'required_if:event_type,Baptism|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        'wedding_file1' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        'wedding_file2' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        // Wedding: one file per document; only the baptismal certificates
+        // are required, the rest can follow (ReservationRequirements::weddingDocuments).
+        'wedding_doc' => 'nullable|array',
+        'wedding_doc.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'wedding_doc.groom_baptismal' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'wedding_doc.bride_baptismal' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'funeral_file' => 'required_if:event_type,Funeral|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ], [
         'name.required' => 'Please enter the name of the person reserving.',
@@ -135,6 +139,10 @@ class ReservationController extends Controller
         'event_type.required' => 'Please choose an event type.',
         'reservation_date.required' => 'Please select a reservation date.',
         'reservation_time.required' => 'Please select a preferred time.',
+        'wedding_doc.groom_baptismal.required_if' => "Please attach the groom's Baptismal Certificate.",
+        'wedding_doc.bride_baptismal.required_if' => "Please attach the bride's Baptismal Certificate.",
+        'wedding_doc.*.mimes' => 'Wedding documents must be PDF, JPG or PNG files.',
+        'wedding_doc.*.max' => 'Each wedding document must be 5 MB or smaller.',
     ] + collect(ReservationRequirements::uploadsFor($request->input('event_type')))
         ->mapWithKeys(fn ($label, $field) => ["{$field}.required_if" => "Please upload this requirement: {$label}."])
         ->all());
@@ -190,6 +198,9 @@ class ReservationController extends Controller
             'bride_suffix'     => $request->input('wedding-bride-name-suffix', ''),
             'seminar_date'     => $request->input('wedding-seminar-date', ''),
             'sacrament_details'=> $request->input('wedding-sacrament-details', ''),
+            // documents not attached now are "to follow" until this date
+            'documents_due'      => ReservationRequirements::weddingDueDate($validated['reservation_date']),
+            'documents_received' => [],
         ] : null,
         'funeral' => strtolower($validated['event_type']) === 'funeral' ? [
             'deceased_first'   => $request->input('funeral-deceased-name-first', ''),
@@ -213,47 +224,33 @@ class ReservationController extends Controller
     }
 
     $files = [];
+    $folder = strtolower($validated['event_type']);
 
-    foreach ([
+    $uploads = [
         'baptism_file' => 'Baptism requirement',
-        'wedding_file1' => 'Wedding requirement 1',
-        'wedding_file2' => 'Wedding requirement 2',
         'funeral_file' => 'Funeral requirement',
-    ] as $field => $label) {
-        if ($request->hasFile($field)) {
-          $file = $request->file($field);
-
-$folder = strtolower($validated['event_type']);
-$fileName = $folder . '/' . time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-
-$bucket = 'reservation-attachments';
-
-$upload = Http::withHeaders([
-    'apikey' => config('services.supabase.key'),
-    'Authorization' => 'Bearer ' . config('services.supabase.key'),
-    'Content-Type' => $file->getMimeType(),
-])->withBody(
-    file_get_contents($file->getRealPath()),
-    $file->getMimeType()
-)->post(
-    config('services.supabase.url') . "/storage/v1/object/{$bucket}/{$fileName}"
-);
-
-if (!$upload->successful()) {
-    return back()->withErrors([
-        'upload' => 'File upload failed: ' . $upload->body()
-    ]);
-}
-
-$fileUrl = config('services.supabase.url') .
-    "/storage/v1/object/public/{$bucket}/{$fileName}";
-
-$files[] = [
-    'field_key' => $field,
-    'label' => $label,
-    'file_url' => $fileUrl,
-];
+    ];
+    if ($folder === 'wedding') {
+        foreach (array_keys(ReservationRequirements::weddingDocuments()) as $key) {
+            $uploads["wedding_doc.{$key}"] = ReservationRequirements::weddingLabel($key);
         }
+    }
+
+    foreach ($uploads as $field => $label) {
+        if (!$request->hasFile($field)) {
+            continue;
+        }
+        $fileUrl = $this->uploadAttachment($request->file($field), $folder);
+        if (!$fileUrl) {
+            return back()->withInput()->withErrors([
+                'upload' => 'We could not upload "' . $label . '". Please try again.',
+            ]);
+        }
+        $files[] = [
+            'field_key' => str_replace('wedding_doc.', '', $field),
+            'label'     => $label,
+            'file_url'  => $fileUrl,
+        ];
     }
 
         // CONFLICT CHECK: fetch all reservations on the same date, any event type
@@ -474,6 +471,93 @@ public function cancelRequest(Request $request, string $id)
     ]);
 }
 
+/** Uploads one requirement file to Supabase storage; returns its public URL or null. */
+private function uploadAttachment(\Illuminate\Http\UploadedFile $file, string $folder): ?string
+{
+    $bucket = 'reservation-attachments';
+    $fileName = $folder . '/' . time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+
+    $upload = Http::withHeaders([
+        'apikey'        => config('services.supabase.key'),
+        'Authorization' => 'Bearer ' . config('services.supabase.key'),
+        'Content-Type'  => $file->getMimeType(),
+    ])->withBody(file_get_contents($file->getRealPath()), $file->getMimeType())
+      ->post(config('services.supabase.url') . "/storage/v1/object/{$bucket}/{$fileName}");
+
+    if (!$upload->successful()) {
+        \Illuminate\Support\Facades\Log::error('Requirement upload failed: ' . $upload->body());
+        return null;
+    }
+
+    return config('services.supabase.url') . "/storage/v1/object/public/{$bucket}/{$fileName}";
+}
+
+/**
+ * My Reservations: the couple hands in a wedding document that was marked
+ * "to follow" when they reserved.
+ */
+public function uploadDocument(Request $request, string $id)
+{
+    $docs = ReservationRequirements::weddingDocuments();
+    // Errors come back as the parish alert My Reservations already shows.
+    $check = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        'document' => 'required|string|in:' . implode(',', array_keys($docs)),
+        'file'     => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+    ], [
+        'file.required' => 'Please choose a file to upload.',
+        'file.uploaded' => 'The file could not be uploaded. It must be 5 MB or smaller.',
+        'file.mimes'    => 'The file must be a PDF, JPG or PNG.',
+        'file.max'      => 'The file must be 5 MB or smaller.',
+    ]);
+    if ($check->fails()) {
+        return redirect()->route('reservation.my')->with('auth_notification', [
+            'icon' => 'error', 'title' => 'Upload failed', 'text' => $check->errors()->first(),
+        ]);
+    }
+
+    $serviceKey = config('services.supabase.service_role_key');
+    $headers = ['apikey' => $serviceKey, 'Authorization' => 'Bearer ' . $serviceKey];
+    $res = Http::withHeaders($headers)->get(config('services.supabase.url') . '/rest/v1/reservations', [
+        'select' => 'id,customer_id,event_type,status,details,reservation_attachments(field_key)',
+        'id'     => 'eq.' . $id,
+        'limit'  => 1,
+    ]);
+    $reservation = $res->successful() ? ($res->json()[0] ?? null) : null;
+
+    $notFound = fn (string $text) => redirect()->route('reservation.my')->with('auth_notification', [
+        'icon' => 'error', 'title' => 'Upload failed', 'text' => $text,
+    ]);
+    if (!$reservation || (string) ($reservation['customer_id'] ?? '') !== (string) session('customer_id')) {
+        return $notFound('Reservation not found.');
+    }
+    if (!in_array(strtolower($reservation['status'] ?? ''), ['pending', 'approved'], true)
+        || !ReservationRequirements::usesFollowList($reservation['event_type'] ?? '', $reservation['details'] ?? [])) {
+        return $notFound('Documents can no longer be added to this reservation.');
+    }
+    $status = ReservationRequirements::status($reservation['event_type'], $reservation['reservation_attachments'] ?? [], $reservation['details'] ?? []);
+    if (!isset($status['to_follow'][$request->document])) {
+        return $notFound('That document has already been handed in.');
+    }
+
+    $fileUrl = $this->uploadAttachment($request->file('file'), 'wedding');
+    $saved = $fileUrl ? Http::withHeaders($headers + ['Content-Type' => 'application/json'])
+        ->post(config('services.supabase.url') . '/rest/v1/reservation_attachments', [
+            'reservation_id' => $reservation['id'],
+            'file_url'       => $fileUrl,
+            'field_key'      => $request->document,
+            'label'          => ReservationRequirements::weddingLabel($request->document),
+        ]) : null;
+    if (!$saved || $saved->failed()) {
+        return $notFound('We could not save your file. Please try again.');
+    }
+
+    return redirect()->route('reservation.my')->with('auth_notification', [
+        'icon'  => 'success',
+        'title' => 'Document uploaded',
+        'text'  => ReservationRequirements::weddingLabel($request->document) . ' was sent to the parish office.',
+    ]);
+}
+
 public function myReservations()
 {
     $customerId = session('customer_id');
@@ -482,12 +566,20 @@ public function myReservations()
         'apikey'        => config('services.supabase.key'),
         'Authorization' => 'Bearer ' . config('services.supabase.key'),
     ])->get(config('services.supabase.url') . '/rest/v1/reservations', [
-        'select'      => 'id,event_type,reservation_date,reservation_time,status,admin_note,created_at,name,cancellation_requested',
+        'select'      => 'id,event_type,reservation_date,reservation_time,status,admin_note,created_at,name,cancellation_requested,details,reservation_attachments(field_key)',
         'customer_id' => 'eq.' . $customerId,
         'order'       => 'created_at.desc',
     ]);
 
     $reservations = $response->successful() ? ($response->json() ?? []) : [];
+
+    // Wedding documents still to follow, for the upload list on each card.
+    foreach ($reservations as &$reservation) {
+        $reservation['requirements'] = ReservationRequirements::status(
+            $reservation['event_type'] ?? '', $reservation['reservation_attachments'] ?? [], $reservation['details'] ?? []
+        );
+    }
+    unset($reservation);
 
     // Latest GCash payment per reservation, for the "Pay with GCash" button.
     $serviceKey = config('services.supabase.service_role_key');
