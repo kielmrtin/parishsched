@@ -8,7 +8,7 @@
 //     is shown in its place and animated out.
 (function () {
     var SELECTOR = '.ps-overlay, .dcm-overlay, #adm-cfm-overlay, #rdm-modal, #rdm-backdrop, #purge-confirm-overlay, #cancel-overlay-panel, #cancel-overlay-backdrop, .ps-help-overlay';
-    var LEAVE_MS = 260;
+    var LEAVE_MS = 300;
     var root = document.documentElement;
     var shown = new Map(); // element -> its display value while open
     var queued = false;
@@ -34,10 +34,22 @@
         ghost.style.display = display;
         ghost.style.visibility = 'visible';
         ghost.style.pointerEvents = 'none';
+        // The opening animations would replay on the copy (and hold the
+        // backdrop fully visible), so switch them off for the copy and
+        // everything in it; inline !important outranks every stylesheet rule.
+        [ghost].concat(Array.prototype.slice.call(ghost.querySelectorAll('*'))).forEach(function (n) {
+            n.style.setProperty('animation', 'none', 'important');
+            n.style.setProperty('transition', 'none', 'important');
+        });
         document.body.appendChild(ghost);
-        void ghost.offsetWidth; // apply the starting state before fading
-        ghost.classList.add('ps-leaving');
-        setTimeout(function () { ghost.remove(); }, LEAVE_MS + 60);
+        if (!ghost.animate) { ghost.remove(); return; }
+        // Backdrop and card fade together; the card also sinks and shrinks a little.
+        var ease = 'cubic-bezier(.4, 0, .2, 1)';
+        var fade = ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: LEAVE_MS, easing: ease, fill: 'forwards' });
+        var card = ghost.querySelector('.ps-modal, .adm-cfm-modal, .dcm-modal, .rdm-panel, .ps-help-dialog');
+        if (card) card.animate([{ transform: 'none' }, { transform: 'translateY(10px) scale(.96)' }], { duration: LEAVE_MS, easing: ease, fill: 'forwards' });
+        fade.onfinish = function () { ghost.remove(); };
+        setTimeout(function () { ghost.remove(); }, LEAVE_MS + 200);   // in case the animation never finishes
     }
 
     function update() {

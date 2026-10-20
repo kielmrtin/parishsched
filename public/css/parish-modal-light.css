@@ -210,14 +210,7 @@ html.ps-scroll-lock .dcm-overlay,
 html.ps-scroll-lock #rdm-modal { overscroll-behavior: contain; }
 
 /* ── Closing animation (partials/modal-theme shows a copy and fades it) ── */
-[data-ps-ghost] { opacity: 1; transition: opacity .26s ease-in; z-index: 100000 !important; }
-/* the entrance animations would hold the copy fully visible, so stop them:
-   the card itself drops them, inner parts jump to their finished state */
-[data-ps-ghost], [data-ps-ghost] > * { animation: none !important; }
-[data-ps-ghost] > * * { animation-duration: 0s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
-[data-ps-ghost] > * { transition: transform .26s ease-in, opacity .26s ease-in; }
-[data-ps-ghost].ps-leaving { opacity: 0; }
-[data-ps-ghost].ps-leaving > * { transform: scale(.96) translateY(10px); opacity: 0; }
+[data-ps-ghost] { z-index: 100000 !important; }
 
 /* ── Slim scrollbars in every modal ────────────────────────────────────── */
 /* Covers the overlays themselves and anything that scrolls inside them. */
