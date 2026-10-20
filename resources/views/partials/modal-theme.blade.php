@@ -91,7 +91,7 @@
         if (records.some(function (r) { return !isGhost(r.target) && !(r.addedNodes.length === 1 && isGhost(r.addedNodes[0])); })) {
             schedule();
         }
-    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
 
     document.addEventListener('DOMContentLoaded', schedule);
     window.addEventListener('load', schedule);

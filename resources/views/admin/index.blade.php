@@ -4684,9 +4684,13 @@ function toggleCancelView(btn) {
     const panel    = document.getElementById('cancel-overlay-panel');
     const backdrop = document.getElementById('cancel-overlay-backdrop');
     if (!panel) return;
+    panel.style.transition = 'none';   // start from the small, see-through state each time
+    panel.style.opacity    = '0';
+    panel.style.transform  = 'translate(-50%,-50%) scale(.96)';
     panel.style.display    = 'flex';
     backdrop.style.display = 'block';
     document.body.style.overflow = 'hidden';
+    void panel.offsetWidth;   // apply the starting state so the opening transition plays
     requestAnimationFrame(() => {
         panel.style.transition = 'transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s';
         panel.style.opacity    = '1';
@@ -4698,13 +4702,10 @@ function closeCancelPanel() {
     const panel    = document.getElementById('cancel-overlay-panel');
     const backdrop = document.getElementById('cancel-overlay-backdrop');
     if (!panel) return;
-    panel.style.transform = 'translate(-50%,-50%) scale(.96)';
-    panel.style.opacity   = '0';
+    // hide straight away; partials/modal-theme fades the panel and backdrop out together
+    panel.style.display    = 'none';
+    backdrop.style.display = 'none';
     document.body.style.overflow = '';
-    setTimeout(() => {
-        panel.style.display    = 'none';
-        backdrop.style.display = 'none';
-    }, 180);
 }
 
 function openDenyModal(id) {

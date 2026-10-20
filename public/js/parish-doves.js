@@ -47,7 +47,7 @@
         if (!overlay) return;
         var modal = overlay.querySelector('.ps-modal');
         var fixedLayer = layer('pd-login-layer', true);
-        var doves = [], leaving = false, letThrough = false;
+        var doves = [], leaving = false;
 
         setTimeout(function () {
             if (!overlay.isConnected) return;
@@ -96,13 +96,12 @@
             }));
         }
 
-        // The alert's buttons close it straight away; let the doves leave first.
+        // The first click closes the alert straight away; the doves take off
+        // at the same moment and fly off on their own (their layer stays).
         document.addEventListener('click', function (e) {
-            if (letThrough || !doves.length || leaving) return;
+            if (leaving || !doves.length) return;
             var btn = e.target.closest && e.target.closest('button');
-            if (!btn || !overlay.contains(btn)) return;
-            e.stopPropagation(); e.preventDefault();
-            flyAway().then(function () { letThrough = true; btn.click(); });
+            if (btn && overlay.contains(btn)) flyAway();
         }, true);
 
         // Closed some other way: just let them go.
