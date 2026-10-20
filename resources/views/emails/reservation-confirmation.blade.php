@@ -140,8 +140,9 @@
                                                 'Groom' => trim(implode(' ', array_filter([$w['groom_first'] ?? '', $w['groom_middle'] ?? '', $w['groom_last'] ?? '']))) . (!empty($w['groom_suffix']) ? ', ' . $w['groom_suffix'] : ''),
                                                 'Bride' => trim(implode(' ', array_filter([$w['bride_first'] ?? '', $w['bride_middle'] ?? '', $w['bride_last'] ?? '']))) . (!empty($w['bride_suffix']) ? ', ' . $w['bride_suffix'] : ''),
                                                 'Pre-Cana Seminar Date' => $w['seminar_date'] ?? '',
-                                                'Sacrament Details' => $w['sacrament_details'] ?? '',
                                             ];
+                                            // older weddings only; the form no longer asks for it
+                                            if (!empty($w['sacrament_details'])) $eventFields['Sacrament Details'] = $w['sacrament_details'];
                                         } elseif ($eventType === 'funeral' && !empty($data['funeral'])) {
                                             $f = $data['funeral'];
                                             $eventFields = [

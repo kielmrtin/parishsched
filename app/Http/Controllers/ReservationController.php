@@ -197,7 +197,6 @@ class ReservationController extends Controller
             'bride_last'       => $request->input('wedding-bride-name-last', ''),
             'bride_suffix'     => $request->input('wedding-bride-name-suffix', ''),
             'seminar_date'     => $request->input('wedding-seminar-date', ''),
-            'sacrament_details'=> $request->input('wedding-sacrament-details', ''),
             // documents not attached now are "to follow" until this date
             'documents_due'      => ReservationRequirements::weddingDueDate($validated['reservation_date']),
             'documents_received' => [],

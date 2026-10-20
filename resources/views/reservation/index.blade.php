@@ -41,7 +41,6 @@
         'wedding-groom-name-last' => old('wedding-groom-name-last', ''),
         'wedding-groom-name-suffix' => old('wedding-groom-name-suffix', ''),
         'wedding-seminar-date' => old('wedding-seminar-date', ''),
-        'wedding-sacrament-details' => old('wedding-sacrament-details', ''),
         'funeral-deceased-name-first' => old('funeral-deceased-name-first', ''),
         'funeral-deceased-name-middle' => old('funeral-deceased-name-middle', ''),
         'funeral-deceased-name-last' => old('funeral-deceased-name-last', ''),
@@ -466,12 +465,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                         </div>
                                     </div>
 
-                                    <div class="res-section-lbl" style="margin-top:18px">Kumpisal / Kumpil / Binyag details</div>
-                                    <div class="form-group">
-                                        <textarea class="form-control" id="wedding-sacrament-details" name="wedding-sacrament-details" rows="2" placeholder="Parishes or dates for confession, confirmation, and baptism">{{ $formData['wedding-sacrament-details'] }}</textarea>
-                                    </div>
-
-                                    <div class="res-section-lbl" style="margin-top:4px">Mga kailangan bago ikasal</div>
+                                    <div class="res-section-lbl" style="margin-top:18px">Mga kailangan bago ikasal</div>
                                     <p class="small text-muted mb-2">Attach a photo or scan of each document (PDF, JPG or PNG, up to 5 MB). Only the Baptismal Certificates are needed now; anything you don't attach is marked <b>To follow</b> and can be uploaded later from My Reservations.</p>
                                     <div class="wd-docs" id="wedding-docs">
                                         @foreach($weddingDocumentTitles as $owner => $title)

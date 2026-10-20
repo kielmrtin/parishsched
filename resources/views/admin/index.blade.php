@@ -4810,8 +4810,9 @@ function openResDetail(r) {
             document.getElementById('rdm-wed-groom').textContent   = groom;
             document.getElementById('rdm-wed-bride').textContent   = bride;
             document.getElementById('rdm-wed-seminar').textContent = seminarFmt;
-            document.getElementById('rdm-wed-sacrament').textContent = w.sacrament_details || '—';
-            document.getElementById('rdm-wed-sac-cell').style.display = '';
+            // older weddings only; the form no longer asks for it
+            document.getElementById('rdm-wed-sacrament').textContent = w.sacrament_details || '';
+            document.getElementById('rdm-wed-sac-cell').style.display = w.sacrament_details ? '' : 'none';
         }
     }
     // Funeral details
