@@ -67,7 +67,6 @@
 
         var open = shown.size > 0;
         if (open !== root.classList.contains('ps-scroll-lock')) {
-            if (open) root.style.setProperty('--ps-scrollbar-gap', (window.innerWidth - root.clientWidth) + 'px');
             root.classList.toggle('ps-scroll-lock', open);
         }
     }
