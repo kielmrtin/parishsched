@@ -2,7 +2,9 @@
 <script>
 // Shared behaviour for every parish modal (alerts, confirmations, form
 // modals, View details), whichever script opens or closes them:
-//  1. the page behind is locked while one is open (only the modal scrolls);
+//  1. the page behind is locked while one is open (only the modal scrolls).
+//     The scrollbar stays visible, so nothing shifts sideways; wheel, touch
+//     and keyboard scrolling of the page are blocked instead;
 //  2. closing plays a short fade-and-shrink. Modals close in different ways
 //     (removed, class removed, display:none), so a copy of the closing modal
 //     is shown in its place and animated out.
@@ -67,6 +69,7 @@
 
         var open = shown.size > 0;
         if (open !== root.classList.contains('ps-scroll-lock')) {
+            if (open) { lockX = window.scrollX; lockY = window.scrollY; }
             root.classList.toggle('ps-scroll-lock', open);
         }
     }
@@ -74,6 +77,43 @@
     function schedule() {
         if (!queued) { queued = true; requestAnimationFrame(update); }
     }
+
+    // ── Page scroll lock ────────────────────────────────────────────────
+    function locked() { return root.classList.contains('ps-scroll-lock'); }
+    // Can something between the target and its modal scroll further that way?
+    function modalCanScroll(target, dy) {
+        for (var n = target; n && n.nodeType === 1; n = n.parentElement) {
+            var cs = getComputedStyle(n);
+            if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight + 1) {
+                if (dy < 0 ? n.scrollTop > 0 : n.scrollTop + n.clientHeight < n.scrollHeight - 1) return true;
+            }
+            if (n.matches(SELECTOR)) return false;
+        }
+        return false;
+    }
+    document.addEventListener('wheel', function (e) {
+        if (locked() && e.deltaY && !modalCanScroll(e.target, e.deltaY)) e.preventDefault();
+    }, { passive: false });
+    var touchY = 0;
+    document.addEventListener('touchstart', function (e) { touchY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+        if (!locked()) return;
+        var dy = touchY - e.touches[0].clientY;
+        touchY = e.touches[0].clientY;
+        if (!modalCanScroll(e.target, dy)) e.preventDefault();
+    }, { passive: false });
+    var SCROLL_KEYS = { ' ': 1, PageUp: -1, PageDown: 1, ArrowUp: -1, ArrowDown: 1, Home: -1, End: 1 };
+    document.addEventListener('keydown', function (e) {
+        if (!locked() || !(e.key in SCROLL_KEYS)) return;
+        var t = e.target;
+        if (t.closest && t.closest('input, textarea, select, button, a, [contenteditable]')) return;
+        if (!modalCanScroll(t, e.key === ' ' && e.shiftKey ? -1 : SCROLL_KEYS[e.key])) e.preventDefault();
+    });
+    // Anything else (dragging the scrollbar): put the page back where it was.
+    var lockX = 0, lockY = 0;
+    window.addEventListener('scroll', function () {
+        if (locked() && (window.scrollY !== lockY || window.scrollX !== lockX)) window.scrollTo(lockX, lockY);
+    });
 
     new MutationObserver(function (records) {
         // A modal removed from the page can't be measured any more, so copy
