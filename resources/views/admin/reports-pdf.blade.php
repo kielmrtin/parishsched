@@ -103,7 +103,7 @@
                 <p class="sub">
                     Period: {{ $reportRangeLabel }}
                     @if($reportType !== 'all')
-                        &middot; Type: {{ ucfirst($reportType) }}
+                        &middot; Type: {{ ['communion' => 'First Communion'][$reportType] ?? ucfirst($reportType) }}
                     @endif
                     &middot; {{ count($reservations) }} record{{ count($reservations) === 1 ? '' : 's' }}
                 </p>

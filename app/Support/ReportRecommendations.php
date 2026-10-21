@@ -65,7 +65,7 @@ class ReportRecommendations
         // 3. Peak month per sacrament: plan priests and slots ahead of it.
         $months = max(count($monthlyData), 1);
         $best = null;
-        foreach (['baptism' => 'Baptisms', 'wedding' => 'Weddings', 'funeral' => 'Funerals'] as $type => $label) {
+        foreach (['baptism' => 'Baptisms', 'wedding' => 'Weddings', 'funeral' => 'Funerals', 'kumpil' => 'Kumpil', 'communion' => 'First Communions'] as $type => $label) {
             $values = array_column($monthlyData, $type);
             if (!$values) continue;
             $peak = max($values);

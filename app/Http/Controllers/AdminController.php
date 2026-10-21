@@ -784,6 +784,8 @@ $eventCounts = [
     'Wedding' => 0,
     'Baptism' => 0,
     'Funeral' => 0,
+    'Kumpil' => 0,
+    'First Communion' => 0,
 ];
 
 foreach ($reservations as $r) {
@@ -795,6 +797,8 @@ foreach ($reservations as $r) {
     if ($type === 'wedding') $eventCounts['Wedding']++;
     if ($type === 'baptism') $eventCounts['Baptism']++;
     if ($type === 'funeral') $eventCounts['Funeral']++;
+    if ($type === 'kumpil') $eventCounts['Kumpil']++;
+    if ($type === 'first communion') $eventCounts['First Communion']++;
 }
 
         $reservationCountSummary = sprintf('%d of %d reservations', $filteredTotals['total'], $summaryTotals['total']);
@@ -1075,7 +1079,7 @@ foreach ($scheduleCalendarReservations as $r) {
         $reportYear  = $reportFromYear;
         $reportMonth = 0;
         $reportType  = strtolower(trim((string)$request->input('report_type', 'all')));
-        if (!in_array($reportType, ['all','baptism','wedding','funeral'])) $reportType = 'all';
+        if (!in_array($reportType, ['all','baptism','wedding','funeral','kumpil','communion'])) $reportType = 'all';
 
         $rptMonths     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         $rptMonthsFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1103,7 +1107,7 @@ foreach ($scheduleCalendarReservations as $r) {
             if (strlen($date) < 7) return false;
             $ym = (int) substr($date, 0, 4) * 100 + (int) substr($date, 5, 2);
             if ($ym < $reportFromYear * 100 + $reportFromMonth || $ym > $reportToYear * 100 + $reportToMonth) return false;
-            if ($reportType !== 'all' && strtolower($r['event_type'] ?? '') !== $reportType) return false;
+            if ($reportType !== 'all' && self::typeKey($r['event_type'] ?? '') !== $reportType) return false;
             return true;
         }));
 
@@ -1116,6 +1120,8 @@ foreach ($scheduleCalendarReservations as $r) {
                 'baptism'  => count(array_filter($monthRes, fn($r) => strtolower($r['event_type'] ?? '') === 'baptism')),
                 'wedding'  => count(array_filter($monthRes, fn($r) => strtolower($r['event_type'] ?? '') === 'wedding')),
                 'funeral'  => count(array_filter($monthRes, fn($r) => strtolower($r['event_type'] ?? '') === 'funeral')),
+                'kumpil'   => count(array_filter($monthRes, fn($r) => self::typeKey($r['event_type'] ?? '') === 'kumpil')),
+                'communion'=> count(array_filter($monthRes, fn($r) => self::typeKey($r['event_type'] ?? '') === 'communion')),
                 'approved' => count(array_filter($monthRes, fn($r) => strtolower($r['status'] ?? '') === 'approved')),
                 'pending'  => count(array_filter($monthRes, fn($r) => strtolower($r['status'] ?? '') === 'pending')),
                 'declined' => count(array_filter($monthRes, fn($r) => strtolower($r['status'] ?? '') === 'declined')),
@@ -1126,16 +1132,19 @@ foreach ($scheduleCalendarReservations as $r) {
             'baptism'  => array_sum(array_column($reportMonthlyData, 'baptism')),
             'wedding'  => array_sum(array_column($reportMonthlyData, 'wedding')),
             'funeral'  => array_sum(array_column($reportMonthlyData, 'funeral')),
+            'kumpil'   => array_sum(array_column($reportMonthlyData, 'kumpil')),
+            'communion'=> array_sum(array_column($reportMonthlyData, 'communion')),
             'approved' => array_sum(array_column($reportMonthlyData, 'approved')),
             'pending'  => array_sum(array_column($reportMonthlyData, 'pending')),
             'declined' => array_sum(array_column($reportMonthlyData, 'declined')),
         ];
-        $reportTotals['total'] = $reportTotals['baptism'] + $reportTotals['wedding'] + $reportTotals['funeral'];
+        $reportTotals['total'] = $reportTotals['baptism'] + $reportTotals['wedding'] + $reportTotals['funeral']
+            + $reportTotals['kumpil'] + $reportTotals['communion'];
 
         $rptDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         $reportDayData = [];
         foreach ($rptDayNames as $d) {
-            $reportDayData[$d] = ['baptism'=>0,'wedding'=>0,'funeral'=>0,'total'=>0];
+            $reportDayData[$d] = ['baptism'=>0,'wedding'=>0,'funeral'=>0,'kumpil'=>0,'communion'=>0,'total'=>0];
         }
         foreach ($yearReservations as $r) {
             $rd = $r['reservation_date'] ?? '';
@@ -1143,8 +1152,8 @@ foreach ($scheduleCalendarReservations as $r) {
             try {
                 $dow  = (int)(new \DateTimeImmutable((string)$rd))->format('w');
                 $day  = $rptDayNames[$dow];
-                $type = strtolower($r['event_type'] ?? '');
-                if (array_key_exists($type, $reportDayData[$day])) {
+                $type = self::typeKey($r['event_type'] ?? '') ?? '';
+                if ($type !== '' && array_key_exists($type, $reportDayData[$day])) {
                     $reportDayData[$day][$type]++;
                 }
                 $reportDayData[$day]['total']++;
@@ -1152,10 +1161,10 @@ foreach ($scheduleCalendarReservations as $r) {
         }
 
         // AI SUMMARY — powered by Google Gemini
-        $rptTotalForAi  = $reportTotals['baptism'] + $reportTotals['wedding'] + $reportTotals['funeral'];
+        $rptTotalForAi  = $reportTotals['total'];
         $rptPeakForAi   = '—'; $rptPeakValAi = 0;
         foreach ($reportMonthlyData as $mn => $md) {
-            $mt = $md['baptism'] + $md['wedding'] + $md['funeral'];
+            $mt = $md['baptism'] + $md['wedding'] + $md['funeral'] + $md['kumpil'] + $md['communion'];
             if ($mt > $rptPeakValAi) { $rptPeakValAi = $mt; $rptPeakForAi = $mn; }
         }
         $rptBusiestForAi = '—'; $rptBusiestMaxAi = 0;
@@ -1177,7 +1186,7 @@ foreach ($scheduleCalendarReservations as $r) {
                 $reportMonthlyData, $geminiKey
             ) {
                 $monthlyBreakdown = collect($reportMonthlyData)
-                    ->map(fn($d, $m) => "{$m}: {$d['baptism']} baptism, {$d['wedding']} wedding, {$d['funeral']} funeral")
+                    ->map(fn($d, $m) => "{$m}: {$d['baptism']} baptism, {$d['wedding']} wedding, {$d['funeral']} funeral, {$d['kumpil']} kumpil, {$d['communion']} first communion")
                     ->implode(' | ');
 
                 $filterNote = " Date range: {$reportRangeLabel}.";
@@ -1187,7 +1196,7 @@ foreach ($scheduleCalendarReservations as $r) {
 
 Period: {$reportRangeLabel}
 Total sacraments: {$rptTotalForAi}
-Baptisms: {$reportTotals['baptism']} | Weddings: {$reportTotals['wedding']} | Funerals: {$reportTotals['funeral']}
+Baptisms: {$reportTotals['baptism']} | Weddings: {$reportTotals['wedding']} | Funerals: {$reportTotals['funeral']} | Kumpil: {$reportTotals['kumpil']} | First Communion: {$reportTotals['communion']}
 Approved: {$reportTotals['approved']} | Pending: {$reportTotals['pending']} | Declined: {$reportTotals['declined']}
 Peak month: {$rptPeakForAi} ({$rptPeakValAi} total)
 Busiest day: {$rptBusiestForAi} ({$rptBusiestMaxAi} sacraments)
@@ -1299,13 +1308,17 @@ Monthly breakdown: {$monthlyBreakdown}";
             $baptisms = count(array_filter($assigned, fn($r) => strtolower($r['event_type'] ?? '') === 'baptism'));
             $weddings = count(array_filter($assigned, fn($r) => strtolower($r['event_type'] ?? '') === 'wedding'));
             $funerals = count(array_filter($assigned, fn($r) => strtolower($r['event_type'] ?? '') === 'funeral'));
+            $kumpils  = count(array_filter($assigned, fn($r) => self::typeKey($r['event_type'] ?? '') === 'kumpil'));
+            $communions = count(array_filter($assigned, fn($r) => self::typeKey($r['event_type'] ?? '') === 'communion'));
             $officiantWorkload[] = [
                 'id'       => $pid,
                 'name'     => ($p['title'] ?? 'Fr.') . ' ' . ($p['name'] ?? ''),
-                'count'    => $baptisms + $weddings + $funerals,
+                'count'    => $baptisms + $weddings + $funerals + $kumpils + $communions,
                 'baptisms' => $baptisms,
                 'weddings' => $weddings,
                 'funerals' => $funerals,
+                'kumpils'  => $kumpils,
+                'communions' => $communions,
                 'active'   => $p['active'] ?? true,
             ];
         }
@@ -1339,9 +1352,9 @@ Monthly breakdown: {$monthlyBreakdown}";
         });
 
         // Avg attendance by event type for chart
-        $attendanceByType = ['Wedding' => [], 'Baptism' => [], 'Funeral' => []];
+        $attendanceByType = ['Wedding' => [], 'Baptism' => [], 'Funeral' => [], 'Kumpil' => [], 'First Communion' => []];
         foreach ($attendanceLookup as $a) {
-            $et = ucfirst(strtolower($a['event_type'] ?? ''));
+            $et = ucwords(strtolower($a['event_type'] ?? ''));
             if (isset($attendanceByType[$et])) {
                 $attendanceByType[$et][] = (int)($a['attended_count'] ?? 0);
             }
@@ -1352,6 +1365,18 @@ Monthly breakdown: {$monthlyBreakdown}";
         }
 
         $adminRole = Session::get('admin_role', 'admin');
+
+        // Admin → Schedule → Edit on a First Communion fills the add form.
+        $editCommunion = null;
+        if ($section === 'schedule' && $request->filled('edit_communion')) {
+            foreach ($reservations as $r) {
+                if ((string) ($r['id'] ?? '') === (string) $request->input('edit_communion')
+                    && strcasecmp((string) ($r['event_type'] ?? ''), 'First Communion') === 0) {
+                    $editCommunion = $r;
+                    break;
+                }
+            }
+        }
 
         $reportRecommendations = $section === 'reports'
             ? \App\Support\ReportRecommendations::build(
@@ -1385,7 +1410,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'pastApproved', 'attendanceLookup', 'attendanceAvg',
             'donationsList', 'donationSearch', 'donationPurpose', 'donationFrom', 'donationTo',
             'donationSectionTotal', 'donationsByPurpose',
-            'priests', 'officiantWorkload', 'reportRecommendations'
+            'priests', 'officiantWorkload', 'reportRecommendations', 'editCommunion'
         ));
     }
 
@@ -1408,7 +1433,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             [$reportFromMonth, $reportToMonth] = [$reportToMonth,   $reportFromMonth];
         }
         $reportType = strtolower(trim((string)$request->input('report_type', 'all')));
-        if (!in_array($reportType, ['all', 'baptism', 'wedding', 'funeral'])) $reportType = 'all';
+        if (!in_array($reportType, ['all', 'baptism', 'wedding', 'funeral', 'kumpil', 'communion'])) $reportType = 'all';
 
         try {
             $response = $this->sb()->timeout(8)->get($this->sbUrl('reservations', [
@@ -1436,7 +1461,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             if (strlen($date) < 7) return false;
             $ym = (int) substr($date, 0, 4) * 100 + (int) substr($date, 5, 2);
             if ($ym < $reportFromYear * 100 + $reportFromMonth || $ym > $reportToYear * 100 + $reportToMonth) return false;
-            if ($reportType !== 'all' && strtolower($r['event_type'] ?? '') !== $reportType) return false;
+            if ($reportType !== 'all' && self::typeKey($r['event_type'] ?? '') !== $reportType) return false;
             return true;
         }));
 
@@ -1726,10 +1751,11 @@ Monthly breakdown: {$monthlyBreakdown}";
             return redirect()->route('admin.index')->with('flash_error', 'Unauthorized.');
         }
         // Results show in the parish status pop-up (same as Approve / Decline).
-        $back = fn (string $msg) => redirect()->route('admin.index', ['section' => 'schedule'])
-            ->withInput()->with(['status_update_error' => $msg, 'status_update_title' => 'Could Not Add First Communion']);
+        $back = fn (string $msg) => redirect()->route('admin.index', array_filter(['section' => 'schedule', 'edit_communion' => $request->input('id')]))
+            ->withInput()->with(['status_update_error' => $msg, 'status_update_title' => $request->filled('id') ? 'Could Not Save Changes' : 'Could Not Add First Communion']);
 
         $check = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'id'        => 'nullable|integer',
             'school'    => 'required|string|max:200',
             'catechist' => 'required|string|max:200',
             'children'  => 'required|integer|min:1|max:500',
@@ -1749,6 +1775,13 @@ Monthly breakdown: {$monthlyBreakdown}";
             return $back($check->errors()->first());
         }
         $data = $check->validated();
+        $editId = !empty($data['id']) ? (int) $data['id'] : null;
+        if ($editId) {
+            $existing = $this->sb()->get($this->sbUrl('reservations', ['id' => 'eq.' . $editId, 'select' => 'id,event_type', 'limit' => 1]));
+            if (strcasecmp((string) ($existing->json()[0]['event_type'] ?? ''), 'First Communion') !== 0) {
+                return $back('That First Communion could not be found. It may have been removed.');
+            }
+        }
 
         $start = self::minutesOf($data['start']);
         $end   = self::minutesOf($data['end']);
@@ -1758,11 +1791,12 @@ Monthly breakdown: {$monthlyBreakdown}";
 
         // Any active reservation whose time overlaps blocks it ("To be announced" never does).
         $sameDay = $this->sb()->get($this->sbUrl('reservations', [
-            'select'           => 'event_type,reservation_time',
+            'select'           => 'id,event_type,reservation_time',
             'reservation_date' => 'eq.' . $data['date'],
             'status'           => 'in.(pending,approved,booked)',
         ]));
         foreach ($sameDay->successful() ? ($sameDay->json() ?? []) : [] as $r) {
+            if ($editId && (int) ($r['id'] ?? 0) === $editId) continue;   // its own old time
             [$rs, $re] = self::rangeOf((string) ($r['reservation_time'] ?? ''));
             if ($rs !== null && $rs < $end && $re > $start) {
                 return $back('That time overlaps a ' . ($r['event_type'] ?? 'reservation') . ' at '
@@ -1771,21 +1805,26 @@ Monthly breakdown: {$monthlyBreakdown}";
         }
 
         $time = $data['start'] . ' - ' . $data['end'];
-        $insert = $this->sb()->withHeaders(['Prefer' => 'return=minimal'])->post($this->sbUrl('reservations'), [
-            'event_type'       => 'First Communion',
+        $fields = [
             'reservation_date' => $data['date'],
             'reservation_time' => $time,
-            'status'           => 'approved',
             'name'             => $data['school'],
             'phone'            => $data['phone'] ?? null,
             'notes'            => $data['notes'] ?? null,
-            'admin_note'       => 'Added by the parish office',
             'details'          => ['communion' => [
                 'school'    => $data['school'],
                 'catechist' => $data['catechist'],
                 'children'  => (int) $data['children'],
             ]],
-        ]);
+        ];
+        $insert = $editId
+            ? $this->sb()->withHeaders(['Prefer' => 'return=minimal'])
+                ->patch($this->sbUrl('reservations', ['id' => 'eq.' . $editId]), $fields + ['updated_at' => now()->toISOString()])
+            : $this->sb()->withHeaders(['Prefer' => 'return=minimal'])->post($this->sbUrl('reservations'), $fields + [
+                'event_type' => 'First Communion',
+                'status'     => 'approved',
+                'admin_note' => 'Added by the parish office',
+            ]);
         if ($insert->failed()) {
             $msg = (string) ($insert->json('message') ?? '');
             return $back(str_starts_with($msg, 'SLOT_CONFLICT:') ? trim(substr($msg, 14)) : 'Could not save the First Communion. Please try again.');
@@ -1793,10 +1832,17 @@ Monthly breakdown: {$monthlyBreakdown}";
 
         return redirect()->route('admin.index', ['section' => 'schedule'])->with([
             'status_update_type'    => 'approved',
-            'status_update_title'   => 'First Communion Added',
-            'status_update_success' => 'First Communion for ' . $data['school'] . ' added on '
+            'status_update_title'   => $editId ? 'First Communion Updated' : 'First Communion Added',
+            'status_update_success' => 'First Communion for ' . $data['school'] . ($editId ? ' is now on ' : ' added on ')
                 . \Carbon\Carbon::parse($data['date'])->format('M j, Y') . ', ' . str_replace(' - ', ' – ', $time) . '.',
         ]);
+    }
+
+    /** Report key of a reservation's event type, e.g. "First Communion" → "communion". */
+    public static function typeKey(?string $eventType): ?string
+    {
+        $t = strtolower(trim((string) $eventType));
+        return $t === 'first communion' ? 'communion' : (in_array($t, ['baptism', 'wedding', 'funeral', 'kumpil'], true) ? $t : null);
     }
 
     /** "9:30 AM" → 570 minutes after midnight, or null. */
@@ -1889,7 +1935,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'reportFromYear' => now()->year, 'reportFromMonth' => 1, 'reportToYear' => now()->year, 'reportToMonth' => now()->month,
             'reportRangeLabel' => 'January ' . now()->year . ' – ' . now()->format('F') . ' ' . now()->year,
             'reportMonthlyData' => [],
-            'reportTotals' => ['baptism'=>0,'wedding'=>0,'funeral'=>0,'total'=>0,'approved'=>0,'pending'=>0,'declined'=>0],
+            'reportTotals' => ['baptism'=>0,'wedding'=>0,'funeral'=>0,'kumpil'=>0,'communion'=>0,'total'=>0,'approved'=>0,'pending'=>0,'declined'=>0],
             'reportDayData' => [], 'reportSummary' => null,
             'donationMonthly' => [], 'donationTotal' => 0, 'recentDonations' => [],
             'utilizationMonthly' => [],
@@ -1899,7 +1945,7 @@ Monthly breakdown: {$monthlyBreakdown}";
             'donationSectionTotal' => 0,
             'donationsByPurpose' => ['building_fund'=>0,'mass_intention'=>0,'tithes'=>0,'other'=>0],
             'reportRecommendations' => [],
-            'priests' => [], 'officiantWorkload' => [],
+            'priests' => [], 'officiantWorkload' => [], 'editCommunion' => null,
         ];
     }
 

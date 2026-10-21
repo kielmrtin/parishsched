@@ -62,7 +62,7 @@ class ReservationRequirements
         return $person('groom') + $person('bride') + [
             'license'  => ['label' => 'Marriage License', 'owner' => 'couple', 'required' => false, 'hint' => 'From the municipal civil registrar'],
             'seminar'  => ['label' => 'Certificate of Seminar', 'owner' => 'couple', 'required' => false, 'hint' => 'Pre-Cana seminar, attended together'],
-            'sponsors' => ['label' => 'Listahan ng Ninong at Ninang', 'owner' => 'couple', 'required' => false, 'hint' => 'Apat na pares na minimum'],
+            'sponsors' => ['label' => 'Listahan ng Ninong at Ninang', 'owner' => 'couple', 'required' => false, 'hint' => 'Mga pangalan ng inyong mga ninong at ninang'],
         ];
     }
 

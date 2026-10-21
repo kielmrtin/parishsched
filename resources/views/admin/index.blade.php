@@ -130,10 +130,14 @@
         .event-card.wedding .event-progress-bar { background:linear-gradient(90deg,#ec4899,#f472b6); }
         .event-card.baptism .event-progress-bar { background:linear-gradient(90deg,#14b8a6,#2dd4bf); }
         .event-card.funeral .event-progress-bar { background:linear-gradient(90deg,#475569,#64748b); }
+        .event-card.kumpil .event-progress-bar { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+        .event-card.communion .event-progress-bar { background:linear-gradient(90deg,#0284c7,#38bdf8); }
         .event-type-tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
         .event-type-tag.wedding  { background:rgba(244,114,182,0.14); color:#db2777; }
         .event-type-tag.baptism  { background:rgba(22,163,74,0.14);   color:#16a34a; }
         .event-type-tag.funeral  { background:rgba(100,116,139,0.14); color:#475569; }
+        .event-type-tag.kumpil   { background:rgba(139,92,246,0.14); color:#6d28d9; }
+        .event-type-tag.communion { background:rgba(14,165,233,0.14); color:#0369a1; }
         .overview-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
         .overview-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
         .overview-list li { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(148,163,184,0.18); background: #f8fafc; }
@@ -1030,6 +1034,12 @@
 .event-card.funeral .event-icon {
     background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1;
 }
+.event-card.kumpil .event-icon {
+    background: #ede9fe; color: #6d28d9; border: 1.5px solid #ddd6fe;
+}
+.event-card.communion .event-icon {
+    background: #e0f2fe; color: #0369a1; border: 1.5px solid #bae6fd;
+}
 
 .event-info span {
     display: block;
@@ -1064,10 +1074,14 @@
 
 .event-summary-row {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 18px;
     margin-bottom: 28px;
 }
+/* three cards on the first row, Kumpil and First Communion share the second */
+.event-summary-row > .event-card { grid-column: span 2; }
+.event-summary-row > .event-card.kumpil,
+.event-summary-row > .event-card.communion { grid-column: span 3; }
 
 .event-card {
     min-height: 120px !important;
@@ -1100,6 +1114,9 @@
     .event-summary-row {
         grid-template-columns: 1fr;
     }
+    .event-summary-row > .event-card,
+    .event-summary-row > .event-card.kumpil,
+    .event-summary-row > .event-card.communion { grid-column: auto; }
 }
 
 .customer-actions {
@@ -2190,7 +2207,7 @@ function adminStatusBadge(string $status): string {
                     <span><i class="fa fa-calendar-check-o"></i> {{ $reportTotals['approved'] }} approved</span>
                     <span><i class="fa fa-clock-o"></i> {{ $reportTotals['pending'] }} pending</span>
                     <span><i class="fa fa-times-circle-o"></i> {{ $reportTotals['declined'] }} declined</span>
-                    <span><i class="fa fa-bar-chart"></i> {{ $reportTotals['baptism'] + $reportTotals['wedding'] + $reportTotals['funeral'] }} total</span>
+                    <span><i class="fa fa-bar-chart"></i> {{ $reportTotals['total'] }} total</span>
                 @endif
                 @if($section === 'donations')
                     <span><i class="fa fa-money"></i> ₱{{ number_format($donationSectionTotal, 2) }} collected</span>
@@ -2283,6 +2300,8 @@ function adminStatusBadge(string $status): string {
     $weddingPct = round(($eventCounts['Wedding'] ?? 0) / $eventTotal * 100);
     $baptismPct = round(($eventCounts['Baptism'] ?? 0) / $eventTotal * 100);
     $funeralPct = round(($eventCounts['Funeral'] ?? 0) / $eventTotal * 100);
+    $kumpilPct = round(($eventCounts['Kumpil'] ?? 0) / $eventTotal * 100);
+    $communionPct = round(($eventCounts['First Communion'] ?? 0) / $eventTotal * 100);
 @endphp
 
 <div class="event-summary-row">
@@ -2323,6 +2342,30 @@ function adminStatusBadge(string $status): string {
         </div>
     </div>
 
+    <div class="event-card kumpil">
+        <div class="event-icon"><i class="fa fa-fire"></i></div>
+        <div class="event-info">
+            <span>Kumpil reservations</span>
+            <strong class="count-up" data-count="{{ $eventCounts['Kumpil'] ?? 0 }}">0</strong>
+            <div class="event-progress">
+                <div class="event-progress-bar" style="width:{{ $kumpilPct }}%"></div>
+            </div>
+            <span style="font-size:11px;color:#94a3b8;margin-top:3px;display:block">{{ $kumpilPct }}% of total</span>
+        </div>
+    </div>
+
+    <div class="event-card communion">
+        <div class="event-icon"><svg viewBox="0 0 20 22" width="1em" height="1.1em" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg></div>
+        <div class="event-info">
+            <span>First Communion reservations</span>
+            <strong class="count-up" data-count="{{ $eventCounts['First Communion'] ?? 0 }}">0</strong>
+            <div class="event-progress">
+                <div class="event-progress-bar" style="width:{{ $communionPct }}%"></div>
+            </div>
+            <span style="font-size:11px;color:#94a3b8;margin-top:3px;display:block">{{ $communionPct }}% of total</span>
+        </div>
+    </div>
+
 </div>
 
             <div class="overview-panels">
@@ -2341,7 +2384,7 @@ function adminStatusBadge(string $status): string {
                                         <div style="display:flex;align-items:center;gap:8px">
                                             <span class="overview-list-title">{{ $r['name'] ?? $r['customer_name'] ?? 'No name' }}</span>
                                             @if($evType)
-                                            <span class="event-type-tag {{ $evType }}">{{ ucfirst($evType) }}</span>
+                                            <span class="event-type-tag {{ $evType }}">{{ ucwords($evType) }}</span>
                                             @endif
                                         </div>
                                         {!! adminStatusBadge($r['status'] ?? 'pending') !!}
@@ -2518,30 +2561,53 @@ function adminStatusBadge(string $status): string {
     @php
         $communionTimes = [];
         for ($m = 6 * 60; $m <= 18 * 60; $m += 30) { $communionTimes[] = date('g:i A', mktime(intdiv($m, 60), $m % 60)); }
-        $oldCom = ['start' => old('start', '9:00 AM'), 'end' => old('end', '11:00 AM')];
+        // Edit mode: ?edit_communion=ID fills the form with that First Communion.
+        $ec = $editCommunion ?? null;
+        $ecDetails = is_string($ec['details'] ?? null) ? (json_decode($ec['details'], true) ?? []) : ($ec['details'] ?? []);
+        $ecInfo = $ecDetails['communion'] ?? [];
+        $ecTimes = $ec ? preg_split('/\s*[-–]\s*/u', (string) ($ec['reservation_time'] ?? '')) : [];
+        $oldCom = [
+            'start'     => old('start', $ecTimes[0] ?? '9:00 AM'),
+            'end'       => old('end', $ecTimes[1] ?? '11:00 AM'),
+            'school'    => old('school', $ecInfo['school'] ?? ($ec['name'] ?? '')),
+            'catechist' => old('catechist', $ecInfo['catechist'] ?? ''),
+            'children'  => old('children', $ecInfo['children'] ?? ''),
+            'date'      => old('date', $ec['reservation_date'] ?? ''),
+            'phone'     => old('phone', $ec['phone'] ?? ''),
+            'notes'     => old('notes', $ec['notes'] ?? ''),
+        ];
     @endphp
     <section class="section-card" id="communion-card" style="margin-top:24px">
         <div class="section-header">
+            @if($ec)
+            <div><h2>Edit First Communion</h2><p>Change the school batch details, date or time. The calendar updates when you save.</p></div>
+            <a href="{{ route('admin.index', ['section' => 'schedule']) }}"
+               style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:999px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:700;text-decoration:none">
+                <i class="fa fa-times"></i> Stop editing
+            </a>
+            @else
             <div><h2>Add a First Communion</h2><p>For a school batch arranged with the catechist. It is saved as approved and shows on the calendar.</p></div>
+            @endif
         </div>
         <form method="POST" action="{{ route('admin.communions.store') }}"
               style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end">
             @csrf
+            @if($ec)<input type="hidden" name="id" value="{{ $ec['id'] }}">@endif
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label for="communion-school" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">School</label>
-                <input type="text" name="school" id="communion-school" required maxlength="200" value="{{ old('school') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Tiaong Central School">
+                <input type="text" name="school" id="communion-school" required maxlength="200" value="{{ $oldCom['school'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Tiaong Central School">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label for="communion-catechist" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Catechist</label>
-                <input type="text" name="catechist" id="communion-catechist" required maxlength="200" value="{{ old('catechist') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Full name">
+                <input type="text" name="catechist" id="communion-catechist" required maxlength="200" value="{{ $oldCom['catechist'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Full name">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label for="communion-children" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Number of Children</label>
-                <input type="number" name="children" id="communion-children" required min="1" max="500" value="{{ old('children') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 40">
+                <input type="number" name="children" id="communion-children" required min="1" max="500" value="{{ $oldCom['children'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 40">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label for="communion-date" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</label>
-                <input type="date" name="date" id="communion-date" required min="{{ date('Y-m-d') }}" value="{{ old('date') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box">
+                <input type="date" name="date" id="communion-date" required min="{{ date('Y-m-d') }}" value="{{ $oldCom['date'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Starts</label>
@@ -2571,18 +2637,21 @@ function adminStatusBadge(string $status): string {
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label for="communion-phone" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Contact Number (optional)</label>
-                <input type="text" name="phone" id="communion-phone" maxlength="50" value="{{ old('phone') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Catechist or school">
+                <input type="text" name="phone" id="communion-phone" maxlength="50" value="{{ $oldCom['phone'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Catechist or school">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px;grid-column:span 2">
                 <label for="communion-notes" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes (optional)</label>
-                <input type="text" name="notes" id="communion-notes" maxlength="500" value="{{ old('notes') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Children bring their baptismal certificates on Nov 28">
+                <input type="text" name="notes" id="communion-notes" maxlength="500" value="{{ $oldCom['notes'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Children bring their baptismal certificates on Nov 28">
             </div>
             <div>
-                <button type="submit" style="width:100%;padding:11px 0;border-radius:10px;border:0;background:#dc2626;color:#fff;font-weight:700;font-size:14px;cursor:pointer">Save First Communion</button>
+                <button type="submit" style="width:100%;padding:11px 0;border-radius:10px;border:0;background:#dc2626;color:#fff;font-weight:700;font-size:14px;cursor:pointer">{{ $ec ? 'Save Changes' : 'Save First Communion' }}</button>
             </div>
         </form>
         <p style="margin:14px 0 0;font-size:12px;color:#94a3b8">Each child needs a baptismal certificate (the catechist brings them to the office) and kumpisal before the First Communion.</p>
     </section>
+    @if($ec)
+    <script>window.addEventListener('load', function () { setTimeout(function () { document.getElementById('communion-card').scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 150); });</script>
+    @endif
 
     @include('admin.partials.reservation-detail-modal')
 @endif
@@ -3260,6 +3329,8 @@ function adminStatusBadge(string $status): string {
     $rptBaptism  = array_values(array_column($reportMonthlyData, 'baptism'));
     $rptWedding  = array_values(array_column($reportMonthlyData, 'wedding'));
     $rptFuneral  = array_values(array_column($reportMonthlyData, 'funeral'));
+    $rptKumpil   = array_values(array_column($reportMonthlyData, 'kumpil'));
+    $rptCommunion = array_values(array_column($reportMonthlyData, 'communion'));
     $rptApproved = array_values(array_column($reportMonthlyData, 'approved'));
     $rptPending  = array_values(array_column($reportMonthlyData, 'pending'));
     $rptDeclined = array_values(array_column($reportMonthlyData, 'declined'));
@@ -3268,18 +3339,26 @@ function adminStatusBadge(string $status): string {
     $rptDayBap    = array_values(array_column($reportDayData, 'baptism'));
     $rptDayWed    = array_values(array_column($reportDayData, 'wedding'));
     $rptDayFun    = array_values(array_column($reportDayData, 'funeral'));
+    $rptDayKum    = array_values(array_column($reportDayData, 'kumpil'));
+    $rptDayCom    = array_values(array_column($reportDayData, 'communion'));
 
     $rptTotal  = $reportTotals['total'];
     $rptPieBap = $rptTotal > 0 ? round($reportTotals['baptism'] / $rptTotal * 100) : 0;
     $rptPieWed = $rptTotal > 0 ? round($reportTotals['wedding'] / $rptTotal * 100) : 0;
     $rptPieFun = $rptTotal > 0 ? round($reportTotals['funeral'] / $rptTotal * 100) : 0;
+    $rptPieKum = $rptTotal > 0 ? round($reportTotals['kumpil'] / $rptTotal * 100) : 0;
+    $rptPieCom = $rptTotal > 0 ? round($reportTotals['communion'] / $rptTotal * 100) : 0;
 
     $rptPeakMonth = '—'; $rptPeakVal = 0;
     $rptPeakBapM  = '—'; $rptPeakBapV = 0;
     $rptPeakWedM  = '—'; $rptPeakWedV = 0;
     $rptPeakFunM  = '—'; $rptPeakFunV = 0;
+    $rptPeakKumM  = '—'; $rptPeakKumV = 0;
+    $rptPeakComM  = '—'; $rptPeakComV = 0;
     foreach ($reportMonthlyData as $mn => $md) {
-        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'];
+        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'] + $md['kumpil'] + $md['communion'];
+        if ($md['kumpil'] > $rptPeakKumV) { $rptPeakKumV = $md['kumpil']; $rptPeakKumM = $mn; }
+        if ($md['communion'] > $rptPeakComV) { $rptPeakComV = $md['communion']; $rptPeakComM = $mn; }
         if ($mt > $rptPeakVal)       { $rptPeakVal = $mt;          $rptPeakMonth = $mn; }
         if ($md['baptism'] > $rptPeakBapV) { $rptPeakBapV = $md['baptism']; $rptPeakBapM = $mn; }
         if ($md['wedding'] > $rptPeakWedV) { $rptPeakWedV = $md['wedding']; $rptPeakWedM = $mn; }
@@ -3289,6 +3368,8 @@ function adminStatusBadge(string $status): string {
     $rptMaxBap = max(1, max($rptBaptism ?: [0]));
     $rptMaxWed = max(1, max($rptWedding ?: [0]));
     $rptMaxFun = max(1, max($rptFuneral ?: [0]));
+    $rptMaxKum = max(1, max($rptKumpil ?: [0]));
+    $rptMaxCom = max(1, max($rptCommunion ?: [0]));
 
     $rptBusiestDay = '—'; $rptBusiestMax = 0;
     foreach ($reportDayData as $d => $dd) {
@@ -3300,6 +3381,8 @@ function adminStatusBadge(string $status): string {
             'wedding' => '<i class="fa fa-heart"></i>',
             'baptism' => '<i class="fa fa-plus"></i>',
             'funeral' => '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>',
+            'kumpil'  => '<i class="fa fa-fire"></i>',
+            'first communion', 'communion' => '<svg width="10" height="11" viewBox="0 0 20 22" fill="currentColor" style="vertical-align:-1px;"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>',
             default   => '',
         };
     };
@@ -3316,6 +3399,8 @@ function adminStatusBadge(string $status): string {
     $rptGreen = '45,212,191';
     $rptRed   = '244,114,182';
     $rptGray  = '100,116,139';
+    $rptViolet = '139,92,246';
+    $rptSky    = '14,165,233';
 @endphp
 
 {{-- ── Print-only letterhead (the rest of the real page prints below it) ── --}}
@@ -3418,7 +3503,7 @@ function adminStatusBadge(string $status): string {
             </div>
         </div>
 
-        @php $rptTypeLabelMap = ['all'=>'All sacraments','baptism'=>'Baptism','wedding'=>'Wedding','funeral'=>'Funeral']; @endphp
+        @php $rptTypeLabelMap = ['all'=>'All sacraments','baptism'=>'Baptism','wedding'=>'Wedding','funeral'=>'Funeral','kumpil'=>'Kumpil','communion'=>'First Communion']; @endphp
         <div style="display:flex;flex-direction:column;gap:6px">
             <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Type</label>
             <input type="hidden" name="report_type" id="report_type" value="{{ $reportType }}">
@@ -3432,6 +3517,8 @@ function adminStatusBadge(string $status): string {
                     <li class="{{ $reportType==='baptism'?'is-selected':'' }}" onclick="admCslSelect('adm-csl-rpt-type','report_type','baptism','Baptism');document.getElementById('rptFilterForm').submit()">Baptism</li>
                     <li class="{{ $reportType==='wedding'?'is-selected':'' }}" onclick="admCslSelect('adm-csl-rpt-type','report_type','wedding','Wedding');document.getElementById('rptFilterForm').submit()">Wedding</li>
                     <li class="{{ $reportType==='funeral'?'is-selected':'' }}" onclick="admCslSelect('adm-csl-rpt-type','report_type','funeral','Funeral');document.getElementById('rptFilterForm').submit()">Funeral</li>
+                    <li class="{{ $reportType==='kumpil'?'is-selected':'' }}" onclick="admCslSelect('adm-csl-rpt-type','report_type','kumpil','Kumpil');document.getElementById('rptFilterForm').submit()">Kumpil</li>
+                    <li class="{{ $reportType==='communion'?'is-selected':'' }}" onclick="admCslSelect('adm-csl-rpt-type','report_type','communion','First Communion');document.getElementById('rptFilterForm').submit()">First Communion</li>
                 </ul>
             </div>
         </div>
@@ -3469,7 +3556,7 @@ function adminStatusBadge(string $status): string {
     </form>
 
     {{-- Stat cards --}}
-    <div class="summary-cards" style="margin-bottom:24px">
+    <div class="summary-cards" style="margin-bottom:24px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))">
         <div class="summary-card">
             <h2>Total Reservations</h2>
             <div class="summary-value">{{ $rptTotal }}</div>
@@ -3490,6 +3577,16 @@ function adminStatusBadge(string $status): string {
             <div class="summary-value" style="color:#64748b">{{ $reportTotals['funeral'] }}</div>
             <div class="summary-caption">{{ $rptPeakFunM !== '—' ? 'Peak: ' . $rptPeakFunM : 'No data yet' }}</div>
         </div>
+        <div class="summary-card">
+            <h2>Kumpil</h2>
+            <div class="summary-value" style="color:#8b5cf6">{{ $reportTotals['kumpil'] }}</div>
+            <div class="summary-caption">{{ $rptPeakKumM !== '—' ? 'Peak: ' . $rptPeakKumM : 'No data yet' }}</div>
+        </div>
+        <div class="summary-card">
+            <h2>First Communion</h2>
+            <div class="summary-value" style="color:#0ea5e9">{{ $reportTotals['communion'] }}</div>
+            <div class="summary-caption">{{ $rptPeakComM !== '—' ? 'Peak: ' . $rptPeakComM : 'No data yet' }}</div>
+        </div>
     </div>
 
     {{-- Report summary --}}
@@ -3508,10 +3605,16 @@ function adminStatusBadge(string $status): string {
             @if($reportSummary)
                 {{ $reportSummary }}
             @else
+                @php
+                    // sacraments with any reservations, most common first
+                    $rptRank = collect(['baptism' => 'baptisms', 'wedding' => 'weddings', 'funeral' => 'funerals', 'kumpil' => 'kumpil', 'communion' => 'first communions'])
+                        ->map(fn ($label, $k) => ['label' => $label, 'n' => $reportTotals[$k], 'pct' => $rptTotal > 0 ? round($reportTotals[$k] / $rptTotal * 100) : 0])
+                        ->filter(fn ($t) => $t['n'] > 0)->sortByDesc('n')->values();
+                @endphp
                 For <strong>{{ $reportRangeLabel }}</strong>, the parish recorded <strong>{{ $rptTotal }}</strong> total sacrament reservations.
-                Baptisms are the most common at <strong>{{ $reportTotals['baptism'] }}</strong> ({{ $rptPieBap }}%),
-                followed by weddings at <strong>{{ $reportTotals['wedding'] }}</strong> ({{ $rptPieWed }}%)
-                and funerals at <strong>{{ $reportTotals['funeral'] }}</strong> ({{ $rptPieFun }}%).
+                @foreach($rptRank as $i => $t)
+                    @if($i === 0){{ ucfirst($t['label']) }} are the most common at @elseif($i === $rptRank->count() - 1) and {{ $t['label'] }} at @else {{ $i === 1 ? 'followed by' : '' }} {{ $t['label'] }} at @endif<strong>{{ $t['n'] }}</strong> ({{ $t['pct'] }}%){{ $i === $rptRank->count() - 1 ? '.' : ',' }}
+                @endforeach
                 @if($rptPeakMonth !== '—') Peak activity was in <strong>{{ $rptPeakMonth }}</strong> with {{ $rptPeakVal }} total sacraments. @endif
                 @if($rptBusiestDay !== '—') The busiest day of the week is <strong>{{ $rptBusiestDay }}</strong>. @endif
             @endif
@@ -3579,7 +3682,7 @@ function adminStatusBadge(string $status): string {
         <div class="section-header">
             <div>
                 <h2>Monthly sacrament count</h2>
-                <p>Baptisms, weddings, and funerals per month — {{ $reportRangeLabel }}</p>
+                <p>Reservations per sacrament each month — {{ $reportRangeLabel }}</p>
             </div>
         </div>
         <div style="height:220px;position:relative"><canvas id="rptMonthlyChart"></canvas></div>
@@ -3597,6 +3700,8 @@ function adminStatusBadge(string $status): string {
                 <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#2dd4bf"></div>Baptisms<span class="rpt-pie-pct">{{ $rptPieBap }}%</span></div>
                 <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#f472b6"></div>Weddings<span class="rpt-pie-pct">{{ $rptPieWed }}%</span></div>
                 <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#64748b"></div>Funerals<span class="rpt-pie-pct">{{ $rptPieFun }}%</span></div>
+                <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#8b5cf6"></div>Kumpil<span class="rpt-pie-pct">{{ $rptPieKum }}%</span></div>
+                <div class="rpt-pie-row"><div class="rpt-pie-dot" style="background:#0ea5e9"></div>First Communion<span class="rpt-pie-pct">{{ $rptPieCom }}%</span></div>
             </div>
         @else
             <div class="empty-block" style="text-align:center;padding:48px 0">No sacrament data for {{ $reportRangeLabel }}.</div>
@@ -3670,6 +3775,22 @@ function adminStatusBadge(string $status): string {
                 @endforeach
             </div>
         </div>
+        <div class="rpt-hm-row">
+            <div class="rpt-hm-rl">Kumpil</div>
+            <div class="rpt-hm-cells">
+                @foreach($reportMonthlyData as $mn => $md)
+                    <div class="rpt-hm-cell" style="{{ $rptCell($md['kumpil'], $rptMaxKum, $rptViolet) }}" title="{{ $mn }}: {{ $md['kumpil'] }}">{{ $md['kumpil'] > 0 ? $md['kumpil'] : '' }}</div>
+                @endforeach
+            </div>
+        </div>
+        <div class="rpt-hm-row">
+            <div class="rpt-hm-rl">Communion</div>
+            <div class="rpt-hm-cells">
+                @foreach($reportMonthlyData as $mn => $md)
+                    <div class="rpt-hm-cell" style="{{ $rptCell($md['communion'], $rptMaxCom, $rptSky) }}" title="First Communion · {{ $mn }}: {{ $md['communion'] }}">{{ $md['communion'] > 0 ? $md['communion'] : '' }}</div>
+                @endforeach
+            </div>
+        </div>
         <div class="rpt-scale-row">
             <span class="rpt-scale-lbl">Low</span>
             <div class="rpt-scale-bar">
@@ -3701,11 +3822,11 @@ function adminStatusBadge(string $status): string {
             </div>
         @else
             <div style="position:relative;height:200px"><canvas id="rptAttendanceChart"></canvas></div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
-                @foreach(['Wedding'=>'#f472b6','Baptism'=>'#2dd4bf','Funeral'=>'#64748b'] as $et=>$ec)
-                <div style="text-align:center;padding:10px;border-radius:10px;background:{{ $ec }}14;border:1px solid {{ $ec }}30">
+            <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px">
+                @foreach(['Wedding'=>'#f472b6','Baptism'=>'#2dd4bf','Funeral'=>'#64748b','Kumpil'=>'#8b5cf6','First Communion'=>'#0ea5e9'] as $et=>$ec)
+                <div style="text-align:center;padding:10px 4px;border-radius:10px;background:{{ $ec }}14;border:1px solid {{ $ec }}30;min-width:0">
                     <div style="font-size:20px;font-weight:800;color:{{ $ec }}">{{ $attendanceAvg[$et] ?? 0 }}</div>
-                    <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.06em">{{ $et }}</div>
+                    <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.3">{{ $et === 'First Communion' ? 'Communion' : $et }}</div>
                 </div>
                 @endforeach
             </div>
@@ -3797,7 +3918,7 @@ function adminStatusBadge(string $status): string {
                 <div class="logged-card" data-name="{{ strtolower($pr['name'] ?? '') }}" data-date="{{ $prDateRaw }}"
                      style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px">
                     <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ $prColor }}18;color:{{ $prColor }};border:1px solid {{ $prColor }}40;flex-shrink:0">
-                        {!! $rptTypeIcon($prEt) !!} {{ ucfirst($prEt) }}
+                        {!! $rptTypeIcon($prEt) !!} {{ ucwords($prEt) }}
                     </span>
                     <div style="flex:1;min-width:0">
                         <div style="font-size:13px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $pr['name'] ?? '—' }}</div>
@@ -3806,7 +3927,7 @@ function adminStatusBadge(string $status): string {
                     <span style="font-size:22px;font-weight:800;color:#dc2626;line-height:1;flex-shrink:0">{{ $prAtt['attended_count'] }}</span>
                     <button type="button" class="no-print"
                             style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid rgba(100,116,139,0.25);color:#64748b;font-size:11px;font-weight:700;background:transparent;cursor:pointer;flex-shrink:0"
-                            onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', {{ $prAtt['attended_count'] }}, '{{ addslashes($prAtt['notes'] ?? '') }}')">
+                            onclick="openAttModal({{ $prId }}, '{{ ucwords($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', {{ $prAtt['attended_count'] }}, '{{ addslashes($prAtt['notes'] ?? '') }}')">
                         <i class="fa fa-pencil"></i>
                     </button>
                 </div>
@@ -3848,6 +3969,12 @@ function adminStatusBadge(string $status): string {
             <button onclick="filterAtt('funeral')" id="attf-funeral" class="att-filter-btn"
                     style="color:#64748b;border-color:#64748b;"
                     data-default-border="#64748b" data-default-color="#64748b">{!! $rptTypeIcon('funeral') !!} Funeral</button>
+            <button onclick="filterAtt('kumpil')" id="attf-kumpil" class="att-filter-btn"
+                    style="color:#8b5cf6;border-color:#8b5cf6;"
+                    data-default-border="#8b5cf6" data-default-color="#8b5cf6">{!! $rptTypeIcon('kumpil') !!} Kumpil</button>
+            <button onclick="filterAtt('first-communion')" id="attf-first-communion" class="att-filter-btn"
+                    style="color:#0ea5e9;border-color:#0ea5e9;"
+                    data-default-border="#0ea5e9" data-default-color="#0ea5e9">{!! $rptTypeIcon('communion') !!} First Communion</button>
         </div>
         <div class="no-print" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div style="position:relative;min-width:170px">
@@ -3893,11 +4020,11 @@ function adminStatusBadge(string $status): string {
                     $prAtt     = $attendanceLookup[$prId] ?? null;
                 @endphp
                 @if(!$prAtt)
-                <tr style="border-bottom:1px solid #f8fafc" class="att-row att-unlogged" data-type="{{ $prEt }}"
+                <tr style="border-bottom:1px solid #f8fafc" class="att-row att-unlogged" data-type="{{ str_replace(' ', '-', $prEt) }}"
                     data-date="{{ $prDate ?? '' }}" data-name="{{ strtolower($pr['name'] ?? '') }}">
                     <td style="padding:10px 12px">
                         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ $prColor }}18;color:{{ $prColor }};border:1px solid {{ $prColor }}40">
-                            {!! $rptTypeIcon($prEt) !!} {{ ucfirst($prEt) }}
+                            {!! $rptTypeIcon($prEt) !!} {{ ucwords($prEt) }}
                         </span>
                     </td>
                     <td style="padding:10px 12px;font-weight:600;color:#111827">{{ $pr['name'] ?? '—' }}</td>
@@ -3905,7 +4032,7 @@ function adminStatusBadge(string $status): string {
                     <td style="padding:10px 12px" class="no-print">
                         <button type="button"
                                 style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px solid rgba(220,38,38,.3);color:#dc2626;font-size:12px;font-weight:700;background:transparent;cursor:pointer"
-                                onclick="openAttModal({{ $prId }}, '{{ ucfirst($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', 0, '')">
+                                onclick="openAttModal({{ $prId }}, '{{ ucwords($prEt) }}', '{{ addslashes($pr['name'] ?? '') }}', 0, '')">
                             <i class="fa fa-plus"></i> Log
                         </button>
                     </td>
@@ -4085,6 +4212,12 @@ function adminStatusBadge(string $status): string {
                         @if($wo['funerals'] > 0)
                         <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(100,116,139,0.12);color:#475569">Funerals: {{ $wo['funerals'] }}</span>
                         @endif
+                        @if(($wo['kumpils'] ?? 0) > 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(139,92,246,0.12);color:#6d28d9">Kumpil: {{ $wo['kumpils'] }}</span>
+                        @endif
+                        @if(($wo['communions'] ?? 0) > 0)
+                        <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(14,165,233,0.12);color:#0369a1">First Communion: {{ $wo['communions'] }}</span>
+                        @endif
                         @if($wo['count'] === 0)
                         <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;background:#f1f5f9;color:#94a3b8">No ceremonies yet</span>
                         @endif
@@ -4203,6 +4336,8 @@ function adminStatusBadge(string $status): string {
                     <th style="color:#2dd4bf;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Baptisms</th>
                     <th style="color:#f472b6;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Weddings</th>
                     <th style="color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Funerals</th>
+                    <th style="color:#8b5cf6;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Kumpil</th>
+                    <th style="color:#0ea5e9;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Communion</th>
                     <th style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Total</th>
                     <th style="color:#10b981;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Approved</th>
                     <th style="color:#f59e0b;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:center">Pending</th>
@@ -4210,11 +4345,12 @@ function adminStatusBadge(string $status): string {
                 </tr>
             </thead>
             <tbody id="dataTableBody">
-                @php $rptFoot = ['b'=>0,'w'=>0,'f'=>0,'t'=>0,'a'=>0,'p'=>0,'d'=>0]; @endphp
+                @php $rptFoot = ['b'=>0,'w'=>0,'f'=>0,'k'=>0,'c'=>0,'t'=>0,'a'=>0,'p'=>0,'d'=>0]; @endphp
                 @foreach($reportMonthlyData as $mn => $md)
                     @php
-                        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'];
+                        $mt = $md['baptism'] + $md['wedding'] + $md['funeral'] + $md['kumpil'] + $md['communion'];
                         $rptFoot['b'] += $md['baptism']; $rptFoot['w'] += $md['wedding']; $rptFoot['f'] += $md['funeral'];
+                        $rptFoot['k'] += $md['kumpil']; $rptFoot['c'] += $md['communion'];
                         $rptFoot['t'] += $mt; $rptFoot['a'] += $md['approved']; $rptFoot['p'] += $md['pending']; $rptFoot['d'] += $md['declined'];
                     @endphp
                     <tr style="border-bottom:1px solid #f1f5f9;{{ $mt === 0 ? 'color:#cbd5e1' : '' }}" data-ym="{{ \Carbon\Carbon::parse($mn)->format('Y-m') }}">
@@ -4223,6 +4359,8 @@ function adminStatusBadge(string $status): string {
                         <td style="padding:9px 10px;text-align:center">{{ $md['baptism'] ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center">{{ $md['wedding'] ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center">{{ $md['funeral'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center">{{ $md['kumpil'] ?: '—' }}</td>
+                        <td style="padding:9px 10px;text-align:center">{{ $md['communion'] ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center;font-weight:700">{{ $mt ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center;color:{{ $md['approved'] > 0 ? '#10b981' : '#cbd5e1' }}">{{ $md['approved'] ?: '—' }}</td>
                         <td style="padding:9px 10px;text-align:center;color:{{ $md['pending']  > 0 ? '#f59e0b' : '#cbd5e1' }}">{{ $md['pending']  ?: '—' }}</td>
@@ -4237,6 +4375,8 @@ function adminStatusBadge(string $status): string {
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['b'] }}</td>
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['w'] }}</td>
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['f'] }}</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['k'] }}</td>
+                    <td style="padding:9px 10px;text-align:center">{{ $rptFoot['c'] }}</td>
                     <td style="padding:9px 10px;text-align:center">{{ $rptFoot['t'] }}</td>
                     <td style="padding:9px 10px;text-align:center;color:#10b981">{{ $rptFoot['a'] }}</td>
                     <td style="padding:9px 10px;text-align:center;color:#f59e0b">{{ $rptFoot['p'] }}</td>
@@ -4264,9 +4404,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const dayBap     = @json($rptDayBap);
     const dayWed     = @json($rptDayWed);
     const dayFun     = @json($rptDayFun);
+    const kumpilD    = @json($rptKumpil);
+    const communionD = @json($rptCommunion);
+    const dayKum     = @json($rptDayKum);
+    const dayCom     = @json($rptDayCom);
     const totBap     = {{ $reportTotals['baptism'] }};
     const totWed     = {{ $reportTotals['wedding'] }};
     const totFun     = {{ $reportTotals['funeral'] }};
+    const totKum     = {{ $reportTotals['kumpil'] }};
+    const totCom     = {{ $reportTotals['communion'] }};
 
     const yAxis = { beginAtZero:true, ticks:{ precision:0, font:{ size:11 } }, grid:{ color:'#f1f5f9' } };
     const xAxis = { ticks:{ font:{ size:11 } }, grid:{ display:false } };
@@ -4281,6 +4427,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     { label:'Baptisms', data:baptismD,  backgroundColor:'#2dd4bf', borderRadius:4 },
                     { label:'Weddings', data:weddingD,  backgroundColor:'#f472b6', borderRadius:4 },
                     { label:'Funerals', data:funeralD,  backgroundColor:'#64748b', borderRadius:4 },
+                    { label:'Kumpil', data:kumpilD,  backgroundColor:'#8b5cf6', borderRadius:4 },
+                    { label:'First Communion', data:communionD,  backgroundColor:'#0ea5e9', borderRadius:4 },
                 ]
             },
             options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } } }, scales:{ x:xAxis, y:yAxis } }
@@ -4288,12 +4436,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const pieEl = document.getElementById('rptPieChart');
-    if (pieEl && (totBap + totWed + totFun) > 0) {
+    if (pieEl && (totBap + totWed + totFun + totKum + totCom) > 0) {
         new Chart(pieEl, {
             type: 'doughnut',
             data: {
-                labels: ['Baptisms','Weddings','Funerals'],
-                datasets: [{ data:[totBap,totWed,totFun], backgroundColor:['#2dd4bf','#f472b6','#64748b'], borderWidth:0, hoverOffset:4 }]
+                labels: ['Baptisms','Weddings','Funerals','Kumpil','First Communion'],
+                datasets: [{ data:[totBap,totWed,totFun,totKum,totCom], backgroundColor:['#2dd4bf','#f472b6','#64748b','#8b5cf6','#0ea5e9'], borderWidth:0, hoverOffset:4 }]
             },
             options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{ display:false } } }
         });
@@ -4309,6 +4457,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     { label:'Baptisms', data:dayBap, backgroundColor:'#2dd4bf', stack:'d' },
                     { label:'Weddings', data:dayWed, backgroundColor:'#f472b6', stack:'d' },
                     { label:'Funerals', data:dayFun, backgroundColor:'#64748b', stack:'d' },
+                    { label:'Kumpil', data:dayKum, backgroundColor:'#8b5cf6', stack:'d' },
+                    { label:'First Communion', data:dayCom, backgroundColor:'#0ea5e9', stack:'d' },
                 ]
             },
             options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{ size:11 } } } }, scales:{ x:{ ...xAxis, stacked:true }, y:{ ...yAxis, stacked:true } } }
@@ -4396,11 +4546,11 @@ document.addEventListener('DOMContentLoaded', function () {
         new Chart(attEl, {
             type: 'bar',
             data: {
-                labels: ['Wedding', 'Baptism', 'Funeral'],
+                labels: ['Wedding', 'Baptism', 'Funeral', 'Kumpil', 'First Communion'],
                 datasets: [{
                     label: 'Avg attendees',
-                    data: [attAvg['Wedding'] ?? 0, attAvg['Baptism'] ?? 0, attAvg['Funeral'] ?? 0],
-                    backgroundColor: ['rgba(244,114,182,0.8)', 'rgba(45,212,191,0.8)', 'rgba(100,116,139,0.8)'],
+                    data: [attAvg['Wedding'] ?? 0, attAvg['Baptism'] ?? 0, attAvg['Funeral'] ?? 0, attAvg['Kumpil'] ?? 0, attAvg['First Communion'] ?? 0],
+                    backgroundColor: ['rgba(244,114,182,0.8)', 'rgba(45,212,191,0.8)', 'rgba(100,116,139,0.8)', 'rgba(139,92,246,0.8)', 'rgba(14,165,233,0.8)'],
                     borderRadius: 8,
                 }]
             },
@@ -4426,6 +4576,8 @@ const attColors = {
     wedding: { bg: 'rgba(244,114,182,0.12)', border: '#f472b6', color: '#f472b6' },
     baptism: { bg: 'rgba(45,212,191,0.12)',  border: '#2dd4bf', color: '#2dd4bf' },
     funeral: { bg: 'rgba(100,116,139,0.12)', border: '#64748b', color: '#64748b' },
+    kumpil:  { bg: 'rgba(139,92,246,0.12)',  border: '#8b5cf6', color: '#8b5cf6' },
+    'first-communion': { bg: 'rgba(14,165,233,0.12)', border: '#0ea5e9', color: '#0ea5e9' },
 };
 
 // ── Attendance log pagination ──────────────────────────────────────────────
@@ -5011,6 +5163,11 @@ function openResDetail(r) {
     const decBtn = document.getElementById('rdm-dec-btn');
     appBtn.style.display = r.status==='approved' ? 'none' : 'inline-flex';
     decBtn.style.display = r.status==='declined' ? 'none' : 'inline-flex';
+    // First Communion is edited on the Schedule page form
+    const editBtn = document.getElementById('rdm-edit-btn');
+    const canEdit = (r.event_type || '').toLowerCase() === 'first communion' && ['approved', 'pending'].indexOf(r.status_label || r.status) !== -1;
+    editBtn.style.display = canEdit ? 'inline-flex' : 'none';
+    if (canEdit) editBtn.href = '{{ route('admin.index', ['section' => 'schedule']) }}&edit_communion=' + encodeURIComponent(r.id);
     // once accepted, the same button cancels the reservation
     document.getElementById('rdm-dec-status').value = r.status === 'approved' ? 'cancelled' : 'declined';
     document.getElementById('rdm-dec-label').textContent = r.status === 'approved' ? 'Cancel' : 'Decline';
@@ -6354,7 +6511,7 @@ $purposeColors = [
                             <i class="fa fa-print"></i> Receipt
                         </button>
                         <form method="POST" action="{{ route('admin.donations.delete', $don['id']) }}" style="display:inline"
-                              onsubmit="return confirm('Delete this donation record?')">
+                              onsubmit="event.preventDefault(); var f = this; showAdminConfirm('Delete Donation', 'Delete the donation record of {{ e(addslashes($don['donor_name'] ?? 'this donor')) }}{{ !empty($don['receipt_number']) ? ' (' . e($don['receipt_number']) . ')' : '' }}? This cannot be undone.', function () { f.submit(); });">
                             @csrf @method('DELETE')
                             <button type="submit" style="padding:5px 10px;border-radius:8px;border:1.5px solid rgba(239,68,68,0.3);background:#fff;color:#ef4444;font-size:12px;cursor:pointer">
                                 <i class="fa fa-trash"></i>
