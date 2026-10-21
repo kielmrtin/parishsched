@@ -1175,7 +1175,10 @@ foreach ($scheduleCalendarReservations as $r) {
         $reportSummary = null;
         $geminiKey = config('services.gemini.key');
 
-        if ($rptTotalForAi > 0 && $geminiKey) {
+        // Only the Reports page shows the AI summary. A failed or rate-limited
+        // answer is remembered for 10 minutes (as ''), so a slow AI service
+        // never holds up every admin page load.
+        if ($section === 'reports' && $rptTotalForAi > 0 && $geminiKey && \Illuminate\Support\Facades\Cache::get($cacheKey = "report_ai_summary_{$reportFromYear}_{$reportFromMonth}_{$reportToYear}_{$reportToMonth}_{$reportType}") !== '') {
             $cacheKey = "report_ai_summary_{$reportFromYear}_{$reportFromMonth}_{$reportToYear}_{$reportToMonth}_{$reportType}";
 
             $reportSummary = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () use (
@@ -1203,7 +1206,7 @@ Busiest day: {$rptBusiestForAi} ({$rptBusiestMaxAi} sacraments)
 Monthly breakdown: {$monthlyBreakdown}";
 
                 try {
-                    $response = \Illuminate\Support\Facades\Http::timeout(15)
+                    $response = \Illuminate\Support\Facades\Http::connectTimeout(3)->timeout(6)
                         ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={$geminiKey}", [
                             'contents' => [
                                 ['parts' => [['text' => $prompt]]]
@@ -1217,6 +1220,9 @@ Monthly breakdown: {$monthlyBreakdown}";
 
                 return null;
             });
+            if ($reportSummary === null) {
+                \Illuminate\Support\Facades\Cache::put($cacheKey, '', 600);
+            }
         }
 
         // ── Donations (all, for the donations section) ─────────────────────

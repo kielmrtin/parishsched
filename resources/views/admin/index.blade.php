@@ -2577,6 +2577,7 @@ function adminStatusBadge(string $status): string {
             'notes'     => old('notes', $ec['notes'] ?? ''),
         ];
     @endphp
+    <script>document.addEventListener('DOMContentLoaded', function () { makeAdmMiniCalendar('comCal', @json($oldCom['date'] ?: null)); });</script>
     <section class="section-card" id="communion-card" style="margin-top:24px">
         <div class="section-header">
             @if($ec)
@@ -2590,6 +2591,7 @@ function adminStatusBadge(string $status): string {
             @endif
         </div>
         <form method="POST" action="{{ route('admin.communions.store') }}"
+              onsubmit="if (!document.getElementById('comCal-input').value) { event.preventDefault(); showAdminError('Pick a date', 'Choose the date of the First Communion.'); }"
               style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end">
             @csrf
             @if($ec)<input type="hidden" name="id" value="{{ $ec['id'] }}">@endif
@@ -2606,8 +2608,34 @@ function adminStatusBadge(string $status): string {
                 <input type="number" name="children" id="communion-children" required min="1" max="500" value="{{ $oldCom['children'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 40">
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
-                <label for="communion-date" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</label>
-                <input type="date" name="date" id="communion-date" required min="{{ date('Y-m-d') }}" value="{{ $oldCom['date'] }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box">
+                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</label>
+                {{-- same calendar dropdown as the donation dates (makeAdmMiniCalendar) --}}
+                <input type="hidden" name="date" id="comCal-input" value="{{ $oldCom['date'] }}">
+                <div class="adm-cal-wrap" id="comCal-wrap">
+                    <button type="button" class="adm-csl-btn" id="comCal-trigger" onclick="comCalToggle()" style="width:100%;">
+                        <span class="adm-csl-label" id="comCal-label"><i class="fa fa-calendar" style="color:#94a3b8;margin-right:7px;"></i>{{ $oldCom['date'] ? \Carbon\Carbon::parse($oldCom['date'])->format('M d, Y') : 'Pick a date' }}</span>
+                        <svg class="adm-csl-arrow" id="comCal-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="adm-cal-popup" id="comCal-popup" style="display:none;">
+                        <div class="adm-cal-header">
+                            <button type="button" class="adm-cal-nav" onclick="comCalShift(-1)">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <span class="adm-cal-month-label" id="comCal-month-label"></span>
+                            <button type="button" class="adm-cal-nav" onclick="comCalShift(1)">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                        <div class="adm-cal-days-row">
+                            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                        </div>
+                        <div class="adm-cal-grid" id="comCal-grid"></div>
+                        <div class="adm-cal-footer">
+                            <button type="button" class="adm-cal-today-btn" onclick="comCalSelectToday()">Today</button>
+                            <button type="button" class="adm-cal-clear-btn" onclick="comCalClear()">Clear</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:5px">
                 <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Starts</label>
