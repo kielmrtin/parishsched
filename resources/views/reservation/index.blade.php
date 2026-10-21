@@ -69,8 +69,8 @@
             'description' => 'Upload clear scans or photos of the following requirements. Accepted formats: PDF, JPG, PNG (max 5MB each).',
             'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Baptism'))->map(fn ($label) => ['label' => $label])->all(),
             'notes' => [
-                'Choose one godfather and one godmother as major sponsors (proxies are not allowed).',
-                'Major sponsors must be practicing Catholics in good standing.',
+                'Choose one ninong and one ninang (proxies are not allowed).',
+                'The ninong and ninang must be practicing Catholics in good standing.',
                 'Suggested church donation: P800.',
                 'Please bring original documents to the parish office on the day of baptism.',
             ],

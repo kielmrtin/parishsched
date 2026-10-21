@@ -127,7 +127,7 @@
                     <h4 class="schedule_card_title">Weekend Baptism Celebrations</h4>
                     <ul class="schedule_details">
                         <li>Group baptisms take place after the late morning Mass.</li>
-                        <li>Parents and sponsors should review required documents in advance.</li>
+                        <li>Parents and the ninong and ninang should review the required documents in advance.</li>
                         <li>Please arrive early for check-in and catechesis before the rite.</li>
                     </ul>
                 </div>
