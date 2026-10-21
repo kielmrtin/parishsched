@@ -378,6 +378,8 @@
         .rdm-badge-wedding  { background:rgba(244,114,182,.14); color:#f9a8d4; border-color:rgba(244,114,182,.3); }
         .rdm-badge-baptism  { background:rgba(74,222,128,.14); color:#86efac; border-color:rgba(74,222,128,.3); }
         .rdm-badge-funeral  { background:rgba(148,163,184,.14); color:#cbd5e1; border-color:rgba(148,163,184,.3); }
+        .rdm-badge-kumpil   { background:rgba(167,139,250,.14); color:#c4b5fd; border-color:rgba(167,139,250,.3); }
+        .rdm-badge-first-communion { background:rgba(56,189,248,.14); color:#7dd3fc; border-color:rgba(56,189,248,.3); }
         .rdm-badge-urgent   { background:rgba(225,29,72,.16); color:#fb7185; border-color:rgba(225,29,72,.32); }
         .rdm-badge-icon { display:inline-flex; align-items:center; justify-content:center; width:9px; line-height:1; flex-shrink:0; }
         .rdm-badge svg { display:block; flex-shrink:0; }
@@ -827,6 +829,10 @@
 .admin-availability-calendar .type-dot-wedding { background:#f472b6; animation: admin-type-pulse-wedding 1.8s infinite; }
 .admin-availability-calendar .type-dot-baptism { background:#2dd4bf; animation: admin-type-pulse-baptism 1.8s infinite; }
 .admin-availability-calendar .type-dot-funeral { background:#64748b; animation: admin-type-pulse-funeral 1.8s infinite; }
+.admin-availability-calendar .type-dot-kumpil { background:#8b5cf6; animation: admin-type-pulse-kumpil 1.8s infinite; }
+.admin-availability-calendar .type-dot-first-communion { background:#0ea5e9; animation: admin-type-pulse-communion 1.8s infinite; }
+@keyframes admin-type-pulse-kumpil { 0%{box-shadow:0 0 0 0 rgba(139,92,246,.6)} 70%{box-shadow:0 0 0 7px rgba(139,92,246,0)} 100%{box-shadow:0 0 0 0 rgba(139,92,246,0)} }
+@keyframes admin-type-pulse-communion { 0%{box-shadow:0 0 0 0 rgba(14,165,233,.6)} 70%{box-shadow:0 0 0 7px rgba(14,165,233,0)} 100%{box-shadow:0 0 0 0 rgba(14,165,233,0)} }
 @keyframes admin-type-pulse-wedding { 0%{box-shadow:0 0 0 0 rgba(244,114,182,.6)} 70%{box-shadow:0 0 0 7px rgba(244,114,182,0)} 100%{box-shadow:0 0 0 0 rgba(244,114,182,0)} }
 @keyframes admin-type-pulse-baptism { 0%{box-shadow:0 0 0 0 rgba(45,212,191,.6)}  70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}  100%{box-shadow:0 0 0 0 rgba(45,212,191,0)} }
 @keyframes admin-type-pulse-funeral { 0%{box-shadow:0 0 0 0 rgba(100,116,139,.6)} 70%{box-shadow:0 0 0 7px rgba(100,116,139,0)} 100%{box-shadow:0 0 0 0 rgba(100,116,139,0)} }
@@ -1367,6 +1373,8 @@ input[type="number"] { -moz-appearance:textfield; }
 .schedule-type-pill[data-type="wedding"].is-active { background:#f472b6; border-color:#f472b6; }
 .schedule-type-pill[data-type="baptism"].is-active { background:#2dd4bf; border-color:#2dd4bf; }
 .schedule-type-pill[data-type="funeral"].is-active { background:#64748b; border-color:#64748b; }
+.schedule-type-pill[data-type="kumpil"].is-active { background:#8b5cf6; border-color:#8b5cf6; }
+.schedule-type-pill[data-type="first communion"].is-active { background:#0ea5e9; border-color:#0ea5e9; }
 .calendar_day.type-dim { opacity:.35; }
 
 /* ── TODAY QUICK-JUMP ── */
@@ -1780,6 +1788,7 @@ function adminStatusBadge(string $status): string {
         'pending'  => 'spill-pending',
         'approved' => 'spill-approved',
         'declined' => 'spill-declined',
+        'cancelled' => 'spill-declined',
     ];
     $cls = $map[$s] ?? 'spill-pending';
     $label = e(ucfirst($s));
@@ -2081,16 +2090,17 @@ function adminStatusBadge(string $status): string {
     @if(session('status_update_success') || session('status_update_error'))
     @php
         $statusKind = session('status_update_error') ? 'error' : (session('status_update_type') ?: 'updated');
-        $statusTitle = match ($statusKind) {
+        $statusTitle = session('status_update_title') ?: match ($statusKind) {
             'approved' => 'Reservation Approved',
             'declined' => 'Reservation Declined',
+            'cancelled' => 'Reservation Cancelled',
             'pending'  => 'Marked as Pending',
             'error'    => 'Update Failed',
             default    => 'Reservation Updated',
         };
         $statusText = session($statusKind === 'error' ? 'status_update_error' : 'status_update_success');
         $statusPalette = match ($statusKind) {
-            'declined', 'error' => ['glow' => 'rgba(220,38,38,.13)', 'ring' => 'rgba(220,38,38,.5),rgba(252,165,165,.3)', 'inner' => 'rgba(220,38,38,.1)', 'border' => 'rgba(220,38,38,.3)', 'stroke' => '#f87171'],
+            'declined', 'cancelled', 'error' => ['glow' => 'rgba(220,38,38,.13)', 'ring' => 'rgba(220,38,38,.5),rgba(252,165,165,.3)', 'inner' => 'rgba(220,38,38,.1)', 'border' => 'rgba(220,38,38,.3)', 'stroke' => '#f87171'],
             'pending'           => ['glow' => 'rgba(217,119,6,.13)', 'ring' => 'rgba(217,119,6,.5),rgba(252,211,77,.3)', 'inner' => 'rgba(217,119,6,.1)', 'border' => 'rgba(217,119,6,.3)', 'stroke' => '#fbbf24'],
             default             => ['glow' => 'rgba(34,197,94,.13)', 'ring' => 'rgba(34,197,94,.5),rgba(134,239,172,.3)', 'inner' => 'rgba(34,197,94,.1)', 'border' => 'rgba(34,197,94,.3)', 'stroke' => '#4ade80'],
         };
@@ -2114,7 +2124,7 @@ function adminStatusBadge(string $status): string {
                     <div class="ps-ring" style="background:conic-gradient({{ $statusRing }},transparent 58%)"></div>
                     <div class="ps-inner" style="background:{{ $statusInner }};border:1.5px solid {{ $statusBorder }}">
                         <svg viewBox="0 0 42 42">
-                            @if($statusKind === 'declined' || $statusKind === 'error')
+                            @if($statusKind === 'declined' || $statusKind === 'cancelled' || $statusKind === 'error')
                                 <line class="ps-warn" style="stroke:{{ $statusStroke }}" x1="13" y1="13" x2="29" y2="29"/>
                                 <line class="ps-warn" style="stroke:{{ $statusStroke }}" x1="29" y1="13" x2="13" y2="29"/>
                             @elseif($statusKind === 'pending')
@@ -2394,6 +2404,13 @@ function adminStatusBadge(string $status): string {
                 <h2>Reservation Calendar</h2>
                 <p>Click a date to view approved reservations. Past reservations are marked as done.</p>
             </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <button type="button" onclick="document.getElementById('communion-card').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){document.getElementById('communion-school').focus({preventScroll:true});},500)"
+                style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:999px;border:1.5px solid #fca5a5;background:transparent;color:#dc2626;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:background .18s,color .18s;"
+                onmouseover="this.style.background='#dc2626';this.style.color='#fff';this.style.borderColor='#dc2626';"
+                onmouseout="this.style.background='transparent';this.style.color='#dc2626';this.style.borderColor='#fca5a5';">
+                <i class="fa fa-plus"></i> Add First Communion
+            </button>
             <div class="schedule-view-toggle" id="scheduleViewToggle">
                 <button type="button" class="schedule-view-toggle-btn is-active" id="scheduleViewCalendarBtn" data-view="calendar">
                     <i class="fa fa-th-large"></i> Calendar
@@ -2401,6 +2418,7 @@ function adminStatusBadge(string $status): string {
                 <button type="button" class="schedule-view-toggle-btn" id="scheduleViewListBtn" data-view="list">
                     <i class="fa fa-list"></i> List
                 </button>
+            </div>
             </div>
         </div>
 
@@ -2433,6 +2451,8 @@ function adminStatusBadge(string $status): string {
             <button type="button" class="schedule-type-pill" data-type="wedding"><span class="pill-icon" style="color:#f472b6;"><i class="fa fa-heart"></i></span>Wedding</button>
             <button type="button" class="schedule-type-pill" data-type="baptism"><span class="pill-icon" style="color:#2dd4bf;"><i class="fa fa-plus"></i></span>Baptism</button>
             <button type="button" class="schedule-type-pill" data-type="funeral"><span class="pill-icon" style="color:#64748b;"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg></span>Funeral</button>
+            <button type="button" class="schedule-type-pill" data-type="kumpil"><span class="pill-icon" style="color:#8b5cf6;"><i class="fa fa-fire"></i></span>Kumpil</button>
+            <button type="button" class="schedule-type-pill" data-type="first communion"><span class="pill-icon" style="color:#0ea5e9;"><svg width="10" height="11" viewBox="0 0 20 22" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg></span>First Communion</button>
         </div>
 
         <div id="scheduleCalendarView">
@@ -2469,7 +2489,7 @@ function adminStatusBadge(string $status): string {
                             $urDate    = $ur['preferred_date'] ?? $ur['reservation_date'] ?? null;
                             $urDateStr = $urDate ? (new DateTimeImmutable((string)$urDate))->format('Y-m-d') : null;
                             $urEt      = strtolower(trim($ur['event_type'] ?? ''));
-                            $urColor   = match($urEt) { 'wedding'=>'#f472b6', 'baptism'=>'#2dd4bf', 'funeral'=>'#64748b', default=>'#94a3b8' };
+                            $urColor   = match($urEt) { 'wedding'=>'#f472b6', 'baptism'=>'#2dd4bf', 'funeral'=>'#64748b', 'kumpil'=>'#8b5cf6', 'first communion'=>'#0ea5e9', default=>'#94a3b8' };
                             $urLabel   = ucfirst($urEt ?: 'Unknown');
                             $urDays    = $urDateStr ? (new DateTimeImmutable($urDateStr))->diff(new DateTimeImmutable('today'))->days : null;
                             $urDaysLabel = $urDays === 0 ? 'Today' : ($urDays === 1 ? 'Tomorrow' : 'In ' . $urDays . ' days');
@@ -2492,6 +2512,76 @@ function adminStatusBadge(string $status): string {
         </div>
 
         <div id="scheduleListView" style="display:none;"></div>
+    </section>
+
+    {{-- First Communion: added by the parish office only (school batch arranged with the catechist) --}}
+    @php
+        $communionTimes = [];
+        for ($m = 6 * 60; $m <= 18 * 60; $m += 30) { $communionTimes[] = date('g:i A', mktime(intdiv($m, 60), $m % 60)); }
+        $oldCom = ['start' => old('start', '9:00 AM'), 'end' => old('end', '11:00 AM')];
+    @endphp
+    <section class="section-card" id="communion-card" style="margin-top:24px">
+        <div class="section-header">
+            <div><h2>Add a First Communion</h2><p>For a school batch arranged with the catechist. It is saved as approved and shows on the calendar.</p></div>
+        </div>
+        <form method="POST" action="{{ route('admin.communions.store') }}"
+              style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end">
+            @csrf
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="communion-school" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">School</label>
+                <input type="text" name="school" id="communion-school" required maxlength="200" value="{{ old('school') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Tiaong Central School">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="communion-catechist" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Catechist</label>
+                <input type="text" name="catechist" id="communion-catechist" required maxlength="200" value="{{ old('catechist') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Full name">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="communion-children" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Number of Children</label>
+                <input type="number" name="children" id="communion-children" required min="1" max="500" value="{{ old('children') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. 40">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="communion-date" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Date</label>
+                <input type="date" name="date" id="communion-date" required min="{{ date('Y-m-d') }}" value="{{ old('date') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Starts</label>
+            <input type="hidden" name="start" id="communion-start" value="{{ $oldCom['start'] }}">
+            <div class="adm-csl" id="adm-csl-communion-start" style="width:100%;">
+                <button type="button" class="adm-csl-btn" onclick="admCslToggle('adm-csl-communion-start')">
+                    <span class="adm-csl-label">{{ $oldCom['start'] ?: 'Start time' }}</span>
+                    <svg class="adm-csl-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="adm-csl-list">
+                    @foreach($communionTimes as $t)<li class="{{ $oldCom['start'] === $t ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-communion-start','communion-start','{{ $t }}','{{ $t }}')">{{ $t }}</li>@endforeach
+                </ul>
+            </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Ends</label>
+            <input type="hidden" name="end" id="communion-end" value="{{ $oldCom['end'] }}">
+            <div class="adm-csl" id="adm-csl-communion-end" style="width:100%;">
+                <button type="button" class="adm-csl-btn" onclick="admCslToggle('adm-csl-communion-end')">
+                    <span class="adm-csl-label">{{ $oldCom['end'] ?: 'End time' }}</span>
+                    <svg class="adm-csl-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="adm-csl-list">
+                    @foreach($communionTimes as $t)<li class="{{ $oldCom['end'] === $t ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-communion-end','communion-end','{{ $t }}','{{ $t }}')">{{ $t }}</li>@endforeach
+                </ul>
+            </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="communion-phone" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Contact Number (optional)</label>
+                <input type="text" name="phone" id="communion-phone" maxlength="50" value="{{ old('phone') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="Catechist or school">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;grid-column:span 2">
+                <label for="communion-notes" style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Notes (optional)</label>
+                <input type="text" name="notes" id="communion-notes" maxlength="500" value="{{ old('notes') }}" style="padding:9px 13px;border-radius:10px;border:1.5px solid rgba(220,38,38,0.22);font-size:14px;outline:none;width:100%;box-sizing:border-box" placeholder="e.g. Children bring their baptismal certificates on Nov 28">
+            </div>
+            <div>
+                <button type="submit" style="width:100%;padding:11px 0;border-radius:10px;border:0;background:#dc2626;color:#fff;font-weight:700;font-size:14px;cursor:pointer">Save First Communion</button>
+            </div>
+        </form>
+        <p style="margin:14px 0 0;font-size:12px;color:#94a3b8">Each child needs a baptismal certificate (the catechist brings them to the office) and kumpisal before the First Communion.</p>
     </section>
 
     @include('admin.partials.reservation-detail-modal')
@@ -2617,7 +2707,7 @@ function adminStatusBadge(string $status): string {
                             <input type="hidden" name="event_type" id="reservation_filter_type" value="{{ $reservationFilterType }}">
                             <div class="adm-csl" id="adm-csl-type">
                                 <button type="button" class="adm-csl-btn" onclick="admCslToggle('adm-csl-type')">
-                                    <span class="adm-csl-label">{{ $reservationFilterType === 'baptism' ? 'Baptism' : ($reservationFilterType === 'wedding' ? 'Wedding' : ($reservationFilterType === 'funeral' ? 'Funeral' : 'All types')) }}</span>
+                                    <span class="adm-csl-label">{{ ['baptism' => 'Baptism', 'wedding' => 'Wedding', 'funeral' => 'Funeral', 'kumpil' => 'Kumpil', 'first communion' => 'First Communion'][$reservationFilterType] ?? 'All types' }}</span>
                                     <svg class="adm-csl-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                                 <ul class="adm-csl-list">
@@ -2625,6 +2715,8 @@ function adminStatusBadge(string $status): string {
                                     <li class="{{ $reservationFilterType === 'baptism' ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-type','reservation_filter_type','baptism','Baptism')">Baptism</li>
                                     <li class="{{ $reservationFilterType === 'wedding' ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-type','reservation_filter_type','wedding','Wedding')">Wedding</li>
                                     <li class="{{ $reservationFilterType === 'funeral' ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-type','reservation_filter_type','funeral','Funeral')">Funeral</li>
+                                    <li class="{{ $reservationFilterType === 'kumpil' ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-type','reservation_filter_type','kumpil','Kumpil')">Kumpil</li>
+                                    <li class="{{ $reservationFilterType === 'first communion' ? 'is-selected' : '' }}" onclick="admCslSelect('adm-csl-type','reservation_filter_type','first communion','First Communion')">First Communion</li>
                                 </ul>
                             </div>
                         </div>
@@ -2726,6 +2818,8 @@ function adminStatusBadge(string $status): string {
                             'wedding' => ['bg'=>'#fce7f3','color'=>'#be185d','border'=>'#fbcfe8'],
                             'baptism' => ['bg'=>'#dcfce7','color'=>'#15803d','border'=>'#bbf7d0'],
                             'funeral' => ['bg'=>'#f1f5f9','color'=>'#475569','border'=>'#cbd5e1'],
+                            'kumpil'  => ['bg'=>'#ede9fe','color'=>'#6d28d9','border'=>'#ddd6fe'],
+                            'first communion' => ['bg'=>'#e0f2fe','color'=>'#0369a1','border'=>'#bae6fd'],
                         ];
                         $evColor = $evTypeColors[$evType] ?? ['bg'=>'#f1f5f9','color'=>'#64748b','border'=>'#e2e8f0'];
                         $currentOfficiant = (int)($r['officiant_id'] ?? 0);
@@ -2749,13 +2843,16 @@ function adminStatusBadge(string $status): string {
                                     @if($evType)
                                     <span style="display:inline-flex;align-items:center;gap:6px;">
                                         <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:{{ $evColor['bg'] }};color:{{ $evColor['color'] }};border:1.5px solid {{ $evColor['border'] }};font-size:10px;flex-shrink:0;">
-                                            @if($evType==='funeral')<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>@elseif($evType==='wedding')<i class="fa fa-heart"></i>@else<i class="fa fa-plus"></i>@endif
+                                            @if($evType==='funeral')<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>@elseif($evType==='wedding')<i class="fa fa-heart"></i>@elseif($evType==='kumpil')<i class="fa fa-fire"></i>@elseif($evType==='first communion')<svg viewBox="0 0 20 22" width="1em" height="1em" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>@else<i class="fa fa-plus"></i>@endif
                                         </span>
-                                        <span style="font-size:.65rem;font-weight:700;color:{{ $evColor['color'] }};text-transform:uppercase;letter-spacing:.05em;">{{ ucfirst($evType) }}</span>
+                                        <span style="font-size:.65rem;font-weight:700;color:{{ $evColor['color'] }};text-transform:uppercase;letter-spacing:.05em;">{{ ucwords($evType) }}</span>
                                     </span>
                                     @endif
                                     @if($isUrgent)
                                     <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.62rem;font-weight:700;text-transform:uppercase;background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3)"><i class="fa fa-exclamation-circle"></i> Urgent</span>
+                                    @endif
+                                    @if($evType === 'first communion' && empty($r['customer_id']))
+                                    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.62rem;font-weight:700;text-transform:uppercase;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0">Added by staff</span>
                                     @endif
                                     @php $reqStatus = \App\Support\ReservationRequirements::status($r['event_type'] ?? '', $r['attachments'] ?? [], $r['details'] ?? []); @endphp
                                     @if($reqStatus['to_follow'])
@@ -2951,6 +3048,9 @@ function adminStatusBadge(string $status): string {
                                             'email'            => $r['email'] ?? '',
                                             'phone'            => $r['phone'] ?? '',
                                             'status'           => $statusKey,
+                                            'status_label'     => strtolower($r['status'] ?? $statusKey),
+                                            'kumpil'           => $rdmDetails['kumpil'] ?? null,
+                                            'communion'        => $rdmDetails['communion'] ?? null,
                                             'event_type'       => $r['event_type'] ?? '',
                                             'date'             => adminFormatDate($r['preferred_date'] ?? $r['reservation_date'] ?? null),
                                             'date_day'         => $evDate ? date('l', strtotime($evDate)) : '',
@@ -2998,16 +3098,17 @@ function adminStatusBadge(string $status): string {
                                             <button class="btn btn-success btn-sm" disabled title="Assign a priest first" style="opacity:.35;cursor:not-allowed">Approve</button>
                                             @endif
                                         @endif
-                                        @if($r['status'] !== 'declined')
+                                        {{-- pending → Decline; once accepted (approved) the same button cancels it --}}
+                                        @if(in_array($r['status'], ['pending', 'approved'], true))
                                         <form method="POST" action="{{ route('admin.handle') }}">
                                             @csrf
                                             <input type="hidden" name="action" value="update_status">
                                             <input type="hidden" name="reservation_id" value="{{ $r['id'] }}">
-                                            <input type="hidden" name="status" value="declined">
+                                            <input type="hidden" name="status" value="{{ $r['status'] === 'approved' ? 'cancelled' : 'declined' }}">
                                             <input type="hidden" name="admin_note" class="admin-note-{{ $r['id'] }}">
                                             <input type="hidden" name="redirect_section" value="reservations">
                                             <button type="submit" class="btn btn-danger btn-sm">
-                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Decline
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>{{ $r['status'] === 'approved' ? 'Cancel' : 'Decline' }}
                                             </button>
                                         </form>
                                         @endif
@@ -3686,7 +3787,7 @@ function adminStatusBadge(string $status): string {
                 @php
                     $prId      = (int)($pr['id'] ?? 0);
                     $prEt      = strtolower(trim($pr['event_type'] ?? ''));
-                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' };
+                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b','kumpil'=>'#8b5cf6','first communion'=>'#0ea5e9',default=>'#94a3b8' };
                     $prDate    = $pr['preferred_date'] ?? $pr['reservation_date'] ?? null;
                     $prDateFmt = $prDate ? (new DateTimeImmutable((string)$prDate))->format('M j, Y') : '—';
                     $prDateRaw = $prDate ? (string)$prDate : '';
@@ -3786,7 +3887,7 @@ function adminStatusBadge(string $status): string {
                 @php
                     $prId      = (int)($pr['id'] ?? 0);
                     $prEt      = strtolower(trim($pr['event_type'] ?? ''));
-                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' };
+                    $prColor   = match($prEt){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b','kumpil'=>'#8b5cf6','first communion'=>'#0ea5e9',default=>'#94a3b8' };
                     $prDate    = $pr['preferred_date'] ?? $pr['reservation_date'] ?? null;
                     $prDateFmt = $prDate ? (new DateTimeImmutable((string)$prDate))->format('M j, Y') : '—';
                     $prAtt     = $attendanceLookup[$prId] ?? null;
@@ -4751,12 +4852,18 @@ function openResDetail(r) {
         const t = document.createElement('span'); t.className = 'spill-label'; t.textContent = status.charAt(0).toUpperCase() + status.slice(1); s.appendChild(t);
         bl.appendChild(s);
     };
-    const statusLabel = (r.status||'pending');
+    // a cancelled reservation sits with the declined ones but keeps its own label
+    const statusLabel = (r.status_label || r.status || 'pending');
     mkStatusPill(statusLabel);
+    bl.lastChild.className = 'status-pill spill-' + (statusLabel === 'cancelled' ? 'declined' : statusLabel);
     if (r.event_type) {
         const et = r.event_type.toLowerCase();
         if (et === 'funeral') {
             mkBadge('rdm-badge-'+et, r.event_type, false, funeralIconSvg);
+        } else if (et === 'kumpil') {
+            mkBadge('rdm-badge-kumpil', r.event_type, false, '<i class="fa fa-fire" style="font-size:9px"></i>');
+        } else if (et === 'first communion') {
+            mkBadge('rdm-badge-first-communion', r.event_type, false, '<svg viewBox="0 0 20 22" width="9" height="10" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>');
         } else {
             const etIconChar = {wedding:'♥', baptism:'+'};
             const iconCls = 'rdm-badge-icon' + (et === 'baptism' ? ' icon-baptism' : '');
@@ -4814,6 +4921,26 @@ function openResDetail(r) {
             document.getElementById('rdm-wed-sacrament').textContent = w.sacrament_details || '';
             document.getElementById('rdm-wed-sac-cell').style.display = w.sacrament_details ? '' : 'none';
         }
+    }
+    // Kumpil and First Communion details
+    const kumSec = document.getElementById('rdm-kum-sec');
+    const isKum = (r.event_type||'').toLowerCase() === 'kumpil';
+    kumSec.style.display = isKum ? '' : 'none';
+    if (isKum) {
+        const k = r.kumpil || {};
+        const base = [k.confirmand_first, k.confirmand_middle, k.confirmand_last].filter(Boolean).join(' ');
+        document.getElementById('rdm-kum-confirmand').textContent = (base + (k.confirmand_suffix ? ', ' + k.confirmand_suffix : '')) || '—';
+        document.getElementById('rdm-kum-ninong').textContent = k.ninong_name
+            ? k.ninong_name + (k.ninong_role ? ' (' + k.ninong_role.charAt(0).toUpperCase() + k.ninong_role.slice(1) + ')' : '') : '—';
+    }
+    const comSec = document.getElementById('rdm-com-sec');
+    const isCom = (r.event_type||'').toLowerCase() === 'first communion';
+    comSec.style.display = isCom ? '' : 'none';
+    if (isCom) {
+        const c = r.communion || {};
+        document.getElementById('rdm-com-school').textContent = c.school || r.name || '—';
+        document.getElementById('rdm-com-catechist').textContent = c.catechist || '—';
+        document.getElementById('rdm-com-children').textContent = c.children || '—';
     }
     // Funeral details
     const funSec = document.getElementById('rdm-fun-sec');
@@ -4884,6 +5011,9 @@ function openResDetail(r) {
     const decBtn = document.getElementById('rdm-dec-btn');
     appBtn.style.display = r.status==='approved' ? 'none' : 'inline-flex';
     decBtn.style.display = r.status==='declined' ? 'none' : 'inline-flex';
+    // once accepted, the same button cancels the reservation
+    document.getElementById('rdm-dec-status').value = r.status === 'approved' ? 'cancelled' : 'declined';
+    document.getElementById('rdm-dec-label').textContent = r.status === 'approved' ? 'Cancel' : 'Decline';
     if (r.is_one_day_before) { appBtn.disabled=true; appBtn.style.opacity='.35'; appBtn.style.cursor='not-allowed'; appBtn.title='Cannot approve — event is tomorrow or past'; }
     else { appBtn.disabled=false; appBtn.style.opacity=''; appBtn.style.cursor=''; appBtn.title=''; }
     // Open
@@ -4921,6 +5051,17 @@ document.addEventListener('click', function (e) {
       })
       .catch(function (err) { btn.disabled = false; showAdminError('Could not save', err.message); });
 });
+// Cancelling an accepted reservation asks first; the family is notified.
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (form.querySelector('input[name="action"]')?.value !== 'update_status'
+        || form.querySelector('input[name="status"]')?.value !== 'cancelled') return;
+    e.preventDefault();
+    showAdminConfirm('Cancel this reservation?',
+        'It was already approved. The family will be notified by email and SMS that the parish cancelled it.',
+        function () { form.submit(); });
+}, true);
+
 // Approving while wedding documents are still to follow asks first.
 document.addEventListener('submit', function (e) {
     const form = e.target;
@@ -5856,7 +5997,7 @@ makeAdmMiniCalendar('donToCal', {!! $donationTo ? "'" . $donationTo . "'" : 'nul
                                 <p class="empty-block" style="margin:0;">No reservations yet.</p>
                             @else
                                 @foreach($c['reservations'] as $r)
-                                @php $ret = strtolower($r['event_type'] ?? ''); $reColor = match($ret){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b',default=>'#94a3b8' }; @endphp
+                                @php $ret = strtolower($r['event_type'] ?? ''); $reColor = match($ret){ 'wedding'=>'#f472b6','baptism'=>'#2dd4bf','funeral'=>'#64748b','kumpil'=>'#8b5cf6','first communion'=>'#0ea5e9',default=>'#94a3b8' }; @endphp
                                 <div class="cust-history-row">
                                     <span class="cust-history-id">#{{ $r['id'] }}</span>
                                     <span class="cust-history-evtype" style="background:{{ $reColor }}18;color:{{ $reColor }};border:1px solid {{ $reColor }}40;">
@@ -6783,6 +6924,8 @@ document.addEventListener('DOMContentLoaded', function () {
         wedding: '#f472b6',
         baptism: '#2dd4bf',
         funeral: '#64748b',
+        kumpil: '#8b5cf6',
+        'first communion': '#0ea5e9',
     };
 
     function getEventColor(eventType) {
@@ -6793,6 +6936,8 @@ document.addEventListener('DOMContentLoaded', function () {
         wedding: '<i class="fa fa-heart"></i>',
         baptism: '<i class="fa fa-plus"></i>',
         funeral: '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>',
+        kumpil: '<i class="fa fa-fire"></i>',
+        'first communion': '<svg width="10" height="11" viewBox="0 0 20 22" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>',
     };
 
     function getEventIcon(eventType) {
@@ -6803,7 +6948,14 @@ document.addEventListener('DOMContentLoaded', function () {
         wedding: { bg: '#fce7f3', color: '#be185d', border: '#fbcfe8' },
         baptism: { bg: '#dcfce7', color: '#15803d', border: '#bbf7d0' },
         funeral: { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' },
+        kumpil: { bg: '#ede9fe', color: '#6d28d9', border: '#ddd6fe' },
+        'first communion': { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },
     };
+
+    // "first communion" → "First Communion"
+    function typeLabel(type) {
+        return String(type || '').toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
 
     function getEventStyle(eventType) {
         return eventTypeStyles[(eventType || '').toLowerCase()] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
@@ -6823,7 +6975,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function buildDetailCardHtml(r, dateKey, done) {
         const evStyle = getEventStyle(r.eventType);
-        const etLabel = r.eventType ? (r.eventType.charAt(0).toUpperCase() + r.eventType.slice(1).toLowerCase()) : 'Unknown';
+        const etLabel = r.eventType ? typeLabel(r.eventType) : 'Unknown';
         const isPending = r.status === 'pending';
         const statusClass = isPending ? 'spill-pending' : (done ? 'spill-done' : 'spill-approved');
         const statusLabel = isPending ? 'Pending' : (done ? 'Done' : 'Approved');
@@ -6901,7 +7053,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function buildPersonRow(r, done) {
         const type = (r.eventType || '').toLowerCase();
-        const etLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Reservation';
+        const etLabel = type ? typeLabel(type) : 'Reservation';
         const isPending = r.status === 'pending';
         const pill = isPending
             ? '<span class="sgrid-pill is-pending">Pending</span>'
@@ -6937,7 +7089,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const min = startMinutes(r.time);
             let row = rows.find(function (x) { return x.min === min && min !== null; });
             if (!row) {
-                row = { min: min === null ? 24 * 60 : min, label: min === null ? (r.time || 'No time') : fmtMinutes(min), end: '', type: '', people: [], extra: true };
+                // "To be announced" (Kumpil until the parish sets its times) gets its own row
+                const tba = /to be announced/i.test(r.time || '');
+                row = { min: min === null ? 24 * 60 : min, label: min === null ? (r.time || 'No time') : fmtMinutes(min), end: '', type: '', people: [], extra: !tba };
                 rows.push(row);
             }
             row.people.push(r);
@@ -7143,7 +7297,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const typesPresent = [];
             reservations.forEach(function (r) {
                 const t = (r.eventType || '').toLowerCase();
-                if (['wedding', 'baptism', 'funeral'].indexOf(t) !== -1 && typesPresent.indexOf(t) === -1) {
+                if (['wedding', 'baptism', 'funeral', 'kumpil', 'first communion'].indexOf(t) !== -1 && typesPresent.indexOf(t) === -1) {
                     typesPresent.push(t);
                 }
             });
@@ -7189,7 +7343,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             typesPresent.forEach(function (t) {
-                dotClasses.push('type-dot type-dot-' + t);
+                dotClasses.push('type-dot type-dot-' + t.replace(' ', '-'));
             });
 
             let dotHtml = '';

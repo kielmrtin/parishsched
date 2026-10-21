@@ -100,6 +100,36 @@
                     </div>
                 </div>
             </div>
+            <div class="rdm-section" id="rdm-kum-sec" style="display:none">
+                <div class="rdm-sec-title">Kumpil Details</div>
+                <div class="rdm-det-grid">
+                    <div class="rdm-det-cell rdm-det-full">
+                        <div class="rdm-det-label">Person Being Confirmed</div>
+                        <div class="rdm-det-value" id="rdm-kum-confirmand">—</div>
+                    </div>
+                    <div class="rdm-det-cell rdm-det-full">
+                        <div class="rdm-det-label">Ninong / Ninang</div>
+                        <div class="rdm-det-value" id="rdm-kum-ninong">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="rdm-section" id="rdm-com-sec" style="display:none">
+                <div class="rdm-sec-title">First Communion Details</div>
+                <div class="rdm-det-grid">
+                    <div class="rdm-det-cell rdm-det-full">
+                        <div class="rdm-det-label">School</div>
+                        <div class="rdm-det-value" id="rdm-com-school">—</div>
+                    </div>
+                    <div class="rdm-det-cell">
+                        <div class="rdm-det-label">Catechist</div>
+                        <div class="rdm-det-value" id="rdm-com-catechist">—</div>
+                    </div>
+                    <div class="rdm-det-cell">
+                        <div class="rdm-det-label">Number of Children</div>
+                        <div class="rdm-det-value" id="rdm-com-children">—</div>
+                    </div>
+                </div>
+            </div>
             <div class="rdm-section" id="rdm-notes-sec" style="display:none">
                 <div class="rdm-sec-title">Notes</div>
                 <div class="rdm-notes" id="rdm-notes"></div>
@@ -125,11 +155,11 @@
                 @csrf
                 <input type="hidden" name="action" value="update_status">
                 <input type="hidden" name="reservation_id" id="rdm-dec-id">
-                <input type="hidden" name="status" value="declined">
+                <input type="hidden" name="status" value="declined" id="rdm-dec-status">
                 <input type="hidden" name="admin_note" value="">
                 <input type="hidden" name="redirect_section" value="{{ $section }}">
                 <button type="submit" class="rdm-foot-btn rdm-decline" id="rdm-dec-btn">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Decline
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span id="rdm-dec-label">Decline</span>
                 </button>
             </form>
             <button type="button" class="rdm-foot-btn rdm-close-btn" onclick="closeResDetail()">Close</button>

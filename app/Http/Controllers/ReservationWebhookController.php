@@ -60,7 +60,7 @@ class ReservationWebhookController extends Controller
             $details = json_decode($details, true) ?? [];
         }
         $eventType = strtolower($mailData['event_type']);
-        if (in_array($eventType, ['baptism', 'wedding', 'funeral'], true) && !empty($details[$eventType])) {
+        if (in_array($eventType, ['baptism', 'wedding', 'funeral', 'kumpil'], true) && !empty($details[$eventType])) {
             $mailData[$eventType] = $details[$eventType];
         }
 

@@ -193,6 +193,14 @@
     background: rgba(100,116,139,.14);
     color: #475569;
 }
+.filter_btn[data-filter="kumpil"] .filter_icon {
+    background: rgba(124,58,237,.14);
+    color: #6d28d9;
+}
+.filter_btn[data-filter="communion"] .filter_icon {
+    background: rgba(3,105,161,.13);
+    color: #0369a1;
+}
 
 .filter_btn:hover {
     background: rgba(220,38,38,.08);
@@ -213,6 +221,16 @@
 .filter_btn[data-filter="funeral"]:hover {
     background: rgba(92,108,125,.10);
     color: #3a4a57;
+}
+
+.filter_btn[data-filter="kumpil"]:hover {
+    background: rgba(124,58,237,.09);
+    color: #6d28d9;
+}
+
+.filter_btn[data-filter="communion"]:hover {
+    background: rgba(3,105,161,.09);
+    color: #0369a1;
 }
 
 .filter_btn.active {
@@ -252,6 +270,22 @@
 }
 
 .filter_btn.active[data-filter="funeral"] .filter_icon {
+    background: rgba(255,255,255,.22);
+    color: #fff;
+}
+
+.filter_btn.active[data-filter="kumpil"] {
+    background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+    box-shadow: 0 6px 18px rgba(124,58,237,.3);
+}
+
+.filter_btn.active[data-filter="communion"] {
+    background: linear-gradient(135deg, #0369a1, #0ea5e9);
+    box-shadow: 0 6px 18px rgba(3,105,161,.3);
+}
+
+.filter_btn.active[data-filter="kumpil"] .filter_icon,
+.filter_btn.active[data-filter="communion"] .filter_icon {
     background: rgba(255,255,255,.22);
     color: #fff;
 }
@@ -644,6 +678,16 @@
 .schedule_item[data-type="funeral"] .schedule_card {
     --schedule-accent: #5c6c7d;
     --schedule-accent-soft: rgba(92, 108, 125, 0.18);
+}
+
+.schedule_item[data-type="kumpil"] .schedule_card {
+    --schedule-accent: #7c3aed;
+    --schedule-accent-soft: rgba(124, 58, 237, 0.14);
+}
+
+.schedule_item[data-type="communion"] .schedule_card {
+    --schedule-accent: #0369a1;
+    --schedule-accent-soft: rgba(3, 105, 161, 0.14);
 }
 
 @media (max-width: 991px) {

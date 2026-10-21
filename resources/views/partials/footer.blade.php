@@ -49,6 +49,16 @@
                                 <span class="schedule_value">Sunday &amp; Monday · 1:00 PM or 2:00 PM</span>
                                 <span class="schedule_note">Weekdays offer 8:00, 9:00, or 10:00 AM liturgies upon coordination.</span>
                             </li>
+                            <li>
+                                <span class="schedule_label">Kumpil</span>
+                                <span class="schedule_value">To be announced</span>
+                                <span class="schedule_note">Reserve at least 7 days ahead; the parish office confirms the time.</span>
+                            </li>
+                            <li>
+                                <span class="schedule_label">First Communion</span>
+                                <span class="schedule_value">Arranged per school</span>
+                                <span class="schedule_note">The catechist sets the date with the parish office.</span>
+                            </li>
                         </ul>
                     </div>
                 </div>

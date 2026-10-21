@@ -1066,6 +1066,10 @@ body.reservation-page .bradcam_area { display: none; }
 .res-type-item[data-type="funeral"]:has(.res-type-radio:checked) { border-color: #cbd5e1; background: #f8fafc; }
 .res-type-item[data-type="funeral"]:has(.res-type-radio:checked) .res-ti-icon { background: #e2e8f0; }
 .res-type-item[data-type="funeral"]:has(.res-type-radio:checked) .res-ti-check { background: #94a3b8; }
+/* Kumpil — light violet */
+.res-type-item[data-type="kumpil"]:has(.res-type-radio:checked) { border-color: #c4b5fd; background: #f5f3ff; }
+.res-type-item[data-type="kumpil"]:has(.res-type-radio:checked) .res-ti-icon { background: #ddd6fe; }
+.res-type-item[data-type="kumpil"]:has(.res-type-radio:checked) .res-ti-check { background: #8b5cf6; }
 
 .res-type-radio { display: none; }
 .res-ti-icon {
@@ -1099,6 +1103,7 @@ body.reservation-page .bradcam_area { display: none; }
 .res-type-item[data-type="baptism"] .res-ti-icon { color: #15803d; }
 .res-type-item[data-type="wedding"] .res-ti-icon { background: #fbcfe8; color: #a03060; }
 .res-type-item[data-type="funeral"] .res-ti-icon { color: #3a4a57; }
+.res-type-item[data-type="kumpil"] .res-ti-icon { background: #ede9fe; color: #6d28d9; }
 
 /* Field grid */
 .res-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }

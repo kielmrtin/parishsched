@@ -24,6 +24,10 @@ class ReservationRequirements
             'Funeral' => [
                 'funeral_file' => 'Funeral document / Marriage contract or baptismal certificate',
             ],
+            'Kumpil' => [
+                'kumpil_file1' => 'Baptismal Certificate of the person being confirmed',
+                'kumpil_file2' => "Ninong / Ninang's proof of Kumpil or church Marriage Contract",
+            ],
         ];
     }
 

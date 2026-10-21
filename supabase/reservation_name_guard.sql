@@ -6,7 +6,8 @@
 -- (App\Services\ReservationNameGuard); this trigger enforces the same rule
 -- for the Flutter app, which inserts into Supabase directly. Rules:
 --   - The person is who receives the sacrament: the baptism child, the
---     wedding groom and bride, the funeral deceased.
+--     wedding groom and bride, the funeral deceased, the person being
+--     confirmed for a kumpil (added with the Kumpil event; re-run this file).
 --   - Names match only when the whole normalized full name matches
 --     (first + middle + last + suffix; case, accents, dots and extra spaces
 --     ignored), so a different surname is never blocked.
@@ -57,6 +58,11 @@ begin
     n := public.normalize_person_name(concat_ws(' ',
            coalesce(b->>'bride_first',  d->>'bride_first'),  coalesce(b->>'bride_middle', d->>'bride_middle'),
            coalesce(b->>'bride_last',   d->>'bride_last'),   coalesce(b->>'bride_suffix', d->>'bride_suffix')));
+    if n <> '' then names := names || n; end if;
+
+  elsif t = 'kumpil' then
+    n := public.normalize_person_name(concat_ws(' ',
+           b->>'confirmand_first', b->>'confirmand_middle', b->>'confirmand_last', b->>'confirmand_suffix'));
     if n <> '' then names := names || n; end if;
 
   elsif t = 'funeral' then

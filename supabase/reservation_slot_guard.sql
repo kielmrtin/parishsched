@@ -8,6 +8,9 @@
 -- sees it. Rules match ReservationController::store():
 --   - Wedding/Funeral: one reservation per slot.
 --   - Baptism: up to 5 per slot, and never shared with a Wedding/Funeral.
+--   - "To be announced" (Kumpil until the parish sets its times) never
+--     clashes, so any number can share a date. Re-run this file after the
+--     Kumpil / First Communion update.
 -- Only pending/approved/booked reservations take up a slot.
 
 create or replace function public.guard_reservation_slot()
@@ -23,6 +26,7 @@ declare
   v_others   int;
 begin
   if new.reservation_date is null
+     or v_time = 'to be announced'
      or lower(coalesce(new.status, 'pending')) not in ('pending', 'approved', 'booked') then
     return new;
   end if;

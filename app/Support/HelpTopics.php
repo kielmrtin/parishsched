@@ -39,6 +39,7 @@ class HelpTopics
                 'Choose one of the available times.',
                 'Fill in the details, then upload every required document. Each one gets a green check when attached.',
                 'Weddings: only the groom\'s and bride\'s Baptismal Certificates are needed now. Other documents can be marked To follow and uploaded later.',
+                'Kumpil: reserve at least 7 days ahead. The time is To be announced until the parish office confirms it.',
                 'Press Submit. You will get an email and SMS once the parish office reviews it.',
                 'The same person cannot have two active reservations for the same sacrament.',
             ]],
@@ -102,12 +103,15 @@ class HelpTopics
                 'In View details, press Mark received when a couple brings a paper document to the office.',
                 'Approve or decline, adding a note if needed. The customer is notified by email and SMS.',
                 'Assign an officiant from the Officiant list.',
+                'On an approved reservation, Cancel cancels it and notifies the family.',
             ]],
             'schedule' => ['title' => 'Using the schedule', 'steps' => [
                 'Click a date on the calendar.',
                 'The right side lists every time for that day. A blank time is free.',
                 'Click a person\'s name to see their reservation details.',
                 'Use the type buttons to highlight one sacrament, or switch to List view.',
+                'Press Add First Communion to add a school batch. Families cannot book it themselves.',
+                'Kumpil reservations wait in the To be announced row until their time is set.',
             ]],
             'customers' => ['title' => 'Managing customers', 'steps' => [
                 'Search by name or email.',

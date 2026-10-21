@@ -118,7 +118,12 @@ class AdminController extends Controller
                     $note = trim($request->input('admin_note', ''));
                     $adminNote = $note !== ''
                         ? $note
-                        : ($status === 'approved' ? 'Approved by admin' : ($status === 'declined' ? 'Declined by admin' : 'Marked as pending'));
+                        : match ($status) {
+                            'approved'  => 'Approved by admin',
+                            'declined'  => 'Declined by admin',
+                            'cancelled' => 'Cancelled by the parish office',
+                            default     => 'Marked as pending',
+                        };
 
                     $this->sb()->patch($this->sbUrl('reservations', ['id' => 'eq.' . $id]), [
                         'status'     => $status,
@@ -174,6 +179,7 @@ class AdminController extends Controller
                                 $message->to($email)->subject(match ($status) {
                                     'approved' => 'Your reservation has been approved',
                                     'declined' => 'Update on your reservation request',
+                                    'cancelled' => 'Your reservation has been cancelled',
                                     default    => 'Reservation status update',
                                 });
                             });
@@ -189,6 +195,7 @@ class AdminController extends Controller
                             match ($status) {
                                 'approved' => "Good news {$name}! Your reservation has been APPROVED.",
                                 'declined' => "Hello {$name}, your reservation was DECLINED. Please contact the parish.",
+                                'cancelled' => "Hello {$name}, your reservation has been CANCELLED by the parish. Please contact the parish office.",
                                 default    => "Hello {$name}, your reservation status is now {$status}.",
                             }
                         );
@@ -198,6 +205,7 @@ class AdminController extends Controller
                 Session::flash('status_update_success', match ($status) {
                     'approved' => 'Reservation approved successfully.',
                     'declined' => 'Reservation declined successfully.',
+                    'cancelled' => 'Reservation cancelled. The family has been notified.',
                     default    => 'Reservation status updated successfully.',
                 });
             } catch (\Throwable $e) {
@@ -723,7 +731,7 @@ unset($customer);
 
         // Event type filter
         $reservationFilterType = strtolower(trim((string)$request->input('event_type', 'all')));
-        if (!in_array($reservationFilterType, ['all','baptism','wedding','funeral'])) $reservationFilterType = 'all';
+        if (!in_array($reservationFilterType, ['all','baptism','wedding','funeral','kumpil','first communion'])) $reservationFilterType = 'all';
 
         $reservationSort = $request->input('sort', 'latest');
         if (!in_array($reservationSort, ['latest', 'oldest'])) $reservationSort = 'latest';
@@ -976,6 +984,11 @@ foreach ($scheduleCalendarReservations as $r) {
             $rDetails['funeral']['deceased_first'] ?? '', $rDetails['funeral']['deceased_middle'] ?? '',
             $rDetails['funeral']['deceased_last'] ?? '', $rDetails['funeral']['deceased_suffix'] ?? '',
         ]),
+        'kumpil' => $joinName([
+            $rDetails['kumpil']['confirmand_first'] ?? '', $rDetails['kumpil']['confirmand_middle'] ?? '',
+            $rDetails['kumpil']['confirmand_last'] ?? '', $rDetails['kumpil']['confirmand_suffix'] ?? '',
+        ]),
+        'first communion' => !empty($rDetails['communion']['children']) ? $rDetails['communion']['children'] . ' children' : '',
         default => '',
     };
 
@@ -1011,6 +1024,9 @@ foreach ($scheduleCalendarReservations as $r) {
             'baptism'           => $rDetails['baptism'] ?? null,
             'wedding'           => $rDetails['wedding'] ?? null,
             'funeral'           => $rDetails['funeral'] ?? null,
+            'kumpil'            => $rDetails['kumpil'] ?? null,
+            'communion'         => $rDetails['communion'] ?? null,
+            'status_label'      => $rStatus,
         ],
     ];
 }
@@ -1700,6 +1716,107 @@ Monthly breakdown: {$monthlyBreakdown}";
     }
 
     /**
+     * Admin → Schedule: the parish office adds a First Communion for a school
+     * batch. Families never book it themselves. It is saved as approved, and
+     * it is blocked when another reservation overlaps that date and time.
+     */
+    public function addCommunion(Request $request)
+    {
+        if (!$this->isLoggedIn()) {
+            return redirect()->route('admin.index')->with('flash_error', 'Unauthorized.');
+        }
+        // Results show in the parish status pop-up (same as Approve / Decline).
+        $back = fn (string $msg) => redirect()->route('admin.index', ['section' => 'schedule'])
+            ->withInput()->with(['status_update_error' => $msg, 'status_update_title' => 'Could Not Add First Communion']);
+
+        $check = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'school'    => 'required|string|max:200',
+            'catechist' => 'required|string|max:200',
+            'children'  => 'required|integer|min:1|max:500',
+            'date'      => 'required|date|after_or_equal:today',
+            'start'     => 'required|string',
+            'end'       => 'required|string',
+            'phone'     => 'nullable|string|max:50',
+            'notes'     => 'nullable|string|max:500',
+        ], [
+            'school.required'       => 'Please enter the school.',
+            'catechist.required'    => "Please enter the catechist's name.",
+            'children.required'     => 'Please enter the number of children.',
+            'date.required'         => 'Please choose the date.',
+            'date.after_or_equal'   => 'The date cannot be in the past.',
+        ]);
+        if ($check->fails()) {
+            return $back($check->errors()->first());
+        }
+        $data = $check->validated();
+
+        $start = self::minutesOf($data['start']);
+        $end   = self::minutesOf($data['end']);
+        if ($start === null || $end === null || $end <= $start) {
+            return $back('The end time must be after the start time.');
+        }
+
+        // Any active reservation whose time overlaps blocks it ("To be announced" never does).
+        $sameDay = $this->sb()->get($this->sbUrl('reservations', [
+            'select'           => 'event_type,reservation_time',
+            'reservation_date' => 'eq.' . $data['date'],
+            'status'           => 'in.(pending,approved,booked)',
+        ]));
+        foreach ($sameDay->successful() ? ($sameDay->json() ?? []) : [] as $r) {
+            [$rs, $re] = self::rangeOf((string) ($r['reservation_time'] ?? ''));
+            if ($rs !== null && $rs < $end && $re > $start) {
+                return $back('That time overlaps a ' . ($r['event_type'] ?? 'reservation') . ' at '
+                    . str_replace(' - ', ' – ', $r['reservation_time']) . '. Please choose another time.');
+            }
+        }
+
+        $time = $data['start'] . ' - ' . $data['end'];
+        $insert = $this->sb()->withHeaders(['Prefer' => 'return=minimal'])->post($this->sbUrl('reservations'), [
+            'event_type'       => 'First Communion',
+            'reservation_date' => $data['date'],
+            'reservation_time' => $time,
+            'status'           => 'approved',
+            'name'             => $data['school'],
+            'phone'            => $data['phone'] ?? null,
+            'notes'            => $data['notes'] ?? null,
+            'admin_note'       => 'Added by the parish office',
+            'details'          => ['communion' => [
+                'school'    => $data['school'],
+                'catechist' => $data['catechist'],
+                'children'  => (int) $data['children'],
+            ]],
+        ]);
+        if ($insert->failed()) {
+            $msg = (string) ($insert->json('message') ?? '');
+            return $back(str_starts_with($msg, 'SLOT_CONFLICT:') ? trim(substr($msg, 14)) : 'Could not save the First Communion. Please try again.');
+        }
+
+        return redirect()->route('admin.index', ['section' => 'schedule'])->with([
+            'status_update_type'    => 'approved',
+            'status_update_title'   => 'First Communion Added',
+            'status_update_success' => 'First Communion for ' . $data['school'] . ' added on '
+                . \Carbon\Carbon::parse($data['date'])->format('M j, Y') . ', ' . str_replace(' - ', ' – ', $time) . '.',
+        ]);
+    }
+
+    /** "9:30 AM" → 570 minutes after midnight, or null. */
+    private static function minutesOf(string $time): ?int
+    {
+        if (!preg_match('/(\d{1,2}):(\d{2})\s*([AaPp][Mm])/', $time, $m)) return null;
+        return ((int) $m[1] % 12 + (strtoupper($m[3]) === 'PM' ? 12 : 0)) * 60 + (int) $m[2];
+    }
+
+    /** Start/end minutes of a reservation time; a single time counts as one hour. */
+    private static function rangeOf(string $time): array
+    {
+        $parts = preg_split('/\s*[-–]\s*/u', trim($time));
+        $start = self::minutesOf($parts[0] ?? '');
+        if ($start === null) return [null, null];
+        $end = isset($parts[1]) ? self::minutesOf($parts[1]) : null;
+        return [$start, $end && $end > $start ? $end : $start + 60];
+    }
+
+    /**
      * View details: staff tick a wedding document as received at the office
      * (or undo it). Answers with the new requirement status as JSON.
      */
@@ -1791,6 +1908,8 @@ Monthly breakdown: {$monthlyBreakdown}";
         $groups = ['pending'=>[],'approved'=>[],'declined'=>[]];
         foreach ($reservations as $r) {
             $s = strtolower((string)($r['status'] ?? 'pending'));
+            // cancelled reservations are listed with the declined ones (badge says Cancelled)
+            if ($s === 'cancelled') $s = 'declined';
             if (!isset($groups[$s])) $groups[$s] = [];
             $groups[$s][] = $r;
         }

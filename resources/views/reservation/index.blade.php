@@ -52,6 +52,12 @@
         'baptism-child-dob' => old('baptism-child-dob', ''),
         'baptism-father-name' => old('baptism-father-name', ''),
         'baptism-mother-name' => old('baptism-mother-name', ''),
+        'kumpil-confirmand-name-first' => old('kumpil-confirmand-name-first', ''),
+        'kumpil-confirmand-name-middle' => old('kumpil-confirmand-name-middle', ''),
+        'kumpil-confirmand-name-last' => old('kumpil-confirmand-name-last', ''),
+        'kumpil-confirmand-name-suffix' => old('kumpil-confirmand-name-suffix', ''),
+        'kumpil-ninong-name' => old('kumpil-ninong-name', ''),
+        'kumpil-ninong-role' => old('kumpil-ninong-role', ''),
     ];
 
     $funeralMaritalStatusOptions = [
@@ -73,6 +79,17 @@
                 'The ninong and ninang must be practicing Catholics in good standing.',
                 'Suggested church donation: P800.',
                 'Please bring original documents to the parish office on the day of baptism.',
+            ],
+        ],
+        'Kumpil' => [
+            'id' => 'kumpil-attachments',
+            'title' => 'Required Kumpil documents',
+            'description' => 'Upload clear scans or photos of the following requirements. Accepted formats: PDF, JPG, PNG (max 5MB each).',
+            'documents' => collect(\App\Support\ReservationRequirements::uploadsFor('Kumpil'))->map(fn ($label) => ['label' => $label])->all(),
+            'notes' => [
+                'Only one: 1 ninong or 1 ninang.',
+                'Attend the seminar first, then make your kumpisal with the priest, before the kumpil.',
+                'Reserve at least 7 days ahead so there is time for the seminar.',
             ],
         ],
         'Funeral' => [
@@ -304,6 +321,15 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                             <span class="res-ti-check">✓</span>
                                             <input type="radio" id="reservation-type-funeral" name="reservation-type" class="res-type-radio" value="Funeral" @checked($formData['reservation-type'] === 'Funeral')>
                                         </label>
+                                        <label class="res-type-item" data-type="kumpil" for="reservation-type-kumpil">
+                                            <span class="res-ti-icon"><i class="fa fa-fire"></i></span>
+                                            <span class="res-ti-text">
+                                                <span class="res-ti-label">Kumpil</span>
+                                                <span class="res-ti-sub">Sealed with the Holy Spirit</span>
+                                            </span>
+                                            <span class="res-ti-check">✓</span>
+                                            <input type="radio" id="reservation-type-kumpil" name="reservation-type" class="res-type-radio" value="Kumpil" @checked($formData['reservation-type'] === 'Kumpil')>
+                                        </label>
                                     </div>
                                 </div>
 
@@ -528,6 +554,52 @@ foreach ($approvedReservationsJson as $dayGroup) {
                                                 <i class="fa fa-chevron-down res-csl-arrow"></i>
                                             </button>
                                             <ul class="res-csl-list" id="funeral-marital-list"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- KUMPIL DETAILS --}}
+                                <div id="kumpil-details" class="reservation_attachment_box res-section" @if($formData['reservation-type'] !== 'Kumpil') style="display:none" @endif>
+                                    <div class="res-section-lbl">Person to be confirmed</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="kumpil-confirmand-name-first">First name</label>
+                                            <input type="text" class="form-control" id="kumpil-confirmand-name-first" name="kumpil-confirmand-name-first" placeholder="First name" value="{{ $formData['kumpil-confirmand-name-first'] }}" data-kumpil-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="kumpil-confirmand-name-last">Last name</label>
+                                            <input type="text" class="form-control" id="kumpil-confirmand-name-last" name="kumpil-confirmand-name-last" placeholder="Last name" value="{{ $formData['kumpil-confirmand-name-last'] }}" data-kumpil-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="kumpil-confirmand-name-middle">Middle name</label>
+                                            <input type="text" class="form-control" id="kumpil-confirmand-name-middle" name="kumpil-confirmand-name-middle" placeholder="Middle name" value="{{ $formData['kumpil-confirmand-name-middle'] }}">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="kumpil-confirmand-name-suffix">Suffix (optional)</label>
+                                            <input type="text" class="form-control" id="kumpil-confirmand-name-suffix" name="kumpil-confirmand-name-suffix" placeholder="Jr., III, etc." value="{{ $formData['kumpil-confirmand-name-suffix'] }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="res-section-lbl" style="margin-top:18px">Ninong / Ninang</div>
+                                    <div class="res-field-grid">
+                                        <div class="res-fg">
+                                            <label for="kumpil-ninong-name">Full name</label>
+                                            <input type="text" class="form-control" id="kumpil-ninong-name" name="kumpil-ninong-name" placeholder="Full name" value="{{ $formData['kumpil-ninong-name'] }}" data-kumpil-required="true">
+                                        </div>
+                                        <div class="res-fg">
+                                            <label for="kumpil-ninong-role">Ninong or Ninang?</label>
+                                            <select class="res-time-select form-control" id="kumpil-ninong-role" name="kumpil-ninong-role" style="display:none">
+                                                <option value="">Select Ninong or Ninang</option>
+                                                <option value="ninong" @selected($formData['kumpil-ninong-role'] === 'ninong')>Ninong</option>
+                                                <option value="ninang" @selected($formData['kumpil-ninong-role'] === 'ninang')>Ninang</option>
+                                            </select>
+                                            <div class="res-csl" id="kumpil-ninong-role-custom">
+                                                <button type="button" class="res-csl-btn" id="kumpil-ninong-role-btn">
+                                                    <span class="res-csl-label" id="kumpil-ninong-role-label">Select Ninong or Ninang</span>
+                                                    <i class="fa fa-chevron-down res-csl-arrow"></i>
+                                                </button>
+                                                <ul class="res-csl-list" id="kumpil-ninong-role-list"></ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1333,6 +1405,15 @@ foreach ($approvedReservationsJson as $dayGroup) {
             });
             refreshRequirements();
 
+            // Kumpil: the ninong/ninang choice is a custom dropdown over a hidden select.
+            form.addEventListener('submit', function (event) {
+                const type = document.querySelector('input[name="reservation-type"]:checked')?.value || '';
+                if (type !== 'Kumpil' || document.getElementById('kumpil-ninong-role')?.value) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                psResAlert('warning', 'Ninong or Ninang?', 'Please choose whether the godparent is a Ninong or a Ninang.');
+            });
+
             form.addEventListener('submit', function (event) {
                 const missing = visibleRequirementItems()
                     .filter(item => !item.querySelector('input[type="file"]')?.files.length)
@@ -1356,7 +1437,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
 
                 const data = new FormData();
                 data.append('event_type', document.querySelector('input[name="reservation-type"]:checked')?.value || '');
-                ['baptism-child-name', 'wedding-groom-name', 'wedding-bride-name', 'funeral-deceased-name'].forEach(function (prefix) {
+                ['baptism-child-name', 'wedding-groom-name', 'wedding-bride-name', 'funeral-deceased-name', 'kumpil-confirmand-name'].forEach(function (prefix) {
                     ['first', 'middle', 'last', 'suffix'].forEach(function (part) {
                         const el = document.getElementById(prefix + '-' + part);
                         if (el) data.append(prefix + '-' + part, el.value.trim());
@@ -1478,18 +1559,21 @@ foreach ($approvedReservationsJson as $dayGroup) {
         sync();
     })();
 
-    (function () {
-        var sel   = document.getElementById('funeral-marital-status');
-        var wrap  = document.getElementById('funeral-marital-custom');
-        var btn   = document.getElementById('funeral-marital-btn');
-        var label = document.getElementById('funeral-marital-label');
-        var list  = document.getElementById('funeral-marital-list');
+    // Custom dropdowns over a hidden <select>: funeral marital status and
+    // the Kumpil ninong/ninang choice.
+    [['funeral-marital-status', 'funeral-marital', 'Select status'],
+     ['kumpil-ninong-role', 'kumpil-ninong-role', 'Select Ninong or Ninang']].forEach(function (cfg) {
+        var sel   = document.getElementById(cfg[0]);
+        var wrap  = document.getElementById(cfg[1] + '-custom');
+        var btn   = document.getElementById(cfg[1] + '-btn');
+        var label = document.getElementById(cfg[1] + '-label');
+        var list  = document.getElementById(cfg[1] + '-list');
         if (!sel || !wrap || !btn || !list) return;
 
         function sync() {
             var val    = sel.value;
             var chosen = sel.options[sel.selectedIndex];
-            label.textContent = (chosen && chosen.value !== '') ? chosen.textContent : 'Select status';
+            label.textContent = (chosen && chosen.value !== '') ? chosen.textContent : cfg[2];
             list.innerHTML = '';
             for (var i = 0; i < sel.options.length; i++) {
                 var opt = sel.options[i];
@@ -1519,7 +1603,7 @@ foreach ($approvedReservationsJson as $dayGroup) {
         sel.addEventListener('change', sync);
         new MutationObserver(sync).observe(sel, { childList: true, subtree: true, attributes: true });
         sync();
-    })();
+    });
     </script>
 @include('partials.help')
 @include('partials.modal-theme')

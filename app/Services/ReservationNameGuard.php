@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Http;
  * (panel revision: "reservation detection for name").
  *
  * The "person" is who receives the sacrament: the child for a baptism, the
- * groom and the bride for a wedding, the deceased for a funeral. Names are
+ * groom and the bride for a wedding, the deceased for a funeral, the person
+ * being confirmed for a kumpil. Names are
  * compared as one normalized full name (first + middle + last + suffix), so
  * people who share a first name but have a different surname are never
  * blocked. Only pending/approved/booked reservations count.
@@ -61,6 +62,8 @@ class ReservationNameGuard
         } elseif ($type === 'wedding') {
             $names['groom'] = self::fullName([$pick('groom_first'), $pick('groom_middle'), $pick('groom_last'), $pick('groom_suffix')]);
             $names['bride'] = self::fullName([$pick('bride_first'), $pick('bride_middle'), $pick('bride_last'), $pick('bride_suffix')]);
+        } elseif ($type === 'kumpil') {
+            $names['confirmand'] = self::fullName([$pick('confirmand_first'), $pick('confirmand_middle'), $pick('confirmand_last'), $pick('confirmand_suffix')]);
         } elseif ($type === 'funeral') {
             $split = self::fullName([$pick('deceased_first'), $pick('deceased_middle'), $pick('deceased_last'), $pick('deceased_suffix')]);
             $names['deceased'] = $split !== '' ? $split : self::normalize($pick('deceased_name'));
@@ -124,6 +127,7 @@ class ReservationNameGuard
         $lead = match ($type) {
             'wedding' => "{$who} already has an active wedding reservation",
             'funeral' => "A funeral for {$who} is already on record",
+            'kumpil'  => "A kumpil for {$who} is already on record",
             default   => "A baptism for {$who} is already on record",
         };
 

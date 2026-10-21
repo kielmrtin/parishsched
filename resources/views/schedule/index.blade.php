@@ -70,6 +70,14 @@
                 <span class="filter_icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg></span>
                 <span>Funerals</span>
             </button>
+            <button type="button" class="filter_btn" data-filter="kumpil" aria-pressed="false">
+                <span class="filter_icon"><i class="fa fa-fire"></i></span>
+                <span>Kumpil</span>
+            </button>
+            <button type="button" class="filter_btn" data-filter="communion" aria-pressed="false">
+                <span class="filter_icon"><svg viewBox="0 0 20 22" width="1em" height="1em" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg></span>
+                <span>First Communion</span>
+            </button>
         </div>
     </div>
 </section>
@@ -163,6 +171,40 @@
                         <li>Three morning slots are offered for weekday funeral Masses.</li>
                         <li>Choose the time that best aligns with cemetery or memorial plans.</li>
                         <li>Share any procession details with the office when submitting documents.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4 schedule_item" data-type="kumpil">
+                <div class="schedule_card h-100">
+                    <div class="schedule_card_header">
+                        <span class="schedule_badge"><i class="fa fa-fire"></i> Kumpil</span>
+                        <span class="schedule_day_chip">Reserve 7 days ahead</span>
+                    </div>
+                    <div class="schedule_card_time">To be announced</div>
+                    <div class="schedule_card_rule"></div>
+                    <h4 class="schedule_card_title">Kumpil (Confirmation)</h4>
+                    <ul class="schedule_details">
+                        <li>The parish office will announce the Kumpil days and times. Reserve your preferred date at least 7 days ahead.</li>
+                        <li>Bring the baptismal certificate, and the ninong or ninang's proof of kumpil or church marriage contract. Only 1 ninong or 1 ninang.</li>
+                        <li>Attend the seminar first, then make your kumpisal with the priest before the kumpil.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4 schedule_item" data-type="communion">
+                <div class="schedule_card h-100">
+                    <div class="schedule_card_header">
+                        <span class="schedule_badge"><svg viewBox="0 0 20 22" width=".82em" height=".9em" style="vertical-align:-.05em;" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg> First Communion</span>
+                        <span class="schedule_day_chip">Per school</span>
+                    </div>
+                    <div class="schedule_card_time">Set with the school</div>
+                    <div class="schedule_card_rule"></div>
+                    <h4 class="schedule_card_title">First Communion by School</h4>
+                    <ul class="schedule_details">
+                        <li>Scheduled per school with the catechist. The school arranges the date with the parish office.</li>
+                        <li>Each child needs a baptismal certificate.</li>
+                        <li>Children make their kumpisal with the priest before the First Communion.</li>
                     </ul>
                 </div>
             </div>

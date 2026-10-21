@@ -143,6 +143,12 @@
                                             ];
                                             // older weddings only; the form no longer asks for it
                                             if (!empty($w['sacrament_details'])) $eventFields['Sacrament Details'] = $w['sacrament_details'];
+                                        } elseif ($eventType === 'kumpil' && !empty($data['kumpil'])) {
+                                            $k = $data['kumpil'];
+                                            $eventFields = [
+                                                'Person Being Confirmed' => trim(implode(' ', array_filter([$k['confirmand_first'] ?? '', $k['confirmand_middle'] ?? '', $k['confirmand_last'] ?? '']))) . (!empty($k['confirmand_suffix']) ? ', ' . $k['confirmand_suffix'] : ''),
+                                                'Ninong / Ninang' => trim(($k['ninong_name'] ?? '') . (!empty($k['ninong_role']) ? ' (' . ucfirst($k['ninong_role']) . ')' : '')),
+                                            ];
                                         } elseif ($eventType === 'funeral' && !empty($data['funeral'])) {
                                             $f = $data['funeral'];
                                             $eventFields = [

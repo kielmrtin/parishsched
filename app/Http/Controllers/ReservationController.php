@@ -65,6 +65,7 @@ class ReservationController extends Controller
             'groom'    => $join('wedding-groom-name'),
             'bride'    => $join('wedding-bride-name'),
             'deceased' => $join('funeral-deceased-name'),
+            'confirmand' => $join('kumpil-confirmand-name'),
         ]);
     }
 
@@ -74,7 +75,7 @@ class ReservationController extends Controller
      */
     public function checkName(Request $request)
     {
-        $request->validate(['event_type' => 'required|string|in:Baptism,Wedding,Funeral']);
+        $request->validate(['event_type' => 'required|string|in:Baptism,Wedding,Funeral,Kumpil']);
 
         $type = strtolower($request->event_type);
         $part = fn (string $field) => (string) $request->input($field, '');
@@ -88,6 +89,10 @@ class ReservationController extends Controller
                 'groom_last'  => $part('wedding-groom-name-last'),  'groom_suffix' => $part('wedding-groom-name-suffix'),
                 'bride_first' => $part('wedding-bride-name-first'), 'bride_middle' => $part('wedding-bride-name-middle'),
                 'bride_last'  => $part('wedding-bride-name-last'),  'bride_suffix' => $part('wedding-bride-name-suffix'),
+            ],
+            'kumpil' => [
+                'confirmand_first' => $part('kumpil-confirmand-name-first'), 'confirmand_middle' => $part('kumpil-confirmand-name-middle'),
+                'confirmand_last'  => $part('kumpil-confirmand-name-last'),  'confirmand_suffix' => $part('kumpil-confirmand-name-suffix'),
             ],
             default => [
                 'deceased_first' => $part('funeral-deceased-name-first'), 'deceased_middle' => $part('funeral-deceased-name-middle'),
@@ -111,7 +116,8 @@ class ReservationController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255',
         'phone' => 'required|string|max:50',
-        'event_type' => 'required|string',
+        // First Communion is added by the parish office only (AdminController::addCommunion).
+        'event_type' => 'required|string|in:Baptism,Wedding,Funeral,Kumpil',
         'reservation_date' => 'required|date',
         'reservation_time' => 'required|string|max:100',
         'notes' => 'nullable|string',
@@ -131,7 +137,20 @@ class ReservationController extends Controller
         'wedding_doc.groom_baptismal' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'wedding_doc.bride_baptismal' => 'required_if:event_type,Wedding|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'funeral_file' => 'required_if:event_type,Funeral|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'kumpil_file1' => 'required_if:event_type,Kumpil|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'kumpil_file2' => 'required_if:event_type,Kumpil|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'kumpil-confirmand-name-first' => 'required_if:event_type,Kumpil|nullable|string|max:100',
+        'kumpil-confirmand-name-middle' => 'nullable|string|max:100',
+        'kumpil-confirmand-name-last' => 'required_if:event_type,Kumpil|nullable|string|max:100',
+        'kumpil-confirmand-name-suffix' => 'nullable|string|max:20',
+        'kumpil-ninong-name' => 'required_if:event_type,Kumpil|nullable|string|max:200',
+        'kumpil-ninong-role' => 'required_if:event_type,Kumpil|nullable|in:ninong,ninang',
     ], [
+        'event_type.in' => 'Please choose Baptism, Wedding, Funeral Mass or Kumpil.',
+        'kumpil-confirmand-name-first.required_if' => 'Please enter the first name of the person being confirmed.',
+        'kumpil-confirmand-name-last.required_if' => 'Please enter the last name of the person being confirmed.',
+        'kumpil-ninong-name.required_if' => "Please enter the ninong or ninang's full name.",
+        'kumpil-ninong-role.required_if' => 'Please choose whether the godparent is a Ninong or a Ninang.',
         'name.required' => 'Please enter the name of the person reserving.',
         'email.required' => 'Please enter your email address.',
         'email.email' => 'Please enter a valid email address.',
@@ -146,6 +165,14 @@ class ReservationController extends Controller
     ] + collect(ReservationRequirements::uploadsFor($request->input('event_type')))
         ->mapWithKeys(fn ($label, $field) => ["{$field}.required_if" => "Please upload this requirement: {$label}."])
         ->all());
+
+    // Kumpil needs a week for the seminar before the date.
+    if ($validated['event_type'] === 'Kumpil'
+        && \Carbon\Carbon::parse($validated['reservation_date'])->lt(now()->startOfDay()->addDays(7))) {
+        return back()->withInput()->withErrors([
+            'reservation' => 'Kumpil must be reserved at least 7 days ahead so there is time for the seminar.',
+        ]);
+    }
 
     // DUPLICATE ENTRY CHECK: same customer email + same event type + same date
     $dupResponse = Http::withHeaders([
@@ -201,6 +228,14 @@ class ReservationController extends Controller
             'documents_due'      => ReservationRequirements::weddingDueDate($validated['reservation_date']),
             'documents_received' => [],
         ] : null,
+        'kumpil' => strtolower($validated['event_type']) === 'kumpil' ? [
+            'confirmand_first'  => $request->input('kumpil-confirmand-name-first', ''),
+            'confirmand_middle' => $request->input('kumpil-confirmand-name-middle', ''),
+            'confirmand_last'   => $request->input('kumpil-confirmand-name-last', ''),
+            'confirmand_suffix' => $request->input('kumpil-confirmand-name-suffix', ''),
+            'ninong_name'       => $request->input('kumpil-ninong-name', ''),
+            'ninong_role'       => $request->input('kumpil-ninong-role', ''),
+        ] : null,
         'funeral' => strtolower($validated['event_type']) === 'funeral' ? [
             'deceased_first'   => $request->input('funeral-deceased-name-first', ''),
             'deceased_middle'  => $request->input('funeral-deceased-name-middle', ''),
@@ -228,6 +263,8 @@ class ReservationController extends Controller
     $uploads = [
         'baptism_file' => 'Baptism requirement',
         'funeral_file' => 'Funeral requirement',
+        'kumpil_file1' => 'Kumpil · Baptismal Certificate',
+        'kumpil_file2' => 'Kumpil · Ninong / Ninang proof',
     ];
     if ($folder === 'wedding') {
         foreach (array_keys(ReservationRequirements::weddingDocuments()) as $key) {
@@ -262,7 +299,9 @@ class ReservationController extends Controller
             'status'           => 'in.(approved,pending,booked)',
         ]);
 
-        $allSameDate  = collect($allSameDateResponse->json() ?? []);
+        // "To be announced" (Kumpil until the parish sets its times) never clashes.
+        $timeIsTba = strcasecmp(trim($validated['reservation_time']), 'To be announced') === 0;
+        $allSameDate  = collect($timeIsTba ? [] : ($allSameDateResponse->json() ?? []));
         $isBaptism    = strtolower($validated['event_type']) === 'baptism';
         $selectedTime = strtolower(trim(str_replace('–', '-', $validated['reservation_time'])));
 

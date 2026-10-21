@@ -292,11 +292,15 @@ list.push({
                 baptism: '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="15"/><line x1="1" y1="6" x2="15" y2="6"/></svg>',
                 wedding: '<svg width="11" height="10" viewBox="0 0 20 18" fill="currentColor"><path d="M10 17S1 11 1 5.5A4.5 4.5 0 019.5 2c.186 0 .37.011.55.033a4.5 4.5 0 018.45 3.467C18.5 11 10 17 10 17z"/></svg>',
                 funeral: '<svg width="9" height="13" viewBox="0 0 12 18" fill="currentColor"><path d="M3.5 0h5C9.5 0 12 1 12 3.5v11C12 17 10.5 18 9 18H3c-1.5 0-3-1-3-3.5v-11C0 1 2.5 0 3.5 0z"/></svg>',
+                kumpil: '<i class="fa fa-fire" style="font-size:10px"></i>',
+                'first communion': '<svg width="10" height="11" viewBox="0 0 20 22" fill="currentColor"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>',
             };
             const etMap = {
                 baptism: { color: '#16a34a', bg: 'rgba(22,163,74,.1)',  border: '#86efac', cardBorder: '#bbf7d0' },
                 wedding: { color: '#be185d', bg: 'rgba(190,24,93,.08)', border: '#f9a8d4', cardBorder: '#fce7f3' },
                 funeral: { color: '#475569', bg: 'rgba(71,85,105,.08)', border: '#cbd5e1', cardBorder: '#f1f5f9' },
+                kumpil:  { color: '#7c3aed', bg: 'rgba(124,58,237,.1)', border: '#c4b5fd', cardBorder: '#ede9fe' },
+                'first communion': { color: '#0369a1', bg: 'rgba(3,105,161,.08)', border: '#7dd3fc', cardBorder: '#e0f2fe' },
             };
             const etKey = (reservation.eventType || '').toLowerCase();
             const et = etMap[etKey] || { color: '#475569', bg: 'rgba(71,85,105,.08)', border: '#cbd5e1', cardBorder: '#f1f5f9' };
@@ -1134,6 +1138,21 @@ function computeAvailableSlots(eventType, selectedDate) {
         return result;
     }
 
+    if (eventKey === 'kumpil') {
+        // The parish has not set Kumpil times yet: one "To be announced"
+        // time, reserved at least 7 days ahead so there is time for the seminar.
+        const earliest = new Date(today.getTime());
+        earliest.setDate(earliest.getDate() + 7);
+        if (normalizedSelected.getTime() < earliest.getTime()) {
+            result.reason = 'too_soon';
+            return result;
+        }
+        const tba = { value: 'To be announced', label: 'To be announced · the parish office will confirm the time' };
+        result.slots.push(tba);
+        result.allSlots.push(Object.assign({}, tba, { status: 'available' }));
+        return result;
+    }
+
     if (eventKey === 'funeral') {
         const statusMap = getStatusMapFor(dateKey, eventType);
         const funeralSlots = (day === 0 || day === 1)
@@ -1185,6 +1204,10 @@ function computeAvailableSlots(eventType, selectedDate) {
                 return 'Past dates cannot be reserved. Please choose a future date.';
             }
 
+            if (result.reason === 'too_soon') {
+                return 'Kumpil must be reserved at least 7 days ahead so there is time for the seminar.';
+            }
+
             if (result.reason === 'fully_booked') {
                 if (eventType === 'Wedding') {
                     return 'Both wedding slots are reserved or pending for this date.';
@@ -1214,6 +1237,8 @@ function computeAvailableSlots(eventType, selectedDate) {
                     }
                 } else if (result.reason === 'date_in_past') {
                     placeholderText = 'Past dates cannot be reserved.';
+                } else if (result.reason === 'too_soon') {
+                    placeholderText = 'Choose a date at least 7 days from today.';
                 } else {
                     placeholderText = 'No available times.';
                 }
@@ -1368,6 +1393,8 @@ function computeAvailableSlots(eventType, selectedDate) {
         let seminarPickerPositioningBound = false;
         const reservationDateInput = modalElement.querySelector('#reservation-date');
         const funeralDetailsBox = modalElement.querySelector('#funeral-details');
+        const kumpilDetailsBox = modalElement.querySelector('#kumpil-details');
+        const kumpilRequiredFields = modalElement.querySelectorAll('[data-kumpil-required="true"]');
         const funeralRequiredFields = modalElement.querySelectorAll('[data-funeral-required="true"]');
         const funeralMaritalSelect = modalElement.querySelector('[data-funeral-marital-select="true"]');
         const attachmentSections = modalElement.querySelectorAll('[data-attachment-section]');
@@ -1947,6 +1974,20 @@ function computeAvailableSlots(eventType, selectedDate) {
             if (funeralDetailsBox) {
                 funeralDetailsBox.style.display = isFuneral ? '' : 'none';
             }
+
+            const isKumpil = selectedType === 'Kumpil';
+            if (kumpilDetailsBox) {
+                kumpilDetailsBox.style.display = isKumpil ? '' : 'none';
+            }
+            Array.prototype.forEach.call(kumpilRequiredFields, function (field) {
+                if (!(field instanceof HTMLElement)) { return; }
+                if (isKumpil) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                    clearField(field);
+                }
+            });
 
             Array.prototype.forEach.call(funeralRequiredFields, function (field) {
                 if (!(field instanceof HTMLElement)) {

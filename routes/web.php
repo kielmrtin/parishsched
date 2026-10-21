@@ -101,6 +101,7 @@ Route::delete('/admin/donations/{id}', [AdminController::class, 'deleteDonation'
 Route::post('/admin/attendance', [AdminController::class, 'storeAttendance'])->name('admin.attendance.store');
 Route::post('/admin/priests', [AdminController::class, 'storePriest'])->name('admin.priests.store');
 Route::delete('/admin/priests/{id}', [AdminController::class, 'deletePriest'])->name('admin.priests.delete');
+Route::post('/admin/communions', [AdminController::class, 'addCommunion'])->name('admin.communions.store');
 Route::post('/admin/reservations/{id}/documents', [AdminController::class, 'markDocumentReceived'])->name('admin.reservations.documents');
 Route::post('/admin/reservations/{id}/officiant', [AdminController::class, 'assignOfficiant'])->name('admin.reservations.officiant');
 

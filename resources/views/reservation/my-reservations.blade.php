@@ -205,6 +205,8 @@
         .res-icon-avatar.baptism  { background: rgba(22,163,74,.12); }
         .res-icon-avatar.funeral  { background: rgba(100,116,139,.13); }
         .res-icon-avatar.default  { background: #eceff1; }
+        .res-icon-avatar.kumpil   { background: #ede9fe; }
+        .res-icon-avatar.communion { background: #e0f2fe; }
 
         .res-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; letter-spacing: -.01em; }
         .res-subtitle { font-size: .82rem; color: #94a3b8; margin-top: 1px; }
@@ -628,19 +630,23 @@
                 <div class="res-card ps-reveal" data-reveal-delay="{{ ($loop->index % 3) * 80 }}" data-status="{{ in_array($status, ['approved','declined']) ? $status : 'pending' }}" style="--accent: {{ $accentHex }};">
                     <div class="res-card-top">
                         <div class="res-card-heading">
-                            <div class="res-icon-avatar {{ in_array($type, ['wedding','baptism','funeral']) ? $type : 'default' }}">
+                            <div class="res-icon-avatar {{ in_array($type, ['wedding','baptism','funeral','kumpil']) ? $type : ($type === 'first communion' ? 'communion' : 'default') }}">
                                 @if($type === 'wedding')
                                     <svg width="21" height="21" viewBox="0 0 24 24" fill="#880e4f" stroke="none"><path d="M12 21s-8.5-5.2-11-10C-.6 6.8 2 3 6 3c2.2 0 3.9 1.2 6 3.6C14.1 4.2 15.8 3 18 3c4 0 6.6 3.8 5 8-2.5 4.8-11 10-11 10z"/></svg>
                                 @elseif($type === 'baptism')
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8h10"/></svg>
                                 @elseif($type === 'funeral')
                                     <svg width="19" height="19" viewBox="0 0 24 24" fill="#475569" stroke="none"><path d="M8 2h8l4 4v12l-4 4H8l-4-4V6z"/></svg>
+                                @elseif($type === 'kumpil')
+                                    <i class="fa fa-fire" style="color:#6d28d9;font-size:1.15rem;"></i>
+                                @elseif($type === 'first communion')
+                                    <svg width="19" height="20" viewBox="0 0 20 22" fill="#0369a1" stroke="none"><path d="M3 1h14l-1.5 6a5.5 5.5 0 01-11 0zM9 13h2v5h4v3H5v-3h4z"/></svg>
                                 @else
                                     <i class="fa {{ $typeIcons[$type] ?? 'fa-calendar' }}" style="color:#37474f;font-size:1.1rem;"></i>
                                 @endif
                             </div>
                             <div>
-                                <div class="res-title">{{ ucfirst($type) }} Reservation</div>
+                                <div class="res-title">{{ ucwords($type) }} Reservation</div>
                                 @if(!empty($res['name']))
                                     <div class="res-subtitle">Requested by {{ $res['name'] }}</div>
                                 @endif
